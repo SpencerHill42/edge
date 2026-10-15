@@ -833,7 +833,16 @@ class RingTrio extends StatelessWidget {
   Widget build(BuildContext c) {
     final p = P.of(c);
     final l = AppLocalizations.of(c);
-    final rings = [for (final k in HomeRingKind.values) _ringOf(k, d, l)];
+    // Strap Cockpit reads left to right: the night, what it gave back, what
+    // the day has cost so far.
+    final rings = [
+      for (final k in const [
+        HomeRingKind.sleep,
+        HomeRingKind.recovery,
+        HomeRingKind.strain,
+      ])
+        _ringOf(k, d, l)
+    ];
     final gaps = rings.where((r) => r.why != null).toList();
     // THERE IS NO "THESE TWO ARE FROM SATURDAY" LINE ANY MORE, and there is
     // nothing left for one to explain. Recovery and sleep used to be served
@@ -1039,19 +1048,19 @@ _RingState _ringOf(HomeRingKind k, HomeData d, AppLocalizations? l) {
       final v = d.strain.value;
       // 0–21 is the scale's own ceiling, not a target invented here.
       return v == null
-          ? _gap(k, l?.homeRingStrain ?? 'Strain', LucideIcons.zap, C.purple,
+          ? _gap(k, l?.homeRingStrain ?? 'Strain', LucideIcons.zap, C.strain,
               d.strain, l?.homeRingNoStrain ?? 'No strain', l, unit: 'days')
-          : _RingState(k, l?.homeRingStrain ?? 'Strain', LucideIcons.zap, C.purple,
+          : _RingState(k, l?.homeRingStrain ?? 'Strain', LucideIcons.zap, C.strain,
               value: v.toStringAsFixed(1), sub: l?.homeStrainOf21 ?? 'of 21', frac: v / 21);
     case HomeRingKind.sleep:
       final v = d.sleepMin.value;
       final need = d.sleepNeedMin.value;
       return v == null
-          ? _gap(k, l?.homeRingSleep ?? 'Sleep', LucideIcons.moon, C.blue,
+          ? _gap(k, l?.homeRingSleep ?? 'Sleep', LucideIcons.moon, C.sleep,
               d.sleepMin, l?.homeRingNoSleep ?? 'No sleep', l,
               fallbackWhy: l?.homeSleepGapFallback ??
                   'No night long enough to score was recorded.')
-          : _RingState(k, l?.homeRingSleep ?? 'Sleep', LucideIcons.moon, C.blue,
+          : _RingState(k, l?.homeRingSleep ?? 'Sleep', LucideIcons.moon, C.sleep,
               value: hm(v),
               // No computed need means no denominator. The hardcoded 480 in
               // the sleep bundle is not this user's need and must never be
@@ -1099,7 +1108,10 @@ class _Dial extends StatelessWidget {
   final _RingState r;
   final double stroke, icon;
 
-  const _Dial(this.r, {required this.stroke, required this.icon});
+  /// Drawn in place of the icon when set — the cockpit column's value.
+  final Widget? center;
+
+  const _Dial(this.r, {required this.stroke, required this.icon, this.center});
 
   @override
   Widget build(BuildContext c) {
@@ -1118,14 +1130,16 @@ class _Dial extends StatelessWidget {
             : Ring(r.frac ?? 0, r.arc(p), p.track,
                 stroke: stroke, t: animate(c, 1), solid: r.measured),
       ),
-      Icon(r.icon, size: icon, color: r.ink(p)),
+      center ?? Icon(r.icon, size: icon, color: r.ink(p)),
     ]);
   }
 }
 
-/// The default: three across, the number under the ring rather than inside it.
-/// Inside is where a duration overflows its own circle at the first
-/// accessibility step, and nothing about "7h 45m" gets shorter.
+/// The default: three across. Strap Cockpit puts the number inside the 270°
+/// scale and the metric's name in the scale's opening; the line under the ring
+/// carries the context (hours slept, the band, "of 21"). At accessibility text
+/// sizes the screen switches to [_RingRow] before a value can outgrow its
+/// ring, and [FittedBox] keeps a long duration inside it until then.
 class _RingColumn extends StatelessWidget {
   final _RingState r;
   final VoidCallback? onTap;
@@ -1133,21 +1147,90 @@ class _RingColumn extends StatelessWidget {
   const _RingColumn(this.r, {this.onTap});
 
   @override
-  Widget build(BuildContext c) => Pressable(
-        onTap: onTap,
-        semanticLabel: r.spoken,
-        child: Column(children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 96),
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: _Dial(r, stroke: 7, icon: 20),
-            ),
+  Widget build(BuildContext c) {
+    final p = P.of(c);
+    final l = AppLocalizations.of(c);
+    return Pressable(
+      onTap: onTap,
+      semanticLabel: r.spoken,
+      child: Column(children: [
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 108),
+          child: AspectRatio(
+            aspectRatio: 1,
+            child: Stack(children: [
+              Positioned.fill(
+                child: _Dial(r,
+                    stroke: 7,
+                    icon: 20,
+                    center: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: S.x4),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: _ringFigure(p, r),
+                      ),
+                    )),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: S.x1,
+                child: Text(
+                  r.label.toUpperCase(),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: F.over
+                      .copyWith(color: r.measured ? p.on(r.color) : p.ink3),
+                ),
+              ),
+            ]),
           ),
-          const SizedBox(height: S.x3),
-          _RingText(r, align: TextAlign.center),
-        ]),
-      );
+        ),
+        const SizedBox(height: S.x2),
+        Text(
+          presentationText(l, _ringContext(r)),
+          style: F.cap.copyWith(color: p.ink3),
+          textAlign: TextAlign.center,
+        ),
+      ]),
+    );
+  }
+}
+
+/// What sits inside the scale: the reading, the calibration count, or a dash
+/// for an absence whose reason the gap row under the trio spells out.
+Widget _ringFigure(P p, _RingState r) {
+  final unit = F.n17.copyWith(color: p.ink3);
+  if (r.calibrating) {
+    return Text.rich(TextSpan(children: [
+      TextSpan(text: '${r.have ?? '–'}', style: F.n34.copyWith(color: p.ink)),
+      TextSpan(text: '/${r.need ?? '–'}', style: unit),
+    ]));
+  }
+  if (!r.measured) return Text('–', style: F.n34.copyWith(color: p.ink3));
+  final ink = F.n34.copyWith(color: r.provisional ? p.ink3 : p.ink);
+  return switch (r.kind) {
+    HomeRingKind.sleep when r.frac != null => Text.rich(TextSpan(children: [
+        TextSpan(text: '${(r.frac! * 100).round()}', style: ink),
+        TextSpan(text: ' %', style: unit),
+      ])),
+    HomeRingKind.recovery => Text.rich(TextSpan(children: [
+        TextSpan(text: r.value, style: ink),
+        TextSpan(text: ' %', style: unit),
+      ])),
+    _ => Text(r.value, style: ink),
+  };
+}
+
+/// The line under the ring: everything the figure inside leaves out.
+String _ringContext(_RingState r) {
+  if (r.calibrating) return r.sub;
+  if (!r.measured) return r.value;
+  if (r.kind == HomeRingKind.sleep && r.frac != null) {
+    return '${r.value} · ${r.sub}';
+  }
+  return r.sub;
 }
 
 /// The accessibility layout: ring left, type in the width it needs.
@@ -1841,6 +1924,17 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
       // state on a morning whose own bundle has not derived yet, which is
       // exactly the morning you would most want to be told.
       ...?_bodyWatch(c, d, todayLabel(widget.now)),
+      // ── Strap Cockpit wordmark ──
+      Padding(
+        padding: const EdgeInsets.only(top: S.x3),
+        child: Row(children: [
+          Icon(LucideIcons.gauge, size: 22, color: p.on(C.signal)),
+          const SizedBox(width: S.x2),
+          Text('STRAP', style: F.n24.copyWith(color: p.ink, letterSpacing: 1.6)),
+          const SizedBox(width: S.x1),
+          Text('cockpit', style: F.head.copyWith(color: p.ink2)),
+        ]),
+      ),
       // ── greeting ──
       Padding(
         padding: const EdgeInsets.only(top: S.x3, bottom: S.x5),
