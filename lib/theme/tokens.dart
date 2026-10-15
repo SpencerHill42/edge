@@ -137,30 +137,31 @@ const Palette kLightPalette = Palette(
 /// become deep warm ember/earth fills so light ink sits on them comfortably.
 const Palette kDarkPalette = Palette(
   brightness: Brightness.dark,
-  bg: Color(0xFF14110D), // warm near-black char
-  surface: Color(0xFF1E1A15), // cards, lifted off bg
-  surfaceAlt: Color(0xFF2A251F), // inset / skeleton base
-  surfaceSunk: Color(0xFF100E0A), // wells, darker than bg
-  cool: Color(0xFF20242E), // cool secondary, darkened
-  coolInk: Color(0xFFC3CADB), // ink on the cool surface
-  divider: Color(0xFF302A22),
-  ink: Color(0xFFF1ECE3), // warm off-white — the paper becomes the ink
-  inkSoft: Color(0xFFB6AB9C),
-  inkMuted: Color(0xFF7E7466),
+  // Strap Cockpit: cool instrument-panel ground instead of warm char.
+  bg: Color(0xFF0B0D0F),
+  surface: Color(0xFF14181B),
+  surfaceAlt: Color(0xFF1A1F23),
+  surfaceSunk: Color(0xFF070809),
+  cool: Color(0xFF1A1F23),
+  coolInk: Color(0xFFC5CBD0),
+  divider: Color(0xFF1E2428),
+  ink: Color(0xFFF1F3F2),
+  inkSoft: Color(0xFFA9B1B7),
+  inkMuted: Color(0xFF808990),
   coral: Color(0xFFFF6B47), // a hair brighter on dark
   coralDeep: Color(0xFFFF8159), // "deep" = stronger/lighter coral on dark text
   coralSoft: Color(0xFF3A2018), // deep warm ember tint fill
   coralInk: Color(0xFFFFB59E), // light coral text on coralSoft
-  brand: Color(0xFF3FD3E3), // a hair brighter on dark, same family as light
-  brandDeep: Color(0xFF63E3EF),
-  brandSoft: Color(0xFF102E32), // deep teal tint fill
-  brandInk: Color(0xFFA6ECF2), // light cyan text on brandSoft
-  good: Color(0xFF34C988),
-  goodSoft: Color(0xFF15281F),
-  warn: Color(0xFFF7B53A),
-  warnSoft: Color(0xFF31280F),
-  bad: Color(0xFFF26168),
-  badSoft: Color(0xFF331A1B),
+  brand: Color(0xFFD4F25C), // Strap Cockpit signal lime
+  brandDeep: Color(0xFFE4FF85),
+  brandSoft: Color(0xFF262E10),
+  brandInk: Color(0xFFE4FF85),
+  good: Color(0xFF3FD69B),
+  goodSoft: Color(0xFF102B24),
+  warn: Color(0xFFF4B740),
+  warnSoft: Color(0xFF33270E),
+  bad: Color(0xFFF26457),
+  badSoft: Color(0xFF3A1715),
   confLow: Color(0xFF5A5248),
   loadDetraining: Color(0xFF8FB4F2),
 );

@@ -35,16 +35,16 @@ import 'package:flutter/material.dart';
 /// [P.fill] (accent as a filled surface under [P.inkOnFill]) first.
 class C {
   // primary
-  static const green = Color(0xFF22C55E);
+  static const green = Color(0xFF3FD69B); // Strap Cockpit status/gut
   static const greenD = Color(0xFF16A34A);
   static const blue = Color(0xFF3B82F6);
   static const purple = Color(0xFF8B5CF6);
 
   // secondary
   static const orange = Color(0xFFF97316);
-  static const red = Color(0xFFEF4444);
+  static const red = Color(0xFFF26457); // Strap Cockpit status/schlecht
   static const teal = Color(0xFF14B8A6);
-  static const yellow = Color(0xFFEAB308);
+  static const yellow = Color(0xFFF4B740); // Strap Cockpit status/mittel
   static const pink = Color(0xFFEC4899);
   static const indigo = Color(0xFF6366F1);
 
@@ -110,18 +110,25 @@ class C {
   /// Each domain owns an accent — the mental map is colour-coded, and the map
   /// is the point. Today, Sleep, Activity and Health are the four tabs; food
   /// and mind keep their accents as sections inside Activity and Health.
-  static const domHome = green;
-  static const domSleep = indigo;
-  static const domHealth = blue;
+  static const domHome = signal;
+  static const domSleep = sleep;
+  static const domHealth = pulse;
   static const domFood = orange;
-  static const domMove = purple;
+  static const domMove = strain;
   static const domMind = teal;
+
+  /// Strap Cockpit: the brand signal (wordmark, active tab) and the three
+  /// metric pigments the cockpit design colour-codes by.
+  static const signal = Color(0xFFD4F25C);
+  static const sleep = Color(0xFF9C8CFF);
+  static const strain = Color(0xFF46C3F2);
+  static const pulse = Color(0xFFFF9E7A);
 
   /// Every accent the contrast test sweeps. Adding a colour above without
   /// adding it here means it ships unverified.
   static const all = <Color>[
     green, greenD, blue, purple, orange, red, teal, yellow, pink, indigo,
-    sky, blueSoft,
+    sky, blueSoft, signal, sleep, strain, pulse,
     domHome, domSleep, domHealth, domFood, domMove, domMind,
   ];
 }
@@ -135,20 +142,20 @@ class P {
 
   static P of(BuildContext c) => P(Theme.of(c).brightness == Brightness.dark);
 
-  Color get bg => dark ? const Color(0xFF0B1017) : C.n50;
-  Color get card => dark ? const Color(0xFF151C26) : C.white;
-  Color get card2 => dark ? const Color(0xFF1D2632) : C.n100;
-  Color get line => dark ? const Color(0xFF232D3B) : C.n200;
-  Color get track => dark ? const Color(0xFF232D3B) : C.n200;
+  Color get bg => dark ? const Color(0xFF0B0D0F) : C.n50;
+  Color get card => dark ? const Color(0xFF14181B) : C.white;
+  Color get card2 => dark ? const Color(0xFF1A1F23) : C.n100;
+  Color get line => dark ? const Color(0xFF1E2428) : C.n200;
+  Color get track => dark ? const Color(0xFF1F2529) : C.n200;
 
-  Color get ink => dark ? const Color(0xFFF1F5F9) : C.n900;
-  Color get ink2 => dark ? const Color(0xFF94A3B8) : C.n600;
+  Color get ink => dark ? const Color(0xFFF1F3F2) : C.n900;
+  Color get ink2 => dark ? const Color(0xFFA9B1B7) : C.n600;
 
   /// The muted caption ink. Hand-solved to clear 4.5:1 on [card2], the darkest
   /// (light theme) / lightest (dark theme) surface it can sit on — so it is
   /// legible on every surface, not just the one it was eyeballed against.
   /// The values it replaces measured 4.34:1 and 3.21:1 respectively.
-  Color get ink3 => dark ? const Color(0xFF7F8DA0) : const Color(0xFF627188);
+  Color get ink3 => dark ? const Color(0xFF808990) : const Color(0xFF627188);
 
   /// The ink that goes on top of a [fill]. White by construction — [fill]
   /// darkens the accent until white clears AA on it.
@@ -306,38 +313,40 @@ class F {
       letterSpacing: .5);
 
   // Numerals — a parallel display ramp. Tabular, so a live value never jitters
-  // its own layout as digits change.
+  // its own layout as digits change. Strap Cockpit draws every figure in the
+  // bundled Barlow Condensed: an instrument face, no negative tracking.
+  static const _num = 'Barlow Condensed';
   static const n48 = TextStyle(
-      fontFamily: _f,
+      fontFamily: _num,
       fontFamilyFallback: _fb,
-      fontSize: 48,
+      fontSize: 52,
       height: 1,
       fontWeight: FontWeight.w700,
-      letterSpacing: -1.8,
+      letterSpacing: 0,
       fontFeatures: _tab);
   static const n34 = TextStyle(
-      fontFamily: _f,
+      fontFamily: _num,
       fontFamilyFallback: _fb,
-      fontSize: 34,
+      fontSize: 36,
       height: 1,
       fontWeight: FontWeight.w700,
-      letterSpacing: -1.2,
+      letterSpacing: 0,
       fontFeatures: _tab);
   static const n24 = TextStyle(
-      fontFamily: _f,
+      fontFamily: _num,
       fontFamilyFallback: _fb,
-      fontSize: 24,
+      fontSize: 26,
       height: 1,
       fontWeight: FontWeight.w700,
-      letterSpacing: -.7,
+      letterSpacing: 0,
       fontFeatures: _tab);
   static const n17 = TextStyle(
-      fontFamily: _f,
+      fontFamily: _num,
       fontFamilyFallback: _fb,
-      fontSize: 17,
+      fontSize: 18,
       height: 1,
-      fontWeight: FontWeight.w600,
-      letterSpacing: -.3,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0,
       fontFeatures: _tab);
 }
 

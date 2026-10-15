@@ -20,10 +20,13 @@ import 'theme.dart';
 
 /// The four primary destinations, in bar order.
 enum ShellDomain {
-  today('Today', LucideIcons.house, C.domHome),
-  sleep('Sleep', LucideIcons.moon, C.domSleep),
-  activity('Activity', LucideIcons.dumbbell, C.domMove),
-  health('Health', LucideIcons.heartPulse, C.domHealth);
+  // Strap Cockpit labels the four as Heute · Morgen · Abend · Verlauf (the
+  // tab* keys in the arb files); the enum names stay so every caller and
+  // test keyed by them keeps working.
+  today('Today', LucideIcons.gauge, C.domHome),
+  sleep('Sleep', LucideIcons.sunrise, C.domSleep),
+  activity('Activity', LucideIcons.sunset, C.domMove),
+  health('Health', LucideIcons.chartLine, C.domHealth);
 
   const ShellDomain(this.label, this.icon, this.accent);
 
@@ -173,7 +176,7 @@ class _TabBar extends StatelessWidget {
     final p = P.of(c);
     return Container(
       decoration: BoxDecoration(
-        color: p.card,
+        color: p.bg,
         border: Border(top: BorderSide(color: p.line)),
       ),
       child: SafeArea(
@@ -208,7 +211,8 @@ class _Tab extends StatelessWidget {
   @override
   Widget build(BuildContext c) {
     final p = P.of(c);
-    final ink = on ? p.on(domain.accent) : p.ink3;
+    // Strap Cockpit: one signal colour marks where you are, whatever the tab.
+    final ink = on ? p.on(C.signal) : p.ink3;
     final label = domain.title(c);
     return Semantics(
       selected: on,
@@ -222,16 +226,15 @@ class _Tab extends StatelessWidget {
             children: [
             AnimatedContainer(
               duration: motion(c, Motion.base),
-              padding: EdgeInsets.symmetric(
-                horizontal: on ? S.x3 : 0,
-                vertical: S.x1,
-              ),
+              width: S.x5,
+              height: 3,
               decoration: BoxDecoration(
-                color: on ? p.wash(domain.accent) : const Color(0x00000000),
+                color: on ? ink : const Color(0x00000000),
                 borderRadius: R.rPill,
               ),
-              child: Icon(domain.icon, size: 20, color: ink),
             ),
+            const SizedBox(height: S.x1),
+            Icon(domain.icon, size: 22, color: ink),
               const SizedBox(height: 3),
               Text(
                 label,

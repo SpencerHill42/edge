@@ -614,40 +614,35 @@ class Ring extends CustomPainter {
   Ring(this.v, this.color, this.track,
       {this.stroke = 10, this.t = 1, this.solid = false});
 
+  /// Strap Cockpit: a 270° instrument scale, open at the bottom, cut into
+  /// [segments] ticks. The value lights ticks from the left end; the last lit
+  /// tick is drawn partially, so the scale still reads to the exact value.
+  static const segments = 50;
+  static const start = 3 * pi / 4;
+  static const span = 3 * pi / 2;
+
   @override
   void paint(Canvas cv, Size s) {
     final c = Offset(s.width / 2, s.height / 2);
     final r = min(s.width, s.height) / 2 - stroke / 2;
     if (r <= 0) return;
-    cv.drawCircle(
-      c,
-      r,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = stroke
-        ..color = track,
-    );
-    final sweep = 2 * pi * v.clamp(0, 1) * t.clamp(0, 1);
-    if (sweep <= 0) return;
-    cv.drawArc(
-      Rect.fromCircle(center: c, radius: r),
-      -pi / 2,
-      sweep,
-      false,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = stroke
-        ..strokeCap = StrokeCap.round
-        ..color = solid ? color : const Color(0x00000000)
-        ..shader = solid
-            ? null
-            : SweepGradient(
-                startAngle: -pi / 2,
-                endAngle: 3 * pi / 2,
-                colors: [color.withValues(alpha: .55), color],
-                transform: const GradientRotation(-pi / 2),
-              ).createShader(Rect.fromCircle(center: c, radius: r)),
-    );
+    final rect = Rect.fromCircle(center: c, radius: r);
+    final step = span / segments;
+    final tick = step * .78;
+    final lit = v.clamp(0, 1) * t.clamp(0, 1) * segments;
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.butt;
+    for (var i = 0; i < segments; i++) {
+      final a0 = start + i * step;
+      cv.drawArc(rect, a0, tick, false, paint..color = track);
+      final f = (lit - i).clamp(0.0, 1.0);
+      if (f <= 0) continue;
+      // Not solid = not a finished measurement: the lit ticks stay softer.
+      cv.drawArc(rect, a0, tick * f, false,
+          paint..color = solid ? color : color.withValues(alpha: .55));
+    }
   }
 
   @override
@@ -674,18 +669,18 @@ class DashedRing extends CustomPainter {
     final r = min(s.width, s.height) / 2 - stroke / 2;
     if (r <= 0) return;
     final filled = (segments * v.clamp(0, 1)).round();
-    final gap = 2 * pi / segments;
-    // Wide gaps between dashes so this reads as discrete beads, not a
-    // dashed-but-still-continuous arc.
-    final dashSweep = gap * 0.3;
+    // Same 270° scale as [Ring], so a calibrating dial and a finished one
+    // share one outline; wide gaps keep the beads discrete.
+    final gap = Ring.span / segments;
+    final dashSweep = gap * 0.8;
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = stroke
-      ..strokeCap = StrokeCap.round;
+      ..strokeCap = StrokeCap.butt;
     for (var i = 0; i < segments; i++) {
       cv.drawArc(
         Rect.fromCircle(center: c, radius: r),
-        -pi / 2 + gap * i,
+        Ring.start + gap * i,
         dashSweep,
         false,
         paint..color = i < filled ? color : track,

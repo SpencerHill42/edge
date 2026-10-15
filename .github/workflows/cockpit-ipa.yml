@@ -1,0 +1,61 @@
+name: Strap Cockpit IPA
+
+# Builds the unsigned iPhone app on every push to main (or by hand) and keeps
+# it as a download on the run page. Install it with AltStore or Sideloadly and
+# a free Apple ID — they sign it for the one phone. Steps mirror the `ios` job
+# in build.yml, minus the release upload and the Firebase secrets: the Xcode
+# project writes an inert GoogleService-Info.plist when none is present.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: cockpit-ipa-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.6'   # same pin as build.yml / test.yml
+
+      - name: Write .env (no backend, no companion)
+        run: |
+          echo "COMPANION_URL=" > .env
+          echo "BACKEND_URL=" >> .env
+
+      - name: Install flutterfire (required by Crashlytics Xcode build phase)
+        run: dart pub global activate flutterfire_cli 1.4.0
+
+      - run: flutter pub get
+
+      - name: Build unsigned iOS app
+        run: flutter build ios --release --no-codesign --dart-define-from-file=.env
+
+      # A free-account resign cannot keep the Watch companion (see build.yml).
+      - name: Strip Watch companion
+        run: rm -rf "build/ios/iphoneos/Runner.app/Watch"
+
+      - name: Package unsigned IPA
+        run: |
+          cd build/ios/iphoneos
+          mkdir -p Payload
+          cp -R Runner.app Payload/Runner.app
+          zip -qr -y "$GITHUB_WORKSPACE/StrapCockpit.ipa" Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: StrapCockpit-ipa
+          path: StrapCockpit.ipa
+          retention-days: 30

@@ -193,7 +193,7 @@ ThemeData buildOpenStrapTheme(Palette p) {
         surface: p.surface,
         onSurface: p.ink,
         primary: p.brand,
-        onPrimary: Colors.white,
+        onPrimary: p.isDark ? p.bg : Colors.white,
         secondary: p.brandDeep,
       );
 
@@ -281,7 +281,7 @@ ThemeData buildOpenStrapTheme(Palette p) {
         // AppColors.critical at the call site (see profile_screen's confirm
         // dialog) — that pattern is unaffected by this change.
         backgroundColor: p.brand,
-        foregroundColor: Colors.white,
+        foregroundColor: p.isDark ? p.bg : Colors.white,
         disabledBackgroundColor: p.inkMuted.withValues(alpha: 0.35),
         minimumSize: const Size(0, 56),
         elevation: 0,
