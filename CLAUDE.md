@@ -52,6 +52,9 @@ unchanged. This file only adds what is specific to the fork.
 - No Flutter SDK in the cloud sessions (pub.dev and Google storage are
   blocked). The compile check is `flutter analyze` in `.github/workflows/test.yml`
   on GitHub.
+- Local loop on Armin's Mac (Claude Code, Simulator, hot reload, design QA on
+  Simulator screenshots): `docs/MAC_SETUP.md`. Prefer it over the CI round
+  trip for anything visual.
 - `.github/workflows/cockpit-ipa.yml` builds an unsigned `StrapCockpit.ipa` on
   every push to `main` (Actions → run → Artifacts). Installed with AltStore
   Classic and a free Apple ID: valid 7 days, AltServer re-signs over Wi-Fi.
