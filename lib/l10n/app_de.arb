@@ -2854,5 +2854,6 @@
   "homeRecoveryAfterWake": "Die Erholung wird nach dem Aufwachen berechnet.",
   "homeRecoveryFinishingUp": "Wird abgeschlossen",
   "homeRecoveryUpdated": "Aktualisiert {time} · {from} → {to}",
-  "homeRecoveryStartsIn": "{count, plural, =1{Erholung startet in 1 Nacht} other{Erholung startet in {count} Nächten}}"
+  "homeRecoveryStartsIn": "{count, plural, =1{Erholung startet in 1 Nacht} other{Erholung startet in {count} Nächten}}",
+  "supplementBrMin0041f9": "/min"
 }

@@ -2276,7 +2276,7 @@ class _Flows extends StatelessWidget {
       children: [
         for (final g in activityLibrary) ...[
           Text('${g.name.toUpperCase()} · ${g.items.length}',
-              style: F.over.copyWith(color: p.ink3)),
+              style: F.label.copyWith(color: p.ink3)),
           const SizedBox(height: S.x2),
           Surface(
             pad: const EdgeInsets.symmetric(horizontal: S.x4),

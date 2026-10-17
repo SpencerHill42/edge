@@ -765,7 +765,7 @@ class DayEnergyCard extends StatelessWidget {
                   k.value == null
                       ? (l?.nutritionLoggedToday ?? 'LOGGED TODAY')
                       : (l?.nutritionEatenToday ?? 'EATEN TODAY'),
-                  style: F.over.copyWith(color: p.ink3),
+                  style: F.label.copyWith(color: p.ink3),
                 ),
               ),
               if (k.isFloor)

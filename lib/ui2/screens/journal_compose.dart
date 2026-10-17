@@ -629,7 +629,7 @@ class OsTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label.toUpperCase(), style: F.over.copyWith(color: p.ink3)),
+        Text(label.toUpperCase(), style: F.label.copyWith(color: p.ink3)),
         const SizedBox(height: S.x2),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: S.x3, vertical: S.x2),

@@ -111,12 +111,20 @@ class _ScrollHintState extends State<ScrollHint> {
                     // the child by the mask's alpha and ignores its hue. An
                     // opaque ink is used rather than a raw white because the
                     // vocabulary has no raw colours in it.
+                    // Strap Cockpit: fully clear under the chevron, so it
+                    // never sits on a half-faded word (v0.4 QA finding 3).
                     colors: [
                       p.ink.withValues(alpha: 1),
                       p.ink.withValues(alpha: 1),
                       const Color(0x00000000),
+                      const Color(0x00000000),
                     ],
-                    stops: [0, (1 - _tail * t / r.width).clamp(0.0, 1.0), 1],
+                    stops: [
+                      0,
+                      (1 - (_tail + S.x5) * t / r.width).clamp(0.0, 1.0),
+                      (1 - S.x5 * t / r.width).clamp(0.0, 1.0),
+                      1,
+                    ],
                   ).createShader(r),
                   child: child,
                 ),

@@ -979,7 +979,7 @@ class _Quiet extends StatelessWidget {
               ? (l?.calmBreathingBeforeLabel ?? 'BEFORE')
               : (l?.calmBreathingAfterLabel ?? 'AFTER'),
           textAlign: TextAlign.center,
-          style: F.over.copyWith(color: p.ink3),
+          style: F.label.copyWith(color: p.ink3),
         ),
         const SizedBox(height: S.x4),
         Text(

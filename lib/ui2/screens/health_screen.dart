@@ -19,6 +19,7 @@ import '../../data/lab_catalogue.dart';
 import '../../data/local_repository.dart';
 import '../../import/journal_csv_import.dart' show isValidDayLabel;
 import '../../l10n/app_localizations.dart';
+import '../../l10n/decimal_text.dart';
 import '../../models/metric.dart';
 import '../../models/payloads.dart' show todayHeadlineOf;
 import '../../state/app_state.dart';
@@ -647,9 +648,10 @@ class _HealthScreenState extends State<HealthScreen> with RevisionReload {
     final d = _d ?? const HealthData();
     final l = AppLocalizations.of(c);
     return ListView(padding: pad, children: [
-      ScreenTitle(l?.healthTitle ?? 'Health',
-          trailing: const ProfileAvatar(accent: C.domHealth)),
-      SubTabs(_tabsOf(l), _tab, _select, color: C.blue),
+      const CockpitBar(),
+      ScreenTitle(l?.healthTitle ?? 'Health', trailing: const ProfileAvatar()),
+      // One signal colour for "selected", whatever the tab (QA 6).
+      SubTabs(_tabsOf(l), _tab, _select, color: C.signal),
       const SizedBox(height: S.x5),
       if (_loading && _d == null)
         const Padding(
@@ -774,7 +776,10 @@ class _HealthScreenState extends State<HealthScreen> with RevisionReload {
         LucideIcons.brain,
         C.purple,
         l?.healthRowStress ?? 'Stress',
-        ofNight((stressBlock is Map ? stressBlock['level']?.toString() : null) ??
+        // The analytics level is English ('low'); show the German word.
+        ofNight((stressBlock is Map && stressBlock['level'] != null
+                ? stressLevelLabel(l, stressBlock['level'].toString())
+                : null) ??
             (l?.healthRowStress ?? 'Stress')),
         stressScore == null ? '' : '${stressScore.round()}',
         // 0–100, and the scale has to be on the row. Wellness has always shown
@@ -793,7 +798,8 @@ class _HealthScreenState extends State<HealthScreen> with RevisionReload {
     final respMetric = d.resp;
     row(respMetric, LucideIcons.wind, C.teal, l?.healthRowRespRate ?? 'Respiratory rate',
         ofNight(l?.healthSubAsleep ?? 'Asleep'),
-        respMetric.value == null ? '' : respMetric.value!.toStringAsFixed(1),
+        // Decimal comma in German (QA 11).
+        respMetric.value == null ? '' : displayFixed(respMetric.value!, 1),
         'br/min',
         d.spark('resp_rate', 24), 'resp_rate',
         // DELIBERATELY UNJUDGED. Readiness scores a rise as a cost, but that

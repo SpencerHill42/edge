@@ -585,7 +585,7 @@ class LiveShellState extends State<LiveShell> {
                       children: [
                         Text(
                           a.displayName(c).toUpperCase(),
-                          style: F.over.copyWith(color: p.on(a.color)),
+                          style: F.label.copyWith(color: p.on(a.color)),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1080,7 +1080,7 @@ class LiveMeasured extends StatelessWidget {
         return Column(children: [
           const SizedBox(height: S.x6),
           Text(l?.activityLiveDurationHeader ?? 'DURATION',
-              style: F.over.copyWith(color: p.ink3)),
+              style: F.label.copyWith(color: p.ink3)),
           const SizedBox(height: S.x3),
           bigNum(p, clock(elapsed), ''),
           // Only once fixes are actually arriving. The catalogue's `gps` flag
@@ -1537,7 +1537,7 @@ class _LiveStrengthState extends State<LiveStrength> {
               Text(
                   l?.activityLiveExerciseOf(index + 1, plan.length) ??
                       'EXERCISE ${index + 1} OF ${plan.length}',
-                  style: F.over.copyWith(color: p.ink3)),
+                  style: F.label.copyWith(color: p.ink3)),
               const SizedBox(height: S.x1),
               Row(mainAxisSize: MainAxisSize.min, children: [
                 Flexible(
@@ -1614,7 +1614,7 @@ class _LiveStrengthState extends State<LiveStrength> {
         Align(
             alignment: Alignment.centerLeft,
             child: Text(l?.activityLiveThisExerciseLabel ?? 'THIS EXERCISE',
-                style: F.over.copyWith(color: p.ink3))),
+                style: F.label.copyWith(color: p.ink3))),
         const SizedBox(height: S.x3),
         Surface(
           pad: const EdgeInsets.symmetric(horizontal: S.x4),
@@ -1713,7 +1713,7 @@ class _LiveStrengthState extends State<LiveStrength> {
         Align(
             alignment: Alignment.centerLeft,
             child: Text(l?.activityLiveEffortRpeHeader ?? 'EFFORT (RPE)',
-                style: F.over.copyWith(color: p.ink3))),
+                style: F.label.copyWith(color: p.ink3))),
         const SizedBox(height: S.x3),
         Row(
           children: List.generate(5, (i) {
@@ -1747,7 +1747,7 @@ class _LiveStrengthState extends State<LiveStrength> {
     final u = unitsOf(c);
     return Column(children: [
         Text(l?.activityLiveRestingHeader ?? 'RESTING',
-            style: F.over.copyWith(color: p.on(C.teal))),
+            style: F.label.copyWith(color: p.on(C.teal))),
         const SizedBox(height: S.x3),
         SizedBox(
           width: 170,
@@ -1820,7 +1820,7 @@ class _LiveStrengthState extends State<LiveStrength> {
               const SizedBox(width: S.x1),
             ],
             Text(label.toUpperCase(),
-                style: F.over
+                style: F.label
                     .copyWith(color: gold ? p.on(C.yellow) : p.ink3)),
           ]),
           const SizedBox(height: S.x2),
@@ -1971,7 +1971,7 @@ class _LiveSwimState extends State<LiveSwim> {
                     children: [
                       Icon(LucideIcons.plus, size: 30, color: p.inkOnFill),
                       Text(l?.activityLiveLapButtonLabel ?? 'LAP',
-                          style: F.over.copyWith(color: p.inkOnFill)),
+                          style: F.label.copyWith(color: p.inkOnFill)),
                     ]),
               ),
             ),
@@ -2342,7 +2342,7 @@ class _LiveMatchState extends State<LiveMatch> {
             Align(
                 alignment: Alignment.centerLeft,
                 child: Text(l?.activityLiveSetsListHeader ?? 'SETS',
-                    style: F.over.copyWith(color: p.ink3))),
+                    style: F.label.copyWith(color: p.ink3))),
             const SizedBox(height: S.x3),
             Surface(
               pad: const EdgeInsets.symmetric(horizontal: S.x4),
@@ -2534,7 +2534,7 @@ class _LiveIntervalState extends State<LiveInterval> {
         return Column(children: [
           const SizedBox(height: S.x5),
           Text(l?.activityLiveRoundLabel(round) ?? 'ROUND $round',
-              style: F.over.copyWith(color: p.ink3)),
+              style: F.label.copyWith(color: p.ink3)),
           const SizedBox(height: S.x4),
           Text(clock(left), style: F.n48.copyWith(color: p.on(col))),
           const SizedBox(height: S.x2),
@@ -2557,7 +2557,7 @@ class _LiveIntervalState extends State<LiveInterval> {
           Surface(
             child: Row(children: [
               Text(l?.activityLiveNextLabel ?? 'NEXT',
-                  style: F.over.copyWith(color: p.ink3)),
+                  style: F.label.copyWith(color: p.ink3)),
               const Spacer(),
               Text(
                   work

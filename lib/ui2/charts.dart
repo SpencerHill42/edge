@@ -974,8 +974,8 @@ class ZoneRows extends StatelessWidget {
         if (title != null) ...[
           Semantics(
             header: true,
-            child: Text(title!,
-                style: F.cap.copyWith(color: p.ink, fontWeight: FontWeight.w600)),
+            // One label style app-wide (v0.4 QA finding 8).
+            child: Text(title!, style: F.tag(title!).copyWith(color: p.ink3)),
           ),
           const SizedBox(height: S.x3),
         ],

@@ -2188,7 +2188,7 @@ class MonoTable extends StatelessWidget {
     if (present.isEmpty) return const SizedBox.shrink();
     return Surface(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title.toUpperCase(), style: F.over.copyWith(color: p.ink3)),
+        Text(title.toUpperCase(), style: F.label.copyWith(color: p.ink3)),
         const SizedBox(height: S.x3),
         for (final r in present)
           Padding(

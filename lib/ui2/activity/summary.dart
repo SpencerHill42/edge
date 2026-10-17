@@ -847,7 +847,7 @@ class _ActivitySummaryState extends State<ActivitySummary> {
     return Surface(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(l?.activitySummaryRpeHeadline ?? 'HOW HARD DID THAT FEEL?',
-            style: F.over.copyWith(color: p.ink3)),
+            style: F.label.copyWith(color: p.ink3)),
         const SizedBox(height: S.x2),
         Text(
             l?.activitySummaryRpeBody ??
@@ -1927,17 +1927,17 @@ class _ActivitySummaryState extends State<ActivitySummary> {
                 SizedBox(
                     width: 26,
                     child: Text(l?.activitySummaryKm ?? 'KM',
-                        style: F.over.copyWith(color: p.ink3))),
+                        style: F.label.copyWith(color: p.ink3))),
                 SizedBox(
                     width: 46,
                     child: Text(l?.activitySummaryPace ?? 'PACE',
-                        style: F.over.copyWith(color: p.ink3))),
+                        style: F.label.copyWith(color: p.ink3))),
                 const Expanded(child: SizedBox()),
                 SizedBox(
                     width: 34,
                     child: Text(l?.activitySummaryHr ?? 'HR',
                         textAlign: TextAlign.right,
-                        style: F.over.copyWith(color: p.ink3))),
+                        style: F.label.copyWith(color: p.ink3))),
               ]),
               const SizedBox(height: S.x2),
               for (var i = 0; i < r.splits.length; i++)
@@ -2027,13 +2027,13 @@ class _ActivitySummaryState extends State<ActivitySummary> {
                 SizedBox(
                     width: 34,
                     child: Text(l?.activitySummaryRoundHeader ?? 'R',
-                        style: F.over.copyWith(color: p.ink3))),
+                        style: F.label.copyWith(color: p.ink3))),
                 Expanded(
                     child: Text(l?.activitySummaryWorkHeader ?? 'WORK',
-                        style: F.over.copyWith(color: p.ink3))),
+                        style: F.label.copyWith(color: p.ink3))),
                 Expanded(
                     child: Text(l?.activitySummaryRestHeader ?? 'REST',
-                        style: F.over.copyWith(color: p.ink3))),
+                        style: F.label.copyWith(color: p.ink3))),
                 if (anyHr)
                   SizedBox(
                       width: 52,
@@ -2041,7 +2041,7 @@ class _ActivitySummaryState extends State<ActivitySummary> {
                           textAlign: TextAlign.right,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: F.over.copyWith(color: p.ink3))),
+                          style: F.label.copyWith(color: p.ink3))),
               ]),
               const SizedBox(height: S.x2),
               for (var i = 0; i < r.rounds.length; i++)
@@ -2097,11 +2097,11 @@ class _ActivitySummaryState extends State<ActivitySummary> {
                 SizedBox(
                     width: 34,
                     child: Text(l?.activitySummaryLapHeader ?? 'LAP',
-                        style: F.over.copyWith(color: p.ink3))),
+                        style: F.label.copyWith(color: p.ink3))),
                 SizedBox(
                     width: 52,
                     child: Text(l?.activitySummaryTimeHeader ?? 'TIME',
-                        style: F.over.copyWith(color: p.ink3))),
+                        style: F.label.copyWith(color: p.ink3))),
                 Expanded(
                     child: Text(
                         l?.activitySummarySpeedVsFastest ?? 'SPEED vs FASTEST',

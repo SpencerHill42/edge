@@ -166,7 +166,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
             ),
             const SizedBox(height: S.x6),
             Text(l?.profileSetupSexHeader ?? 'SEX',
-                style: F.over.copyWith(color: p.ink3)),
+                style: F.label.copyWith(color: p.ink3)),
             const SizedBox(height: S.x2),
             Row(children: [
               for (final (key, label) in sexes) ...[
@@ -287,7 +287,7 @@ class _Field extends StatelessWidget {
         Row(children: [
           Expanded(child: Text(label, style: F.over.copyWith(color: p.ink3))),
           Text(AppLocalizations.of(c)?.profileSetupOptional ?? 'OPTIONAL',
-              style: F.over.copyWith(color: p.ink3)),
+              style: F.label.copyWith(color: p.ink3)),
         ]),
         const SizedBox(height: S.x1),
         TextField(

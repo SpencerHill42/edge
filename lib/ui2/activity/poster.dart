@@ -457,7 +457,7 @@ class PosterCard extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: Text(
             uiText(c, s.$1).toUpperCase(),
-              style: F.over
+              style: F.label
                   .copyWith(color: accent, letterSpacing: 1.1, height: 1.2),
               maxLines: 1),
         ),
@@ -575,7 +575,7 @@ class PosterStatRow extends StatelessWidget {
             children: [
               Text(
                 uiText(c, label).toUpperCase(),
-                style: F.over.copyWith(color: muted, letterSpacing: 1),
+                style: F.label.copyWith(color: muted, letterSpacing: 1),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),

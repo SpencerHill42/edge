@@ -158,7 +158,7 @@ class _ActivityPickerState extends State<ActivityPicker> {
                       widget.recent.isEmpty
                           ? (l?.activityPickerQuickStart ?? 'QUICK START')
                           : (l?.activityPickerRecent ?? 'RECENT'),
-                      style: F.over.copyWith(color: p.ink3)),
+                      style: F.label.copyWith(color: p.ink3)),
                   const SizedBox(height: S.x3),
                   Builder(builder: (_) {
                     final row = widget.recent.isEmpty
@@ -318,7 +318,7 @@ class ActivityRow extends StatelessWidget {
                     ? (l?.activityPickerMetValue(metStr!) ?? '$metStr× resting')
                     : (l?.activityPickerKcalPer30(kcal) ??
                         '$kcal kcal / 30 min'),
-                style: F.over.copyWith(color: p.ink3)),
+                style: F.label.copyWith(color: p.ink3)),
           ],
           const SizedBox(width: S.x2),
           Icon(LucideIcons.chevronRight, size: 16, color: p.ink3),

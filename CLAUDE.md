@@ -26,10 +26,15 @@ unchanged. This file only adds what is specific to the fork.
 - Type (canvas → `F`): Instrument Sans for headings/body, IBM Plex Mono for
   labels, Barlow Condensed for figures, all bundled under `assets/fonts`.
   display 34/600 (hero) · t1 26 (screen title) · t2 20 (section, "Mein Tag")
-  · head 16 (card title) · body 15/1.5 · cap 13 · over = mono 10.5/500 +8 %
-  (metric label) · chip 11 (status chips, tab labels). Figures n34 36 (rings),
-  n24 28, n17 18. Radii: inset 14 (`R.md`), tile 18 (`R.lg`), card 24, chip
-  999. Cards: `card` + 1px `line`, no shadow on dark.
+  · head 16 (card title) · body 15/1.5 · cap 13 · over 11 (small text,
+  sentences too) · label = mono 10.5/500 +8 % (short UPPERCASE labels only;
+  `F.tag(s)` picks label vs over) · chip 11 (status chips, tab labels).
+  Figures n34 36 (rings), n24 28, n17 18; `F.value(s)` keeps words like
+  "Keine" out of the figure face. Radii: inset 14 (`R.md`), tile 18 (`R.lg`),
+  card 24, chip 999. Cards: `card` + 1px `line`, no shadow on dark.
+- Every tab starts with `CockpitBar` (sign + STRAP) and a 40 pt title row
+  (`ScreenTitle`, Home's greeting matches it); list top inset `S.x2`. Avatars
+  and selected sub-tabs use the signal colour, not Edge's domain accents.
 - Sleep stages: one violet family (`C.stage*`); zones Z1–Z5 blue ramp on dark
   only (`C.zone*`), hue ramp on white (solved blues collapse there).
 - Rings: 270° segmented scale (`Ring`, `DashedRing` in `lib/ui2/charts.dart`).
@@ -65,6 +70,9 @@ unchanged. This file only adds what is specific to the fork.
   bundled Instrument Sans + IBM Plex Mono, hairline cards, chips, section
   titles, tab bar; tab names back to Heute · Schlaf · Aktivität · Gesundheit
   so name and content match. Restructuring tabs/screens is a later phase.
+- v0.5: fixes from the first design QA (`docs/design-qa/2026-10-17-v0.4.md`):
+  one header for all tabs, mono only for labels, figures in Barlow, one
+  selection colour, no clipped sub-tabs, German stress level / unit / comma.
 
 ## Design QA (every build)
 

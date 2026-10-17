@@ -1577,7 +1577,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                     TextInputType.name),
                 const SizedBox(height: S.x4),
                 Text(l?.settingsSexFieldLabel ?? 'SEX',
-                    style: F.over.copyWith(color: p.ink3)),
+                    style: F.label.copyWith(color: p.ink3)),
                 const SizedBox(height: S.x2),
                 Wrap(spacing: S.x2, runSpacing: S.x2, children: [
                   for (final (key, label) in [

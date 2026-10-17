@@ -448,7 +448,7 @@ class _CycleTabState extends State<CycleTab> with RevisionReload {
             children: [
               Text(
                 l?.cycleDayInThisCycle ?? 'DAY IN THIS CYCLE',
-                style: F.over.copyWith(color: p.ink3),
+                style: F.label.copyWith(color: p.ink3),
               ),
               const Spacer(),
               if (d.phase != 'unknown') Pill(_phaseLabel(l, d.phase), C.pink),
@@ -507,7 +507,7 @@ class _CycleTabState extends State<CycleTab> with RevisionReload {
                             'NEXT PERIOD, EXPECTED BETWEEN')
                       : (l?.cycleNextPeriodAround ??
                             'NEXT PERIOD, EXPECTED AROUND'),
-                  style: F.over.copyWith(color: p.ink3),
+                  style: F.label.copyWith(color: p.ink3),
                 ),
                 const SizedBox(height: S.x1),
                 Text(
@@ -753,7 +753,7 @@ class _CycleTabState extends State<CycleTab> with RevisionReload {
                     recent[i]['kind'] == 'start'
                         ? (l?.cycleLogKindStart ?? 'START')
                         : (l?.cycleLogKindEnd ?? 'END'),
-                    style: F.over.copyWith(color: p.ink3),
+                    style: F.label.copyWith(color: p.ink3),
                   ),
                   const SizedBox(width: S.x3),
                   Pressable(
@@ -1165,7 +1165,7 @@ class _CycleHistoryState extends State<_CycleHistory> {
             Text(
               l?.cycleNightOfLabel(_short(night.last, l).toUpperCase()) ??
                   'NIGHT OF ${_short(night.last, l).toUpperCase()}',
-              style: F.over.copyWith(color: p.ink3),
+              style: F.label.copyWith(color: p.ink3),
             ),
             const SizedBox(height: S.x2),
           ],

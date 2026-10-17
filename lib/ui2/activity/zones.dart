@@ -385,7 +385,7 @@ class _ZonesDetailState extends State<ZonesDetail> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(l?.activityZonesHighestSeenLabel ?? 'HIGHEST WE HAVE SEEN',
-              style: F.over.copyWith(color: p.ink3)),
+              style: F.label.copyWith(color: p.ink3)),
           const SizedBox(height: S.x2),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,

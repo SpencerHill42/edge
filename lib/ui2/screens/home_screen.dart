@@ -81,7 +81,9 @@ import 'sleep_detail.dart';
 // ═══════════════════ shared plumbing ═══════════════════
 
 /// Page padding. The bottom inset clears the shell's floating nav.
-const pad = EdgeInsets.fromLTRB(S.x4, 0, S.x4, S.x16 + S.x8);
+// Strap Cockpit: one top inset for every tab, so the CockpitBar and the title
+// under it sit on the same line everywhere (v0.4 QA finding 1).
+const pad = EdgeInsets.fromLTRB(S.x4, S.x2, S.x4, S.x16 + S.x8);
 
 /// Push a detail screen. Every drill-down in ui2 goes through here.
 ///
@@ -1180,7 +1182,7 @@ class _RingColumn extends StatelessWidget {
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: F.over
+                  style: F.label
                       .copyWith(color: r.measured ? p.on(r.color) : p.ink3),
                 ),
               ),
@@ -1188,8 +1190,9 @@ class _RingColumn extends StatelessWidget {
           ),
         ),
         const SizedBox(height: S.x2),
+        // Break at the separator, never mid-value ("…von 11h / 00m", QA 9).
         Text(
-          presentationText(l, _ringContext(r)),
+          presentationText(l, _ringContext(r)).replaceAll(' · ', '\n'),
           style: F.cap.copyWith(color: p.ink3),
           textAlign: TextAlign.center,
         ),
@@ -1273,7 +1276,7 @@ class _RingText extends StatelessWidget {
         : CrossAxisAlignment.start;
     return Column(crossAxisAlignment: cross, children: [
       Text(r.label.toUpperCase(),
-          style: F.over.copyWith(color: p.ink3), textAlign: align),
+          style: F.label.copyWith(color: p.ink3), textAlign: align),
         const SizedBox(height: S.x1),
         // Absent reads as words, never as a dash and never as a zero — so it
         // takes the sentence weight rather than the numeral one.
@@ -1912,6 +1915,7 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
     final rebuilt = dbRebuiltCard(dbRebuildOf(c), l);
 
     return _refreshable(ListView(padding: pad, children: [
+      const CockpitBar(),
       if (rebuilt != null) ...[const SizedBox(height: S.x3), rebuilt],
 
       // ── the one observation Home is allowed to make ──
@@ -1924,35 +1928,33 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
       // state on a morning whose own bundle has not derived yet, which is
       // exactly the morning you would most want to be told.
       ...?_bodyWatch(c, d, todayLabel(widget.now)),
-      // ── Strap Cockpit wordmark ──
+      // ── greeting ── (the CockpitBar wordmark leads the list above).
+      // Same insets and row height as `ScreenTitle`, so "Guten Morgen" sits
+      // exactly where Schlaf / Aktivität / Gesundheit put their titles.
       Padding(
-        padding: const EdgeInsets.only(top: S.x3),
-        // Canvas: compact in the app = sign + "STRAP", 17 px, +6 % tracking.
-        child: Row(children: [
-          Icon(LucideIcons.gauge, size: 18, color: p.on(C.signal)),
-          const SizedBox(width: S.x2),
-          Text('STRAP', style: F.n17.copyWith(color: p.ink, letterSpacing: 1.0)),
-        ]),
-      ),
-      // ── greeting ──
-      Padding(
-        padding: const EdgeInsets.only(top: S.x3, bottom: S.x5),
-        child: Row(children: [
+        padding: const EdgeInsets.only(top: S.x2, bottom: S.x5),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                Flexible(
-                  child: Text(
-                    d.name == null || d.name!.isEmpty
-                        ? g.word
-                        : '${g.word}, ${d.name}',
-                    style: F.t2.copyWith(color: p.ink),
+              ConstrainedBox(
+                constraints:
+                    const BoxConstraints(minHeight: kTitleRowHeight),
+                child: Row(children: [
+                  Flexible(
+                    child: Text(
+                      d.name == null || d.name!.isEmpty
+                          ? g.word
+                          : '${g.word}, ${d.name}',
+                      style: F.t1.copyWith(color: p.ink),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                const SizedBox(width: S.x2),
-                Icon(g.icon, size: 17, color: p.on(g.color)),
-              ]),
+                  const SizedBox(width: S.x2),
+                  Icon(g.icon, size: 18, color: p.on(g.color)),
+                ]),
+              ),
               const SizedBox(height: 2),
               Text(prettyDay(d.dayId, l), style: F.cap.copyWith(color: p.ink3)),
               // How far the band's data reaches, always — the question "am I
@@ -1972,7 +1974,7 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
           const SizedBox(width: S.x3),
           // The coach moved to its own chip under the plan, and Profile is the
           // same avatar every tab carries.
-          const ProfileAvatar(accent: C.domHome),
+          const ProfileAvatar(),
         ]),
       ),
 

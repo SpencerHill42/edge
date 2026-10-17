@@ -277,7 +277,7 @@ class _ShareSheetState extends State<ShareSheet> {
                   ),
                   const SizedBox(height: S.x6),
                   Text(l?.activitySharePhotoHeader ?? 'YOUR PHOTO',
-                      style: F.over.copyWith(color: p.ink3)),
+                      style: F.label.copyWith(color: p.ink3)),
                   const SizedBox(height: S.x3),
                   Surface(
                     pad: const EdgeInsets.symmetric(horizontal: S.x4),
@@ -310,7 +310,7 @@ class _ShareSheetState extends State<ShareSheet> {
                   if (_hasRoute) ...[
                     const SizedBox(height: S.x6),
                     Text(l?.activityShareBasemapHeader ?? 'BASEMAP',
-                        style: F.over.copyWith(color: p.ink3)),
+                        style: F.label.copyWith(color: p.ink3)),
                     const SizedBox(height: S.x3),
                     Surface(
                       pad: const EdgeInsets.symmetric(horizontal: S.x4),

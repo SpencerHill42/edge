@@ -101,10 +101,12 @@ class _WorkoutScreenState extends State<WorkoutScreen> with RevisionReload {
           padding: const EdgeInsets.fromLTRB(0, S.x2, 0, S.x16),
           children: [
             for (final w in <Widget>[
+              const CockpitBar(),
               ScreenTitle(loc?.tabActivity ?? 'Activity',
-                  trailing: const ProfileAvatar(accent: C.domMove)),
+                  trailing: const ProfileAvatar()),
+              // One signal colour for "selected", whatever the tab (QA 6).
               SubTabs(_tabs(loc), tab, (i) => setState(() => tab = i),
-                  color: C.domMove),
+                  color: C.signal),
               const SizedBox(height: S.x5),
               ...switch (tab) {
                 0 => _forYou(c, d),
@@ -452,7 +454,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> with RevisionReload {
       ),
       const SizedBox(height: S.x5),
       Text(loc?.workoutQuickStartHeader ?? 'QUICK START',
-          style: F.over.copyWith(color: p.ink3)),
+          style: F.label.copyWith(color: p.ink3)),
       const SizedBox(height: S.x3),
       for (var row = 0; row < 2; row++) ...[
         if (row > 0) const SizedBox(height: S.x3),
@@ -939,9 +941,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> with RevisionReload {
   }
 
   Widget _sum(P p, String v, String l) => Surface(
-        pad: const EdgeInsets.symmetric(vertical: S.x4),
+        pad: const EdgeInsets.symmetric(vertical: S.x4, horizontal: S.x2),
         child: Column(children: [
-          Text(v, style: F.n24.copyWith(color: p.ink), maxLines: 1),
+          Text(v, style: F.value(v).copyWith(color: p.ink), maxLines: 1),
           const SizedBox(height: S.x1),
           Text(l,
               style: F.over.copyWith(color: p.ink3),

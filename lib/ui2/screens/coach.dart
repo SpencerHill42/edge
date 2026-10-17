@@ -373,7 +373,7 @@ class _CoachScreenState extends State<CoachScreen> {
                 const SizedBox(height: S.x4),
                 Text(
                   l?.coachPastChats ?? 'PAST CHATS',
-                  style: F.over.copyWith(color: p.ink3),
+                  style: F.label.copyWith(color: p.ink3),
                 ),
                 const SizedBox(height: S.x2),
                 FutureBuilder<List<CoachSessionMeta>>(
@@ -549,7 +549,7 @@ class _CoachScreenState extends State<CoachScreen> {
                     const SizedBox(width: S.x2),
                     Text(
                       l?.coachYourDataYourModel ?? 'YOUR DATA, YOUR MODEL',
-                      style: F.over.copyWith(color: p.on(kCoachAccent)),
+                      style: F.label.copyWith(color: p.on(kCoachAccent)),
                     ),
                   ],
                 ),
@@ -1081,7 +1081,7 @@ class _CoachSetupState extends State<CoachSetup> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(l?.coachApiFormatLabel ?? 'API',
-                          style: F.over.copyWith(color: p.ink3)),
+                          style: F.label.copyWith(color: p.ink3)),
                       const SizedBox(height: S.x2),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: S.x3),

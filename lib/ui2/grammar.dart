@@ -393,7 +393,7 @@ class SignalCard extends StatelessWidget {
               Flexible(
                 child: Text(
                   value,
-                  style: F.n24.copyWith(color: p.ink),
+                  style: F.value(value).copyWith(color: p.ink),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1376,15 +1376,17 @@ class MetricRow extends StatelessWidget {
         // a quarter of the width and no more, so 'Respiratory rate' shipped
         // reading `1… br/min` — a truncated measurement, which this row is
         // supposed to never do. It is the name that gives way now.
+        // Strap Cockpit: every measured value in the figure face, its unit
+        // small in the text face (v0.4 QA finding 7).
         Text(
           value,
-          style: F.body.copyWith(color: p.ink, fontWeight: FontWeight.w600),
+          style: F.n24.copyWith(color: p.ink),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
         if (unit.isNotEmpty) ...[
-          const SizedBox(width: 2),
-          Text(displayUnit, style: F.over.copyWith(color: p.ink3)),
+          const SizedBox(width: 3),
+          Text(displayUnit, style: F.cap.copyWith(color: p.ink3)),
         ],
       ],
     );
@@ -1399,7 +1401,7 @@ class MetricRow extends StatelessWidget {
     final trailing = status != null
         ? Text(
             status!,
-            style: F.over.copyWith(color: p.on(C.green)),
+            style: F.tag(status!).copyWith(color: p.on(C.green)),
             textAlign: TextAlign.end,
           )
         : trend == null
@@ -1493,7 +1495,7 @@ class InlineMetrics extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(e.$1, style: F.over.copyWith(color: p.ink3)),
+                Text(e.$1, style: F.tag(e.$1).copyWith(color: p.ink3)),
                 const SizedBox(height: S.x1),
                 // scaleDown, NOT ellipsis. These are measurements sharing
                 // one row, so the slot is a third of a card and a two-digit
@@ -1691,7 +1693,7 @@ class Observation extends StatelessWidget {
                 Flexible(
                   child: Text(
                     uiText(c, 'HEALTH OBSERVATION'),
-                    style: F.over.copyWith(color: ink),
+                    style: F.label.copyWith(color: ink),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1968,7 +1970,9 @@ class _SubTabsState extends State<SubTabs> {
     final items = widget.items;
     final index = widget.index;
     final disabled = widget.disabled;
-    final color = widget.color;
+    // Strap Cockpit: one selection colour app-wide, whatever the caller's
+    // domain accent (v0.4 QA finding 6).
+    const color = C.signal;
     return SizedBox(
       height: MediaQuery.textScalerOf(c).scale(S.tap),
       // The fifth tab is off the edge on every phone we ship to — at 360 pt
@@ -2041,6 +2045,30 @@ class _SubTabsState extends State<SubTabs> {
   }
 }
 
+/// Strap Cockpit top bar, identical on every tab (canvas: sign + "STRAP").
+/// It sits first in each tab's list so the page titles below it land on the
+/// same line everywhere (v0.4 QA finding 1).
+class CockpitBar extends StatelessWidget {
+  const CockpitBar({super.key});
+
+  @override
+  Widget build(BuildContext c) {
+    final p = P.of(c);
+    return Padding(
+      padding: const EdgeInsets.only(top: S.x2, bottom: S.x1),
+      child: Row(children: [
+        Icon(LucideIcons.gauge, size: 18, color: p.on(C.signal)),
+        const SizedBox(width: S.x2),
+        Text('STRAP', style: F.n17.copyWith(color: p.ink, letterSpacing: 1.0)),
+      ]),
+    );
+  }
+}
+
+/// Height of the title row. Every tab's title is centred in it, so Home's
+/// greeting and the other tabs' titles share one baseline.
+const double kTitleRowHeight = 40;
+
 class ScreenTitle extends StatelessWidget {
   final String title;
   final Widget? trailing;
@@ -2050,7 +2078,8 @@ class ScreenTitle extends StatelessWidget {
   Widget build(BuildContext c) {
     final p = P.of(c);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(S.x1, S.x2, S.x1, S.x3),
+      // Flush with the cards (no S.x1 indent): v0.4 QA finding 5.
+      padding: const EdgeInsets.fromLTRB(0, S.x2, 0, S.x3),
       child: Row(
         children: [
           Expanded(

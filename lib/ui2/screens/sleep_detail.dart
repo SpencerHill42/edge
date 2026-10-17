@@ -401,10 +401,11 @@ class _SleepDetailState extends State<SleepDetail> with RevisionReload {
       onRefresh: _load,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(S.x4, S.x4, S.x4, S.x16),
+        // Same top inset as every other tab (v0.4 QA finding 1).
+        padding: const EdgeInsets.fromLTRB(S.x4, S.x2, S.x4, S.x16),
         children: [
-          ScreenTitle(title,
-              trailing: const ProfileAvatar(accent: C.domSleep)),
+          const CockpitBar(),
+          ScreenTitle(title, trailing: const ProfileAvatar()),
           if (sub.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(left: S.x1, bottom: S.x2),

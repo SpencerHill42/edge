@@ -336,14 +336,35 @@ class F {
   /// Units, context lines, secondary text (canvas 12–13).
   static const cap = TextStyle(
       fontFamily: _f, fontFamilyFallback: _fb, fontSize: 13, height: 18 / 13);
-  /// Metric label, "RUHEPULS" [label · Plex Mono 500 10.5 +8 %].
+  /// Small text: captions, sub-lines, units. Edge uses this one style for
+  /// both short labels and whole sentences, so it stays in the text face —
+  /// mono with tracking is unreadable as a sentence (v0.4 QA finding 2).
   static const over = TextStyle(
+      fontFamily: _f,
+      fontFamilyFallback: _fb,
+      fontSize: 11,
+      height: 14 / 11,
+      fontWeight: FontWeight.w500,
+      letterSpacing: .2);
+
+  /// Metric label, "RUHEPULS" [label · Plex Mono 500 10.5 +8 %]. Only for
+  /// short UPPERCASE labels; use [tag] where the string is not known here.
+  static const label = TextStyle(
       fontFamily: _mono,
       fontFamilyFallback: _fb,
       fontSize: 10.5,
       height: 14 / 10.5,
       fontWeight: FontWeight.w500,
       letterSpacing: .84);
+
+  /// [n24] for a measurement, [t2] for a word such as "Keine": the figure
+  /// face is for figures only (v0.4 QA finding 4).
+  static TextStyle value(String s) =>
+      RegExp(r'[0-9–]').hasMatch(s) ? n24 : t2;
+
+  /// [label] for an UPPERCASE string, [over] for anything else.
+  static TextStyle tag(String s) =>
+      s.isNotEmpty && s == s.toUpperCase() && s.length <= 28 ? label : over;
   /// Status chips and tab labels (canvas 11, sans).
   static const chip = TextStyle(
       fontFamily: _f,

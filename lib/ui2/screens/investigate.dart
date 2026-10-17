@@ -887,7 +887,7 @@ class _InvestigateState extends State<Investigate> {
         elevation: 0,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(l?.investigateAcrossNOwnNights(n) ?? 'ACROSS $n OF YOUR OWN NIGHTS',
-              style: F.over.copyWith(color: p.ink3)),
+              style: F.label.copyWith(color: p.ink3)),
           const SizedBox(height: S.x3),
           Text(
             v.aboveOwnUsual
@@ -1051,7 +1051,7 @@ class _InvestigateState extends State<Investigate> {
       elevation: 0,
       color: p.card2,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(l?.investigateMethodLabel ?? 'METHOD', style: F.over.copyWith(color: p.ink3)),
+        Text(l?.investigateMethodLabel ?? 'METHOD', style: F.label.copyWith(color: p.ink3)),
         const SizedBox(height: S.x2),
         Text(
             spec.method.isEmpty
