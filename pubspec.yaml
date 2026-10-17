@@ -725,8 +725,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
-    - assets/images/2.0x/
-    - assets/images/3.0x/
     # The three community brand marks the one-icon-family rule (see
     # lucide_icons_flutter below) deliberately doesn't cover — a generic
     # Lucide glyph can't stand in for GitHub/Discord/Reddit's own logos.
