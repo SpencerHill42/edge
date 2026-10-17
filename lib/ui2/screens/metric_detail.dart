@@ -1213,9 +1213,13 @@ class _MetricDetailState extends State<MetricDetail> {
               // NOT `spec.unit`. `metricValue('min', 443)` is already "7h 23m",
               // so every min-unit metric — Time asleep, Deep, REM, Wear time —
               // rendered its headline as "7h 23m min".
-              Text(
-                uiText(context, unitBeside(spec.unit)),
-                style: F.body.copyWith(color: p.ink3),
+              // Flexible: the cockpit's taller figure face left no room for
+              // a long unit beside a wide value at large text.
+              Flexible(
+                child: Text(
+                  uiText(context, unitBeside(spec.unit)),
+                  style: F.body.copyWith(color: p.ink3),
+                ),
               ),
             ],
           ),

@@ -400,7 +400,15 @@ class SignalCard extends StatelessWidget {
               ),
               if (unit.isNotEmpty) ...[
                 const SizedBox(width: S.x1),
-                Text(uiText(c, unit), style: F.cap.copyWith(color: p.ink3)),
+                // Strap Cockpit: the hairline border costs the tile 2 px, and
+                // at accessibility sizes a long unit alone outgrew a half-width
+                // tile ("уд/мин" at 3.1x), so there it may wrap too.
+                if (bigText(c))
+                  Flexible(
+                      child: Text(uiText(c, unit),
+                          style: F.cap.copyWith(color: p.ink3)))
+                else
+                  Text(uiText(c, unit), style: F.cap.copyWith(color: p.ink3)),
               ],
             ],
           ),
@@ -1367,6 +1375,17 @@ class MetricRow extends StatelessWidget {
         if (sub.isNotEmpty) Text(sub, style: F.over.copyWith(color: p.ink3)),
       ],
     );
+    final big = bigText(c);
+    // A word ("Not set", "None") keeps Edge's text-face value: the figure face
+    // is for figures, and a phrase in it outgrew the row (cycle settings).
+    final figure = Text(
+      value,
+      style: identical(F.value(value), F.n24)
+          ? F.n24.copyWith(color: p.ink)
+          : F.body.copyWith(color: p.ink, fontWeight: FontWeight.w600),
+      maxLines: big ? null : 1,
+      overflow: big ? null : TextOverflow.ellipsis,
+    );
     final amount = Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -1377,13 +1396,10 @@ class MetricRow extends StatelessWidget {
         // reading `1… br/min` — a truncated measurement, which this row is
         // supposed to never do. It is the name that gives way now.
         // Strap Cockpit: every measured value in the figure face, its unit
-        // small in the text face (v0.4 QA finding 7).
-        Text(
-          value,
-          style: F.n24.copyWith(color: p.ink),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        // small in the text face (v0.4 QA finding 7). The figure face is
+        // too wide for one line at accessibility sizes, so there (alone on
+        // its own line in the Wrap, bounded) the value wraps instead.
+        big ? Flexible(child: figure) : figure,
         if (unit.isNotEmpty) ...[
           const SizedBox(width: 3),
           Text(displayUnit, style: F.cap.copyWith(color: p.ink3)),
@@ -1432,7 +1448,7 @@ class MetricRow extends StatelessWidget {
               .trim(),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: S.x2),
-        child: bigText(c)
+        child: big
             // A dense row cannot stay one line at accessibility sizes without
             // truncating the measurement, and a truncated measurement is worse
             // than a taller row.

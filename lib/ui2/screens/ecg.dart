@@ -225,6 +225,12 @@ class EcgReadingRow extends StatelessWidget {
     final l = AppLocalizations.of(c);
     final cat = ecgCategoryLabel(l, reading.category);
     final hr = reading.avgHr;
+    final big = bigText(c);
+    final amount = <Widget>[
+      Text('$hr', style: F.n24.copyWith(color: p.ink)),
+      const SizedBox(width: S.x1),
+      Text(uiText(c, 'bpm'), style: F.cap.copyWith(color: p.ink3)),
+    ];
     return Pressable(
       onTap: onTap,
       semanticLabel:
@@ -243,13 +249,17 @@ class EcgReadingRow extends StatelessWidget {
                     '${ecgDisplayWhen(reading.startTs, l)} · ${_wristLabel(l, reading.wrist)}',
                     style: F.cap.copyWith(color: p.ink3),
                   ),
+                  // Strap Cockpit: the figure face is wider, so at
+                  // accessibility sizes the beat moves under the title
+                  // instead of pushing the row off the screen.
+                  if (hr != null && big)
+                    Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.end,
+                        children: amount),
                 ],
               ),
             ),
-            if (hr != null) Text('$hr', style: F.n24.copyWith(color: p.ink)),
-            if (hr != null) const SizedBox(width: S.x1),
-            if (hr != null)
-              Text(uiText(c, 'bpm'), style: F.cap.copyWith(color: p.ink3)),
+            if (hr != null && !big) ...amount,
             const SizedBox(width: S.x2),
             Icon(LucideIcons.chevronRight, size: 16, color: p.ink3),
           ],

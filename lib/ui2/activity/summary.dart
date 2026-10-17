@@ -1795,11 +1795,19 @@ class _ActivitySummaryState extends State<ActivitySummary> {
                     const SizedBox(width: S.x2),
                     // The row rule: the name gives way, the measurement keeps
                     // its natural width and sits flush at the card edge.
-                    Text(
-                      '${_kg(c, top.loadKg!)} × ${top.reps}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: F.n17.copyWith(color: p.ink)),
+                    // Strap Cockpit: at accessibility sizes the bolder figure
+                    // face outgrew the card, so there it shares and wraps.
+                    if (bigText(c))
+                      Flexible(
+                          child: Text('${_kg(c, top.loadKg!)} × ${top.reps}',
+                              textAlign: TextAlign.end,
+                              style: F.n17.copyWith(color: p.ink)))
+                    else
+                      Text(
+                        '${_kg(c, top.loadKg!)} × ${top.reps}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: F.n17.copyWith(color: p.ink)),
                 ]),
               ),
             ),

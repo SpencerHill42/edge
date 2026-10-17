@@ -49,7 +49,10 @@ void main() {
   });
 
   testWidgets('and offers one once it is', (tester) async {
-    _tallPhone(tester);
+    // Strap Cockpit's taller type pushes the row past 2400 pt.
+    tester.view.physicalSize = const Size(390 * 3, 3000 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
     var opened = false;
     await tester.pumpWidget(_wrap(MoreSettingsView(
       version: '0.9.26 (57)',

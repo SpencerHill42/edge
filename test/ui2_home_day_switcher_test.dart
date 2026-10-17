@@ -70,14 +70,6 @@ Future<void> _settle(WidgetTester t, {int n = 40}) async {
 }
 
 void main() {
-  // The sleep ring pushes the sleep screen WITH its plan, alarm and body clock
-  // since Strap Cockpit v0.7 (no Sleep tab), and the plan reads the local
-  // database.
-  setUpAll(() {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  });
-
   testWidgets('stepping to the previous day loads and shows ITS numbers',
       (t) async {
     final app = AppState.forTesting();
@@ -95,7 +87,7 @@ void main() {
 
     // Today's own readiness ring is showing (its number is real Text, not
     // canvas-painted), and so is the stepper.
-    expect(find.text('70'), findsOneWidget);
+    expect(find.text('70 %'), findsOneWidget);
     expect(find.bySemanticsLabel('Previous day'), findsOneWidget);
     // The newest day: forward is a dead arrow.
     expect(find.bySemanticsLabel('Next day'), findsOneWidget);
@@ -106,13 +98,13 @@ void main() {
     // Yesterday's readiness (42, off getDayOverview) replaced today's (70) —
     // proof the screen actually reloaded through `HomeData.loadForDay`
     // rather than just relabelling the same data.
-    expect(find.text('70'), findsNothing);
-    expect(find.text('42'), findsOneWidget);
+    expect(find.text('70 %'), findsNothing);
+    expect(find.text('42 %'), findsOneWidget);
 
     // Stepping forward again returns to today's own number.
     await t.tap(find.bySemanticsLabel('Next day'));
     await _settle(t);
-    expect(find.text('70'), findsOneWidget);
+    expect(find.text('70 %'), findsOneWidget);
   });
 
   testWidgets('on a past day the day breakdown opens THAT day', (t) async {
@@ -148,6 +140,13 @@ void main() {
 
   testWidgets('back on today the sleep ring opens the held-over night',
       (t) async {
+    // The sleep ring pushes the sleep screen WITH its plan, alarm and body
+    // clock since Strap Cockpit v0.7 (no Sleep tab), and the plan reads the
+    // local database. Only for this test: a real database left installed for
+    // the rest of the file hangs Home's past-day load in fake async.
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+    addTearDown(() => databaseFactoryOrNull = null);
     final app = AppState.forTesting();
     addTearDown(app.dispose);
     app.repo = _Repo();
