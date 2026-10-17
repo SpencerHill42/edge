@@ -6,9 +6,9 @@ import 'package:openstrap_edge/ui2/theme.dart';
 /// This card was built blind and shipped three defects a rendered check would
 /// have caught immediately: a negative `Container.margin` (Flutter asserts
 /// `margin.isNonNegative`, so it threw on every build and painted a
-/// 358x100000 overflow stripe), the mascot stacked UNDER the copy at 176 px
-/// inside a 190 px card with no clip, and `'\$count activities'` with the
-/// dollar escaped, which printed the literal text to the user.
+/// 358x100000 overflow stripe), a mascot (gone since Strap Cockpit's minimal
+/// card) squeezing the copy, and `'\$count activities'` with the dollar
+/// escaped, which printed the literal text to the user.
 ///
 /// It is excluded from the gallery on purpose — a full-bleed card cannot be
 /// photographed in a ~179 px component cell without the fixture, not the card,
@@ -31,17 +31,18 @@ void main() {
                 textScaler: TextScaler.linear(scale)),
             // The real parent: a list that pads its other children S.x4 a
             // side and gives this one nothing, which is how it bleeds.
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: pad),
-              child: const StartCard(
-                label: 'START A SESSION',
-                count: 71,
-                noun: 'activities',
-                asset: 'mascot_workout.png',
-                accent: C.purple,
-                deep: C.indigo,
+            // In a scroll view like the tab: the copy wraps at large text
+            // instead of ellipsising, so the card is allowed to grow.
+            child: ListView(children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: pad),
+                child: const StartCard(
+                  label: 'START A SESSION',
+                  count: 71,
+                  noun: 'activities',
+                ),
               ),
-            ),
+            ]),
           );
         }),
       ),
@@ -70,10 +71,10 @@ void main() {
     expect(w, 390);
   });
 
-  testWidgets('the copy is not squeezed by the mascot', (t) async {
+  testWidgets('the copy is not squeezed', (t) async {
     await pump(t);
-    // The defect this pins is "71 activit…" — the mascot taking so much width
-    // that the headline ellipsised. Finding the exact string is the check;
+    // The defect this pins is "71 activit…" — something beside the copy
+    // taking so much width that the headline ellipsised. Finding the exact string is the check;
     // an ellipsised RenderParagraph would not match it.
     expect(find.text('71 activities'), findsOneWidget);
     expect(find.text('Pick one and go'), findsOneWidget);
@@ -96,10 +97,6 @@ void main() {
           label: 'START A SITTING',
           count: 3,
           noun: 'exercises',
-          asset: 'mascot_wellness.png',
-          accent: C.domMind,
-          deep: C.teal,
-          mascotHeight: 118,
         ),
       ),
     ));
