@@ -15216,7 +15216,7 @@
   "@healthAdvancedLinkSub": {
     "description": "Health tab: subtitle of the link row to the Advanced charts screen."
   },
-  "tabToday": "Today",
+  "tabToday": "Home",
   "@tabToday": {
     "description": "Bottom tab: today's scores and plan."
   },

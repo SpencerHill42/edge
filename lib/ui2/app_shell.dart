@@ -1,6 +1,8 @@
-// The four-tab shell.
+// The three-tab shell (Strap Cockpit v0.7; Edge has four).
 //
-// Today · Sleep · Activity · Health. Stable: the contents personalise, the
+// Home · Activity · Health. Sleep is no longer a tab: the sleep ring on Home
+// opens the same screen with the sleep plan, alarm and body clock under the
+// night (`SleepTab`, pushed). Stable: the contents personalise, the
 // mental map does not. Each domain owns an accent, so colour tells you where
 // you are before the label does. Profile is not a tab; every tab's header
 // carries the avatar into it.
@@ -18,12 +20,11 @@ import '../l10n/app_localizations.dart';
 import 'grammar.dart';
 import 'theme.dart';
 
-/// The four primary destinations, in bar order.
+/// The three primary destinations, in bar order.
 enum ShellDomain {
-  // Strap Cockpit keeps Edge's four destinations and names (design pass
-  // first, restructure later); only Today wears the cockpit gauge.
+  // Strap Cockpit v0.7: Edge's Sleep tab is gone (Armin, 2026-10-17); its
+  // screen is pushed from the Home sleep ring. Today is labelled "Home".
   today('Today', LucideIcons.gauge, C.domHome),
-  sleep('Sleep', LucideIcons.moon, C.domSleep),
   activity('Activity', LucideIcons.dumbbell, C.domMove),
   health('Health', LucideIcons.heartPulse, C.domHealth);
 
@@ -38,7 +39,6 @@ enum ShellDomain {
     final l = AppLocalizations.of(c);
     return switch (this) {
           ShellDomain.today => l?.tabToday,
-          ShellDomain.sleep => l?.tabSleep,
           ShellDomain.activity => l?.tabActivity,
           ShellDomain.health => l?.tabHealth,
         } ??

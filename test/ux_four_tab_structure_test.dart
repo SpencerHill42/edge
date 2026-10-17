@@ -105,6 +105,8 @@ void main() {
 
   test('the four-tab index is stored under its own key', () {
     expect(Prefs.shellTabV2, isNot(Prefs.shellTab));
+    expect(Prefs.shellTabV3, isNot(Prefs.shellTabV2));
+    expect(Prefs.shellTabV3, isNot(Prefs.shellTab));
   });
 
   testWidgets('the avatar shows an initial when a name is known', (t) async {

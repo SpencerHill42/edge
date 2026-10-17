@@ -77,10 +77,17 @@ unchanged. This file only adds what is specific to the fork.
   bundled Instrument Sans + IBM Plex Mono, hairline cards, chips, section
   titles, tab bar; tab names back to Heute · Schlaf · Aktivität · Gesundheit
   so name and content match. Restructuring tabs/screens is a later phase.
-- v0.6: app icon and home-screen name "Turbo Health" (`Info.plist`).
 - v0.5: fixes from the first design QA (`docs/design-qa/2026-10-17-v0.4.md`):
   one header for all tabs, mono only for labels, figures in Barlow, one
   selection colour, no clipped sub-tabs, German stress level / unit / comma.
+- v0.6: app icon and home-screen name "Turbo Health" (`Info.plist`).
+- v0.7: first restructure step (Armin, 2026-10-17): Sleep tab removed, three
+  tabs Home · Aktivität · Gesundheit (`ShellDomain` has no `sleep`; label
+  `tabToday` = "Home" in de/en). The Home sleep ring pushes `SleepTab(day:)`:
+  the same sleep screen with plan, alarm and body clock, so nothing is lost.
+  `/sleep` notifications land on Home and push it; `/alarm` pushes the alarm
+  over Home. Saved tab moved to `Prefs.shellTabV3`, the four-tab index is
+  translated once. Aktivität and Gesundheit: Armin is still deciding.
 
 ## Design QA (every build)
 
@@ -110,8 +117,8 @@ unchanged. This file only adds what is specific to the fork.
    any OpenStrap metric.
 3. Heute cards from the design: Vitalwerte, Stress in Ruhe, Mein Tag,
    Kennzahlen.
-4. Own Morgen- and Abend-Briefing screens (after the design pass; tabs are
-   Edge's four until then). The restructure follows
+4. Own Morgen- and Abend-Briefing screens (after the design pass; v0.7 has
+   Home · Aktivität · Gesundheit). The restructure follows
    `docs/design-review-whoop-principles.md`: tabs by depth (Tier 1 overview,
    Tier 2 trends, Tier 3 only behind a tap), colour = meaning, prose behind ⓘ.
 5. Verlauf screen from the design.

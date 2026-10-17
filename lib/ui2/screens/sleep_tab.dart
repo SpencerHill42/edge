@@ -1,4 +1,5 @@
-// The Sleep tab.
+// The Sleep screen with its plan, alarm and body clock. Edge's Sleep tab;
+// in Strap Cockpit (v0.7) it is pushed from the Home sleep ring instead.
 //
 // Sleep used to be spread over the Home ring, a Health row that opened a
 // generic chart, Wellness's "Recovery" sub-tab (need, debt, bedtime), Health's
@@ -18,13 +19,16 @@ import 'sleep_detail.dart';
 import 'wellness_screen.dart';
 
 class SleepTab extends StatelessWidget {
-  const SleepTab({super.key});
+  /// The night to open. Null means last night.
+  final String? day;
+
+  const SleepTab({super.key, this.day});
 
   @override
   Widget build(BuildContext c) {
     final l = AppLocalizations.of(c);
     return SleepDetail(
-      embedded: true,
+      day: day,
       footer: [
         Section(
           l?.sleepTabPlanTitle ?? 'Your sleep plan',

@@ -375,12 +375,12 @@ class _InitFailed extends StatelessWidget {
 /// A notification's tab index → the domain that now owns that content.
 ///
 /// The indices come from `tap_router.dart`, which still speaks the original
-/// five-tab vocabulary (Today · Sleep · Heart · Body · Workouts). Sleep has a
-/// tab again; Heart and Body live in Health. Payloads from older builds keep
-/// working, which is the whole point — a notification is scheduled days
+/// five-tab vocabulary (Today · Sleep · Heart · Body · Workouts). Sleep has no
+/// tab in Strap Cockpit (v0.7): it lands on Home and [screenForTab] pushes the
+/// sleep screen. Heart and Body live in Health. Payloads from older builds
+/// keep working, which is the whole point — a notification is scheduled days
 /// before it is tapped.
 ShellDomain domainForTab(int tab) => switch (tab) {
-      1 => ShellDomain.sleep,
       2 || 3 => ShellDomain.health,
       4 => ShellDomain.activity,
       _ => ShellDomain.today,
@@ -394,11 +394,26 @@ ShellDomain domainForSavedTab(int old) => switch (old) {
       _ => ShellDomain.today,
     };
 
-/// The tab to open on: the four-tab index once one was saved, otherwise the
-/// old five-tab index translated, so an upgrade lands where the user was.
+/// A notification tab index whose content is a pushed screen rather than a
+/// tab: Sleep, since Strap Cockpit v0.7.
+Widget? screenForTab(int tab) => tab == 1 ? const SleepTab() : null;
+
+/// The tab a build with the four-tab bar (Today, Sleep, Activity, Health)
+/// saved → the three-tab bar. Sleep sits behind Home's sleep ring now.
+ShellDomain domainForSavedTabV2(int v2) => switch (v2) {
+      2 => ShellDomain.activity,
+      3 => ShellDomain.health,
+      _ => ShellDomain.today,
+    };
+
+/// The tab to open on: the three-tab index once one was saved, otherwise the
+/// four-tab or old five-tab index translated, so an upgrade lands where the
+/// user was.
 ShellDomain restoredShellTab() {
+  final v3 = Prefs.getInt(Prefs.shellTabV3, -1);
+  if (v3 >= 0 && v3 < ShellDomain.values.length) return ShellDomain.values[v3];
   final v2 = Prefs.getInt(Prefs.shellTabV2, -1);
-  if (v2 >= 0 && v2 < ShellDomain.values.length) return ShellDomain.values[v2];
+  if (v2 >= 0) return domainForSavedTabV2(v2);
   return domainForSavedTab(Prefs.getInt(Prefs.shellTab, 0));
 }
 
@@ -431,8 +446,8 @@ ShellDomain domainForRoute(String route) => switch (routePath(route)) {
       // Battery and band alerts. Profile is pushed over Today.
       kRouteProfile => ShellDomain.today,
       // The alarm safety notifications and the alarm-fired note: the alarm
-      // lives on the Sleep tab now.
-      kRouteAlarm => ShellDomain.sleep,
+      // screen is pushed over Home (no Sleep tab since v0.7).
+      kRouteAlarm => ShellDomain.today,
       kRouteRecap => ShellDomain.health,
       _ => ShellDomain.today,
     };
@@ -565,7 +580,14 @@ class _ShellState extends State<_Shell> {
       }
       return;
     }
-    if (tab >= 0) _go(domainForTab(tab));
+    if (tab >= 0) {
+      _go(domainForTab(tab));
+      final screen = screenForTab(tab);
+      if (screen != null) {
+        Navigator.of(context)
+            .push(MaterialPageRoute<void>(builder: (_) => screen));
+      }
+    }
   }
 
   void _go(ShellDomain d) {
@@ -595,11 +617,10 @@ class _ShellState extends State<_Shell> {
       banner: live ? const _LiveSessionBar() : null,
       onSelect: (d) {
         _domain = d;
-        Prefs.setInt(Prefs.shellTabV2, d.index);
+        Prefs.setInt(Prefs.shellTabV3, d.index);
       },
       builder: (c, d) => switch (d) {
         ShellDomain.today => const HomeScreen(),
-        ShellDomain.sleep => const SleepTab(),
         ShellDomain.activity => const WorkoutScreen(),
         ShellDomain.health => const HealthScreen(),
       },

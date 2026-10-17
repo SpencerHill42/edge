@@ -76,7 +76,7 @@ import 'detected_activities.dart';
 import 'day_timeline.dart' show DayTimelineScreen;
 import 'metric_detail.dart';
 import 'readiness_detail.dart';
-import 'sleep_detail.dart';
+import 'sleep_tab.dart';
 
 // ═══════════════════ shared plumbing ═══════════════════
 
@@ -816,7 +816,7 @@ String driverLabel(Object? key, [AppLocalizations? l]) {
 ///     home screen; a ring with nothing in it and no reason is worse than one.
 ///
 /// Every ring opens something: recovery → [ReadinessDetail], strain →
-/// [DayStrainDetail], sleep → [SleepDetail].
+/// [DayStrainDetail], sleep → [SleepTab] (the sleep screen, pushed).
 class RingTrio extends StatelessWidget {
   final HomeData d;
 
@@ -2045,7 +2045,9 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
                   // stays null even after the switcher steps back onto it:
                   // today's ring is the held-over night, and only the default
                   // pick resolves to that one.
-                  HomeRingKind.sleep => SleepDetail(day: isToday ? null : _day),
+                  // v0.7: with the sleep plan, alarm and body clock, since
+                  // there is no Sleep tab any more.
+                  HomeRingKind.sleep => SleepTab(day: isToday ? null : _day),
                 }),
           )
         else

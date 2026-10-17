@@ -73,7 +73,7 @@ void main() {
     await _loadType();
   });
 
-  testWidgets('the shell has four destinations and cannot grow a fifth',
+  testWidgets('the shell has three destinations (Strap Cockpit v0.7)',
       (tester) async {
     await tester.pumpWidget(MaterialApp(
       theme: buildTheme(Brightness.light),
@@ -81,7 +81,7 @@ void main() {
         builder: (c, d) => Center(child: Text(d.label)),
       ),
     ));
-    expect(ShellDomain.values, hasLength(4));
+    expect(ShellDomain.values, hasLength(3));
     for (final d in ShellDomain.values) {
       expect(find.text(d.label), findsWidgets, reason: '${d.label} tab missing');
     }

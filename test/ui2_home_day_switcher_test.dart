@@ -9,6 +9,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:openstrap_edge/data/day_label.dart';
 import 'package:openstrap_edge/data/local_repository.dart';
@@ -69,6 +70,14 @@ Future<void> _settle(WidgetTester t, {int n = 40}) async {
 }
 
 void main() {
+  // The sleep ring pushes the sleep screen WITH its plan, alarm and body clock
+  // since Strap Cockpit v0.7 (no Sleep tab), and the plan reads the local
+  // database.
+  setUpAll(() {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  });
+
   testWidgets('stepping to the previous day loads and shows ITS numbers',
       (t) async {
     final app = AppState.forTesting();

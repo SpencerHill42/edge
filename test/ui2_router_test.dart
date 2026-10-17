@@ -36,6 +36,7 @@ import 'package:openstrap_edge/ui2/profile/devices.dart';
 import 'package:openstrap_edge/ui2/profile/profile.dart';
 import 'package:openstrap_edge/ui2/screens/nutrition_screen.dart'
     show NutritionScreen;
+import 'package:openstrap_edge/ui2/screens/sleep_tab.dart';
 import 'package:openstrap_edge/ui2/ui2.dart';
 
 /// A viewport tall enough that nothing under test is below the fold. The
@@ -130,14 +131,27 @@ void main() {
   group('deep links survive the four-tab layout', () {
     test('every notification tab index resolves', () {
       expect(domainForTab(0), ShellDomain.today);
-      // Sleep has a tab again; Heart and Body live in Health.
-      expect(domainForTab(1), ShellDomain.sleep);
+      // Sleep has no tab (Strap Cockpit v0.7): Home, with the sleep screen
+      // pushed on top. Heart and Body live in Health.
+      expect(domainForTab(1), ShellDomain.today);
+      expect(screenForTab(1), isA<SleepTab>());
+      expect(screenForTab(0), isNull);
+      expect(screenForTab(2), isNull);
       expect(domainForTab(2), ShellDomain.health);
       expect(domainForTab(3), ShellDomain.health);
       expect(domainForTab(4), ShellDomain.activity);
       // A payload from a build that had more tabs than we do.
       expect(domainForTab(9), ShellDomain.today);
       expect(domainForTab(-1), ShellDomain.today);
+    });
+
+    test('a tab saved by the four-tab bar reopens where its content went', () {
+      // Today, Sleep, Activity, Health → Home, Activity, Health.
+      expect(domainForSavedTabV2(0), ShellDomain.today);
+      expect(domainForSavedTabV2(1), ShellDomain.today);
+      expect(domainForSavedTabV2(2), ShellDomain.activity);
+      expect(domainForSavedTabV2(3), ShellDomain.health);
+      expect(domainForSavedTabV2(42), ShellDomain.today);
     });
 
     test('a tab saved by the five-tab bar reopens where its content went', () {
@@ -161,7 +175,7 @@ void main() {
         kRouteDetectedActivities: ShellDomain.today,
         kRouteWater: ShellDomain.activity,
         kRouteWorkoutIdle: ShellDomain.activity,
-        kRouteAlarm: ShellDomain.sleep,
+        kRouteAlarm: ShellDomain.today,
       };
       routes.forEach((route, domain) {
         expect(domainForRoute(route), domain, reason: route);

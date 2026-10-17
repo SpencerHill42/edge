@@ -366,10 +366,13 @@ class SleepDetail extends StatefulWidget {
   /// passed before this existed and what the stepper starts from.
   final String? day;
 
-  /// The Sleep tab's root rather than a pushed screen: a tab header with the
-  /// profile avatar instead of a back arrow, pull to re-read, and [footer]
-  /// (the sleep plan, alarm and body clock) under the night.
+  /// A tab root rather than a pushed screen: a tab header with the profile
+  /// avatar instead of a back arrow and pull to re-read. Unused in the app
+  /// since v0.7 (no Sleep tab), kept for upstream merges.
   final bool embedded;
+
+  /// Shown under the night, pushed or embedded: the sleep plan, alarm and
+  /// body clock (`SleepTab`).
   final List<Widget> footer;
 
   const SleepDetail(
@@ -395,7 +398,9 @@ class _SleepDetailState extends State<SleepDetail> with RevisionReload {
   /// The pushed screen's scaffold, or the tab's own header and footer.
   Widget _frame(BuildContext c, String title, List<Widget> body,
       {String sub = ''}) {
-    if (!widget.embedded) return detailScaffold(c, title, body, sub: sub);
+    if (!widget.embedded) {
+      return detailScaffold(c, title, [...body, ...widget.footer], sub: sub);
+    }
     final p = P.of(c);
     return RefreshIndicator(
       onRefresh: _load,

@@ -80,7 +80,11 @@ class Prefs {
   static const String shellTab = 'ui.shell_tab';
 
   /// The four-tab bar's index (Today, Sleep, Activity, Health).
+  /// Read once to migrate, never written (Strap Cockpit v0.7).
   static const String shellTabV2 = 'ui.shell_tab.v2';
+
+  /// The three-tab bar's index (Home, Activity, Health), Strap Cockpit v0.7.
+  static const String shellTabV3 = 'ui.shell_tab.v3';
   static const String recapRange = 'ui.recap_range';
   static const String workoutsRange = 'ui.workouts_range';
 
