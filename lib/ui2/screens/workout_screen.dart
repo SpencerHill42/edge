@@ -970,7 +970,8 @@ class WorkoutQuickTile extends StatelessWidget {
           child: Icon(a.icon, size: 19, color: p.on(a.color)),
         ),
           const SizedBox(height: S.x2),
-          Text(
+          // "Runni / ng" at 3.1x in a third-width tile otherwise.
+          WordSafeText(
             a.displayName(c),
             style: F.over.copyWith(color: p.ink2),
             textAlign: TextAlign.center,

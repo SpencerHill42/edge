@@ -85,14 +85,14 @@ class SetRow extends StatelessWidget {
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title,
+              WordSafeText(title,
                   style: F.body.copyWith(color: danger ? p.on(C.red) : p.ink)),
               if (value.isNotEmpty && bigText(c))
                 Text(value,
                     style: F.cap.copyWith(
                         color: p.ink3, fontWeight: FontWeight.w600)),
               if (sub.isNotEmpty)
-                Text(sub, style: F.over.copyWith(color: p.ink3)),
+                WordSafeText(sub, style: F.over.copyWith(color: p.ink3)),
             ]),
           ),
           // THE ROW RULE (see MetricRow): the title is the only flexible part,

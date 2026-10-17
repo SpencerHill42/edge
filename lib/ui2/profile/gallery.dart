@@ -852,6 +852,9 @@ Map<String, Widget> extraCases() => {
       ),
       'screen_title': const ScreenTitle('Sleep and recovery',
           trailing: Pill('Estimated', C.yellow)),
+      // One word wider than a phone at 3.1x: it shrinks instead of breaking.
+      'word_safe_text': WordSafeText('Schnellzugriff Systemstandard',
+          maxScale: kHeadingMaxScale, style: F.t2),
       // Static on purpose: the gallery shows the control, and its position is
       // a fixture like every other value here.
       'scrubber': Builder(builder: (c) {

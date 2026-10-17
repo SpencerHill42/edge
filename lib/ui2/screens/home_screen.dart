@@ -1960,12 +1960,15 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
                     const BoxConstraints(minHeight: kTitleRowHeight),
                 child: Row(children: [
                   Flexible(
-                    child: Text(
+                    // Wraps between words at large text instead of
+                    // ellipsising to "Guten …".
+                    child: WordSafeText(
                       d.name == null || d.name!.isEmpty
                           ? g.word
                           : '${g.word}, ${d.name}',
+                      maxScale: kHeadingMaxScale,
                       style: F.t1.copyWith(color: p.ink),
-                      maxLines: 1,
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
