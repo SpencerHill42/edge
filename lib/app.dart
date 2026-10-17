@@ -29,6 +29,7 @@ import 'ui2/profile/profile.dart';
 import 'ui2/screens/ai_briefing.dart';
 import 'ui2/screens/calm_breathing.dart';
 import 'ui2/screens/what_changed.dart';
+import 'health/health_profile_import.dart' show autoWeightFromHealth;
 import 'ui2/screens/health_screen.dart';
 import 'ui2/screens/home_screen.dart';
 import 'ui2/screens/journal_compose.dart';
@@ -59,7 +60,17 @@ class _OpenStrapAppState extends State<OpenStrapApp> with WidgetsBindingObserver
 
       final app = context.read<AppState>();
       if (app.isPaired) app.openSession();
+      unawaited(_syncWeight());
     });
+  }
+
+  /// Strap Cockpit: the newest weight from Apple Health (Garmin Index scale →
+  /// Garmin Connect → Health) into the profile, on launch and every
+  /// foreground. Silent, and only once the store has been read by hand.
+  Future<void> _syncWeight() async {
+    final app = context.read<AppState>();
+    final next = await autoWeightFromHealth(app.user);
+    if (next != null && mounted) await app.updateProfile(next);
   }
 
   @override
@@ -113,6 +124,7 @@ class _OpenStrapAppState extends State<OpenStrapApp> with WidgetsBindingObserver
       // repository read) and it is what stops a week-old readiness sitting on
       // a lock screen looking current.
       unawaited(WidgetService.refresh(app.repo));
+      unawaited(_syncWeight());
       if (app.isPaired) app.openSession();
     } else if (state == AppLifecycleState.paused) {
       // Backgrounded: hand the band to the iOS restore path so it can wake-and-drain

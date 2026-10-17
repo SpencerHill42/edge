@@ -101,8 +101,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> with RevisionReload {
           padding: const EdgeInsets.fromLTRB(0, S.x2, 0, S.x16),
           children: [
             for (final w in <Widget>[
-              const CockpitBar(),
-              ScreenTitle(loc?.tabActivity ?? 'Activity'),
+              ScreenTitle(loc?.tabActivity ?? 'Activity',
+                  trailing: const AppMark()),
               // One signal colour for "selected", whatever the tab (QA 6).
               SubTabs(_tabs(loc), tab, (i) => setState(() => tab = i),
                   color: C.signal),

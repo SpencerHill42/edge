@@ -408,7 +408,6 @@ class _SleepDetailState extends State<SleepDetail> with RevisionReload {
         // Same top inset as every other tab (v0.4 QA finding 1).
         padding: const EdgeInsets.fromLTRB(S.x4, S.x2, S.x4, S.x16),
         children: [
-          const CockpitBar(),
           ScreenTitle(title),
           if (sub.isNotEmpty)
             Padding(

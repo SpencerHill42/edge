@@ -80,7 +80,7 @@ import 'sleep_tab.dart';
 // ═══════════════════ shared plumbing ═══════════════════
 
 /// Page padding. The bottom inset clears the shell's floating nav.
-// Strap Cockpit: one top inset for every tab, so the CockpitBar and the title
+// Strap Cockpit: one top inset for every tab, so the titles and the app mark
 // under it sit on the same line everywhere (v0.4 QA finding 1).
 const pad = EdgeInsets.fromLTRB(S.x4, S.x2, S.x4, S.x16 + S.x8);
 
@@ -1933,7 +1933,6 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
     final rebuilt = dbRebuiltCard(dbRebuildOf(c), l);
 
     return _refreshable(ListView(padding: pad, children: [
-      const CockpitBar(),
       if (rebuilt != null) ...[const SizedBox(height: S.x3), rebuilt],
 
       // ── the one observation Home is allowed to make ──
@@ -1946,7 +1945,7 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
       // state on a morning whose own bundle has not derived yet, which is
       // exactly the morning you would most want to be told.
       ...?_bodyWatch(c, d, todayLabel(widget.now)),
-      // ── greeting ── (the CockpitBar wordmark leads the list above).
+      // ── greeting ── (the app mark sits at its right, as on every tab).
       // Same insets and row height as `ScreenTitle`, so "Guten Morgen" sits
       // exactly where Schlaf / Aktivität / Gesundheit put their titles.
       Padding(
@@ -1993,7 +1992,11 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
             ]),
           ),
           // Profile is the "Mehr" tab since Strap Cockpit v0.7, not an
-          // avatar here.
+          // avatar here; the app mark takes the corner.
+          const SizedBox(width: S.x3),
+          // Centred on the 40 pt title row, like ScreenTitle's trailing.
+          const Padding(
+              padding: EdgeInsets.only(top: 4), child: AppMark()),
         ]),
       ),
 
