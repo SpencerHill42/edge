@@ -2081,7 +2081,7 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
 
         const SizedBox(height: S.x3),
         const DetectedActivitiesCard(),
-        const CommunityNudge(),
+        // Strap Cockpit: no community (Discord) nudge in the private fork.
 
         // ── the rollup was withheld, not absent ──
         if (stale != null) ...[const SizedBox(height: S.x3), stale],

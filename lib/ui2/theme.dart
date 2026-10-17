@@ -142,20 +142,24 @@ class P {
 
   static P of(BuildContext c) => P(Theme.of(c).brightness == Brightness.dark);
 
-  Color get bg => dark ? const Color(0xFF0B0D0F) : C.n50;
+  // Strap Cockpit: both themes are the cockpit. Light ("white") is the
+  // default: neutral paper ground, white cards, the dark ground as ink.
+  // [card2] stays the darkest light surface — [on] and [ink3] are solved
+  // against it, so nothing may sit below it.
+  Color get bg => dark ? const Color(0xFF0B0D0F) : const Color(0xFFF3F4F2);
   Color get card => dark ? const Color(0xFF14181B) : C.white;
-  Color get card2 => dark ? const Color(0xFF1A1F23) : C.n100;
-  Color get line => dark ? const Color(0xFF1E2428) : C.n200;
-  Color get track => dark ? const Color(0xFF1F2529) : C.n200;
+  Color get card2 => dark ? const Color(0xFF1A1F23) : const Color(0xFFECEEEC);
+  Color get line => dark ? const Color(0xFF1E2428) : const Color(0xFFE1E4E2);
+  Color get track => dark ? const Color(0xFF1F2529) : const Color(0xFFE3E6E4);
 
-  Color get ink => dark ? const Color(0xFFF1F3F2) : C.n900;
-  Color get ink2 => dark ? const Color(0xFFA9B1B7) : C.n600;
+  Color get ink => dark ? const Color(0xFFF1F3F2) : const Color(0xFF0B0D0F);
+  Color get ink2 => dark ? const Color(0xFFA9B1B7) : const Color(0xFF474F55);
 
   /// The muted caption ink. Hand-solved to clear 4.5:1 on [card2], the darkest
   /// (light theme) / lightest (dark theme) surface it can sit on — so it is
   /// legible on every surface, not just the one it was eyeballed against.
-  /// The values it replaces measured 4.34:1 and 3.21:1 respectively.
-  Color get ink3 => dark ? const Color(0xFF808990) : const Color(0xFF627188);
+  /// Cockpit values: 4.67:1 (dark) and 4.93:1 (light) on card2.
+  Color get ink3 => dark ? const Color(0xFF808990) : const Color(0xFF5F676E);
 
   /// The ink that goes on top of a [fill]. White by construction — [fill]
   /// darkens the accent until white clears AA on it.
@@ -173,7 +177,7 @@ class P {
   /// solver only ever nudges toward the page ink, so clearing the second
   /// surface cannot un-clear the first.
   Color on(Color accent) {
-    final toward = dark ? ink : C.n900;
+    final toward = ink;
     final flat = _solve(accent, toward, card2, dark);
     return _solve(flat, toward, Color.alphaBlend(wash(accent), card2), dark);
   }

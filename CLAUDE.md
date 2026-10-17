@@ -18,9 +18,13 @@ unchanged. This file only adds what is specific to the fork.
 - Dark tokens: ground #0B0D0F, card #14181B, inset #1A1F23, line #1E2428,
   ink #F1F3F2 / #A9B1B7 / #808990, signal lime #D4F25C, sleep #9C8CFF,
   strain #46C3F2, pulse #FF9E7A, status #3FD69B / #F4B740 / #F26457.
+- Light tokens ("white", the default since v0.3; not in the canvas, derived
+  from the dark set): ground #F3F4F2, card #FFFFFF, inset #ECEEEC, line
+  #E1E4E2, track #E3E6E4, ink #0B0D0F / #474F55 / #5F676E. Accents stay the
+  same pigments; `P.on()` solves them to AA on white (lime → olive #637131),
+  so never paint a raw pigment as text or a thin mark on white.
 - Figures: Barlow Condensed (bundled). Rings: 270° segmented scale
   (`Ring`, `DashedRing` in `lib/ui2/charts.dart`).
-- Armin asked for a WHITE variant next (light palette as default).
 
 ## Build and install
 
@@ -44,10 +48,16 @@ unchanged. This file only adds what is specific to the fork.
 - v0.2: Heute ring trio Schlaf · Erholung · Belastung with the value inside the
   ring and the label in its opening; STRAP wordmark
   (`lib/ui2/screens/home_screen.dart`).
+- v0.3: white cockpit palette as the default theme (`theme_controller.dart`
+  `_parse`: no stored choice → light); German for the visible untranslated
+  strings and "Belastung" instead of "Strain" in short labels
+  (`app_de.arb`); no Discord nudge on Heute.
+- Known gap: the Morgen, Abend and Verlauf tabs still show Edge's Sleep,
+  Activity and Health screens under the new names (backlog 4 and 5).
 
 ## Backlog (Armin's order)
 
-1. White app design: light palette as the default, same cockpit identity.
+1. ~~White app design~~ (v0.3).
 2. Weight and body fat from Apple Health (Garmin Index scale → Garmin Connect →
    Apple Health) as a trend card in Verlauf. Display only: never an input to
    any OpenStrap metric.

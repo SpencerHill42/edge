@@ -55,9 +55,10 @@ class ThemeController extends ChangeNotifier {
   }
 
   static AppThemeChoice _parse(String? s) => switch (s) {
-        'light' => AppThemeChoice.light,
+        // Strap Cockpit: white is the default; dark stays one tap away.
+        'dark' => AppThemeChoice.dark,
         'system' => AppThemeChoice.system,
-        _ => AppThemeChoice.dark,
+        _ => AppThemeChoice.light,
       };
 
   AppThemeChoice get choice => _choice;

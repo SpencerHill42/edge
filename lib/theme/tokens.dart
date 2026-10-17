@@ -104,29 +104,29 @@ class Palette {
 /// Day — "Ember on Paper". The original, beloved palette, unchanged in value.
 const Palette kLightPalette = Palette(
   brightness: Brightness.light,
-  bg: Color(0xFFF4F1EC), // warm paper background
+  bg: Color(0xFFF3F4F2), // Strap Cockpit white: neutral paper ground
   surface: Color(0xFFFFFFFF), // cards
-  surfaceAlt: Color(0xFFECE7DF), // inset / skeleton base
-  surfaceSunk: Color(0xFFEDE9E1), // subtle wells
+  surfaceAlt: Color(0xFFECEEEC), // inset / skeleton base
+  surfaceSunk: Color(0xFFE6E9E7), // subtle wells
   cool: Color(0xFFE7EBF5), // cool secondary section
   coolInk: Color(0xFF2B3350), // ink on the cool surface
-  divider: Color(0xFFE6E0D6),
-  ink: Color(0xFF16130F), // near-black, warm
-  inkSoft: Color(0xFF6B6157), // secondary
-  inkMuted: Color(0xFFA59C90), // tertiary / placeholders
+  divider: Color(0xFFE1E4E2),
+  ink: Color(0xFF0B0D0F), // the dark ground as ink
+  inkSoft: Color(0xFF474F55), // secondary
+  inkMuted: Color(0xFF5F676E), // tertiary / placeholders
   coral: Color(0xFFFF5A36),
   coralDeep: Color(0xFFE8431F),
   coralSoft: Color(0xFFFFE7DF), // tint fill
   coralInk: Color(0xFF7A2A16), // ink on coralSoft
-  brand: Color(0xFF12879B), // controlled cyan/teal — calm, not orange
-  brandDeep: Color(0xFF0C6C7D),
-  brandSoft: Color(0xFFDCF2F4), // tint fill
-  brandInk: Color(0xFF0A4650), // ink on brandSoft
-  good: Color(0xFF2BB673),
+  brand: Color(0xFF637131), // signal lime solved for white (5.3:1)
+  brandDeep: Color(0xFF556125),
+  brandSoft: Color(0xFFEEF6D2), // lime tint fill
+  brandInk: Color(0xFF3B4419), // ink on brandSoft
+  good: Color(0xFF1E7A55),
   goodSoft: Color(0xFFDBF3E7),
   warn: Color(0xFFF5A623),
   warnSoft: Color(0xFFFBEBCF),
-  bad: Color(0xFFE5484D),
+  bad: Color(0xFFC2412F),
   badSoft: Color(0xFFFAE0E0),
   confLow: Color(0xFFC9C0B4),
   loadDetraining: Color(0xFF7CA8F0),
