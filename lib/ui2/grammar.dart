@@ -386,32 +386,44 @@ class SignalCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: S.x3),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Flexible(
-                child: Text(
-                  value,
-                  style: F.value(value).copyWith(color: p.ink),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+          // Strap Cockpit: at accessibility sizes a half-width tile cannot
+          // hold the figure face and its unit on one line ("7…" or worse, an
+          // empty tile), so there the unit goes below the value and the value
+          // scales down rather than breaking mid-figure ("7:1 / 2").
+          if (bigText(c))
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.end,
+              spacing: S.x1,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child:
+                      Text(value, style: F.value(value).copyWith(color: p.ink)),
                 ),
-              ),
-              if (unit.isNotEmpty) ...[
-                const SizedBox(width: S.x1),
-                // Strap Cockpit: the hairline border costs the tile 2 px, and
-                // at accessibility sizes a long unit alone outgrew a half-width
-                // tile ("уд/мин" at 3.1x), so there it may wrap too.
-                if (bigText(c))
-                  Flexible(
-                      child: Text(uiText(c, unit),
-                          style: F.cap.copyWith(color: p.ink3)))
-                else
+                if (unit.isNotEmpty)
                   Text(uiText(c, unit), style: F.cap.copyWith(color: p.ink3)),
               ],
-            ],
-          ),
+            )
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Flexible(
+                  child: Text(
+                    value,
+                    style: F.value(value).copyWith(color: p.ink),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (unit.isNotEmpty) ...[
+                  const SizedBox(width: S.x1),
+                  Text(uiText(c, unit), style: F.cap.copyWith(color: p.ink3)),
+                ],
+              ],
+            ),
           if (sub.isNotEmpty) ...[
             const SizedBox(height: S.x1),
             Text(
