@@ -2089,24 +2089,21 @@ class _SubTabsState extends State<SubTabs> {
   }
 }
 
-/// Strap Cockpit top bar, identical on every tab (canvas: sign + "STRAP").
-/// It sits first in each tab's list so the page titles below it land on the
-/// same line everywhere (v0.4 QA finding 1).
-class CockpitBar extends StatelessWidget {
-  const CockpitBar({super.key});
+/// The app's own mark, top right on every tab (Armin, 2026-10-17: no
+/// "STRAP" wordmark bar any more). The Turbo Health icon, rounded like the
+/// home-screen icon. Decoration: the tab title already says where you are.
+class AppMark extends StatelessWidget {
+  const AppMark({super.key});
 
   @override
-  Widget build(BuildContext c) {
-    final p = P.of(c);
-    return Padding(
-      padding: const EdgeInsets.only(top: S.x2, bottom: S.x1),
-      child: Row(children: [
-        Icon(LucideIcons.gauge, size: 18, color: p.on(C.signal)),
-        const SizedBox(width: S.x2),
-        Text('STRAP', style: F.n17.copyWith(color: p.ink, letterSpacing: 1.0)),
-      ]),
-    );
-  }
+  Widget build(BuildContext c) => ExcludeSemantics(
+        child: ClipRRect(
+          // 8 of 32 pt is the home-screen icon's ~22 % corner.
+          borderRadius: R.rSm,
+          child: Image.asset('assets/images/app_mark.png',
+              width: 32, height: 32, filterQuality: FilterQuality.medium),
+        ),
+      );
 }
 
 /// Height of the title row. Every tab's title is centred in it, so Home's

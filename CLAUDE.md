@@ -34,9 +34,10 @@ unchanged. This file only adds what is specific to the fork.
   Figures n34 36 (rings), n24 28, n17 18; `F.value(s)` keeps words like
   "Keine" out of the figure face. Radii: inset 14 (`R.md`), tile 18 (`R.lg`),
   card 24, chip 999. Cards: `card` + 1px `line`, no shadow on dark.
-- Every tab starts with `CockpitBar` (sign + STRAP) and a 40 pt title row
-  (`ScreenTitle`, Home's greeting matches it); list top inset `S.x2`. No
-  avatar in tab headers since v0.7 (Profile is the "Mehr" tab). Selected
+- Every tab starts with a 40 pt title row (`ScreenTitle`, Home's greeting
+  matches it) with the app mark (`AppMark`, the Turbo Health icon,
+  `assets/images/app_mark.png`) at its right; list top inset `S.x2`. No
+  "STRAP" wordmark bar since v0.9 and no avatar since v0.7. Selected
   sub-tabs use the signal colour, not Edge's domain accents.
 - Sleep stages: one violet family (`C.stage*`); zones Z1–Z5 blue ramp on dark
   only (`C.zone*`), hue ramp on white (solved blues collapse there).
@@ -106,6 +107,16 @@ unchanged. This file only adds what is specific to the fork.
   "wird aktualisiert …" instead (`syncedThroughLine(showActivity:)`). The big
   card stays for a bare day. Cause: iOS defers derivation to the foreground
   (`derive_scheduler.dart`), so almost every launch derives.
+- v0.9 (Armin, 2026-10-17): minimal and private.
+  - No mascots: `StartCard` is a hairline card with a start button.
+  - No "STRAP" bar (`CockpitBar` deleted); the app mark sits top right.
+  - Mehr: no Community group (GitHub, Reddit, Discord, Sponsor).
+  - Gesundheit: no "Kopf, Gewohnheiten und Medikamente" section; breathing,
+    mood, habits and medication are gone. `WellnessScreen` only shows the
+    cycle, and the row to it only while cycle tracking is on.
+  - Weight follows Apple Health (Garmin Index → Garmin Connect → Health) on
+    launch and every foreground (`autoWeightFromHealth` in `app.dart`), once
+    the store was read by hand in Profil bearbeiten.
 
 ## Design QA (every build)
 
@@ -131,8 +142,9 @@ unchanged. This file only adds what is specific to the fork.
 
 1. ~~White app design~~ (v0.3).
 2. Weight and body fat from Apple Health (Garmin Index scale → Garmin Connect →
-   Apple Health) as a trend card in Verlauf. Display only: never an input to
-   any OpenStrap metric.
+   Apple Health) as a trend card in Verlauf. The profile WEIGHT already follows
+   Health automatically (v0.9); the trend card and body fat are open, and body
+   fat stays display only.
 3. Heute cards from the design: Vitalwerte, Stress in Ruhe, Mein Tag,
    Kennzahlen.
 4. Own Morgen- and Abend-Briefing screens (after the design pass; v0.7 has

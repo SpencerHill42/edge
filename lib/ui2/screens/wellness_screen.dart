@@ -79,6 +79,7 @@ class WellnessScreen extends StatefulWidget {
   static const tabs = ['Mind', 'Recovery', 'Habits', 'Medication', 'Cycle'];
 
   static const int medsTab = 3;
+  static const int cycleTab = 4;
 
   @override
   State<WellnessScreen> createState() => _WellnessScreenState();
@@ -255,10 +256,11 @@ class _WellnessScreenState extends State<WellnessScreen> with RevisionReload {
       l?.wellnessTabMedication ?? 'Medication',
       l?.wellnessTabCycle ?? 'Cycle',
     ];
-    // Logical indices on screen. The sleep plan (1) lives on the Sleep tab.
-    final visible = [0, 2, 3, if (showCycle) 4];
-    // Switching Cycle off while standing on it lands on Medication, not Mind.
-    final tab = visible.contains(_tab) ? _tab : (_tab == 4 ? 3 : 0);
+    // Logical indices on screen. The sleep plan (1) lives on the Sleep tab;
+    // Mind, Habits and Medication are gone in Strap Cockpit (Armin,
+    // 2026-10-17), so only the cycle is left, and only while it is on.
+    final visible = [if (showCycle) WellnessScreen.cycleTab];
+    final tab = visible.isEmpty ? -1 : WellnessScreen.cycleTab;
     final p = P.of(c);
     // Same rule as Workout: the LIST drops its side padding and hands it to
     // every child except the hero, which is how that one runs edge to edge.
@@ -277,9 +279,10 @@ class _WellnessScreenState extends State<WellnessScreen> with RevisionReload {
       padding: const EdgeInsets.fromLTRB(0, 0, 0, S.x16),
       children: [
         for (final w in <Widget>[
-          SubTabs([for (final i in visible) labels[i]], visible.indexOf(tab),
-              (i) => setState(() => _tab = visible[i]),
-              color: C.domMind),
+          if (visible.length > 1)
+            SubTabs([for (final i in visible) labels[i]], visible.indexOf(tab),
+                (i) => setState(() => _tab = visible[i]),
+                color: C.domMind),
           const SizedBox(height: S.x5),
           if (_loading)
             const Center(child: CircularProgressIndicator())

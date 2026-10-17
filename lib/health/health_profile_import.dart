@@ -18,6 +18,8 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:health/health.dart';
 
+import 'health_import_state.dart';
+
 /// What a read found. Every field is nullable: an empty health store, a denied
 /// permission and a never-recorded metric are all "we don't know", and none of
 /// them may become a number.
@@ -243,4 +245,45 @@ class HealthProfileImporter {
       sex: sex,
     );
   }
+}
+
+/// Strap Cockpit (Armin, 2026-10-17): keep the WEIGHT current without a tap.
+/// The Garmin Index scale lands in Apple Health via Garmin Connect, so the
+/// newest reading there is the one the calorie, BMR and strain formulas should
+/// use. Run on launch and on every foreground.
+///
+/// Only after the store has been read once through Edit profile → import
+/// ([HealthImport.profile] set): a permission sheet at launch for data the
+/// user has not asked us to read is how the whole set gets denied at once,
+/// and on iOS a read without a grant just comes back empty. Weight only:
+/// height, age and sex keep the tap-driven merge in [mergeHealthProfile].
+///
+/// Returns the new profile map when the weight changed, else null. Never
+/// throws.
+Future<Map<String, dynamic>?> autoWeightFromHealth(
+  Map<String, dynamic>? profile, {
+  HealthProfileImporter? importer,
+  Future<DateTime?> Function(HealthImport)? lastImport,
+}) async {
+  try {
+    if (await (lastImport ?? lastImportAt)(HealthImport.profile) == null) {
+      return null;
+    }
+    final snap = await (importer ?? HealthProfileImporter()).read();
+    return weightUpdate(profile, snap.weightKg);
+  } catch (e) {
+    debugPrint('[health_profile] auto weight: $e');
+    return null;
+  }
+}
+
+/// The profile with [weightKg] in it, or null when there is nothing to write:
+/// no reading, or the profile already holds it (to 0.05 kg, below any
+/// scale's resolution).
+Map<String, dynamic>? weightUpdate(
+    Map<String, dynamic>? profile, double? weightKg) {
+  if (weightKg == null) return null;
+  final have = (profile?['weight_kg'] as num?)?.toDouble();
+  if (have != null && (have - weightKg).abs() < 0.05) return null;
+  return {...?profile, 'weight_kg': weightKg};
 }

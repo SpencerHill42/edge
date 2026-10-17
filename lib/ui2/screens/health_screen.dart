@@ -647,8 +647,7 @@ class _HealthScreenState extends State<HealthScreen> with RevisionReload {
     final d = _d ?? const HealthData();
     final l = AppLocalizations.of(c);
     return ListView(padding: pad, children: [
-      const CockpitBar(),
-      ScreenTitle(l?.healthTitle ?? 'Health'),
+      ScreenTitle(l?.healthTitle ?? 'Health', trailing: const AppMark()),
       // One signal colour for "selected", whatever the tab (QA 6).
       SubTabs(_tabsOf(l), _tab, _select, color: C.signal),
       const SizedBox(height: S.x5),
@@ -931,24 +930,20 @@ class _HealthScreenState extends State<HealthScreen> with RevisionReload {
 
       // Naps moved to the Sleep tab, beside the night (the Naps door there).
 
-      // What used to be the Wellness tab: the things you tell the app back.
-      // ONE door now, not one per tab: in the contributed data breathing,
-      // medication and cycle were each used by a handful of people, so they
-      // share a row and the screen behind it keeps its own tabs.
-      Section(
-        l?.healthWellbeingTitle ?? 'Mind, habits and medication',
-        detailLinkRow(
-            c,
-            LucideIcons.wind,
-            l?.wellnessTabMind ?? 'Mind',
-            // Cycle is a tab there only while cycle tracking is on.
-            _cycleTrackingOn(c)
-                ? (l?.healthWellbeingAllSubCycle ??
-                    'Breathing, mood, the journal, habits, medication and cycle')
-                : (l?.healthWellbeingAllSub ??
-                    'Breathing, mood, the journal, habits and medication'),
-            () => go(c, const WellnessScreen(initialTab: 0))),
-      ),
+      // Strap Cockpit (Armin, 2026-10-17): no "Mind, habits and medication"
+      // section — breathing, mood, habits and medication are gone. What is left
+      // of that screen is the cycle, and only while cycle tracking is on.
+      if (_cycleTrackingOn(c))
+        Section(
+          l?.wellnessTabCycle ?? 'Cycle',
+          detailLinkRow(
+              c,
+              LucideIcons.calendarHeart,
+              l?.wellnessTabCycle ?? 'Cycle',
+              '',
+              () => go(c,
+                  const WellnessScreen(initialTab: WellnessScreen.cycleTab))),
+        ),
 
       // THERE IS NO "BODY COMPOSITION" SECTION, AND THE NEXT PERSON SHOULD NOT
       // BUILD ONE. It used to print the onboarding weight scalar, and the ask
