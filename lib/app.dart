@@ -443,8 +443,9 @@ ShellDomain domainForRoute(String route) => switch (routePath(route)) {
       // live session bar with its finish control is pinned to the shell there
       // — so screenForRoute stays null for it.
       kRouteWorkoutIdle => ShellDomain.activity,
-      // Battery and band alerts. Profile is pushed over Today.
-      kRouteProfile => ShellDomain.today,
+      // Battery and band alerts. Profile IS the "Mehr" tab since Strap
+      // Cockpit v0.7, so the tab is the destination.
+      kRouteProfile => ShellDomain.more,
       // The alarm safety notifications and the alarm-fired note: the alarm
       // screen is pushed over Home (no Sleep tab since v0.7).
       kRouteAlarm => ShellDomain.today,
@@ -489,8 +490,8 @@ Widget? screenForRoute(String route) => switch (routePath(route)) {
       kRouteDetectedActivities => DetectedActivitiesScreen(focusId: routeId(route)),
       kRouteWorkoutSuggestion =>
         WorkoutSuggestionScreen(focusId: routeId(route)),
-      // Battery, band and sources all live behind this one.
-      kRouteProfile => const ProfileHome(),
+      // Battery, band and sources live on the "Mehr" tab (v0.7): nothing to
+      // push, `domainForRoute` lands there.
       // The alarm safety notifications land where either can actually be
       // fixed — the schedule itself.
       kRouteAlarm => const AlarmScreen(),
@@ -623,6 +624,7 @@ class _ShellState extends State<_Shell> {
         ShellDomain.today => const HomeScreen(),
         ShellDomain.activity => const WorkoutScreen(),
         ShellDomain.health => const HealthScreen(),
+        ShellDomain.more => const ProfileHome(embedded: true),
       },
     );
   }

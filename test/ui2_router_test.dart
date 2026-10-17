@@ -184,9 +184,11 @@ void main() {
       // pushed page of Activity now, so the tap pushes it.
       expect(screenForRoute(kRouteWater), isA<NutritionScreen>());
       expect((screenForRoute(kRouteWater)! as NutritionScreen).page, isTrue);
-      expect(domainForRoute('/profile'), ShellDomain.today);
-      expect(screenForRoute('/profile'), isA<ProfileHome>(),
+      // Profile is the "Mehr" tab (Strap Cockpit v0.7): the battery
+      // notification lands on it, nothing is pushed.
+      expect(domainForRoute('/profile'), ShellDomain.more,
           reason: 'the battery notification promises the band, not Today');
+      expect(screenForRoute('/profile'), isNull);
       expect(domainForRoute('/recap'), ShellDomain.health);
       // Unknown / retired routes must not crash a cold launch.
       expect(domainForRoute(''), ShellDomain.today);

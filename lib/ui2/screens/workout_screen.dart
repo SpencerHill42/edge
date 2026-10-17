@@ -38,7 +38,7 @@ import '../activity/poster.dart' show PosterStatRow;
 import '../activity/setup.dart';
 import '../activity/summary.dart';
 import '../charts.dart';
-import '../profile/profile.dart' show ProfileAvatar, openProfile;
+import '../profile/profile.dart' show openProfile;
 import '../grammar.dart';
 import '../revision.dart';
 import '../theme.dart';
@@ -102,8 +102,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> with RevisionReload {
           children: [
             for (final w in <Widget>[
               const CockpitBar(),
-              ScreenTitle(loc?.tabActivity ?? 'Activity',
-                  trailing: const ProfileAvatar()),
+              ScreenTitle(loc?.tabActivity ?? 'Activity'),
               // One signal colour for "selected", whatever the tab (QA 6).
               SubTabs(_tabs(loc), tab, (i) => setState(() => tab = i),
                   color: C.signal),

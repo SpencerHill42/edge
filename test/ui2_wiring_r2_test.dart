@@ -852,8 +852,8 @@ void main() {
       expect(find.byIcon(LucideIcons.sparkles), findsOneWidget);
       expect(find.text('Ask questions about your data: set up the coach'),
           findsOneWidget);
-      // Profile is the avatar every tab carries, not a gear on Home.
-      expect(find.byType(ProfileAvatar), findsOneWidget);
+      // Profile is the "Mehr" tab (Strap Cockpit v0.7): no avatar, no gear.
+      expect(find.byType(ProfileAvatar), findsNothing);
       expect(find.byIcon(LucideIcons.settings), findsNothing);
     });
 

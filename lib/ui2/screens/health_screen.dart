@@ -23,7 +23,6 @@ import '../../l10n/decimal_text.dart';
 import '../../models/metric.dart';
 import '../../models/payloads.dart' show todayHeadlineOf;
 import '../../state/app_state.dart';
-import '../profile/profile.dart' show ProfileAvatar;
 import '../profile/wearable_numbers.dart'
     show WearableCells, kHealthWearableRows;
 import '../ui2.dart';
@@ -649,7 +648,7 @@ class _HealthScreenState extends State<HealthScreen> with RevisionReload {
     final l = AppLocalizations.of(c);
     return ListView(padding: pad, children: [
       const CockpitBar(),
-      ScreenTitle(l?.healthTitle ?? 'Health', trailing: const ProfileAvatar()),
+      ScreenTitle(l?.healthTitle ?? 'Health'),
       // One signal colour for "selected", whatever the tab (QA 6).
       SubTabs(_tabsOf(l), _tab, _select, color: C.signal),
       const SizedBox(height: S.x5),

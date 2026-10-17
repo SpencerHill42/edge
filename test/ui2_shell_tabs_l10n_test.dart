@@ -20,7 +20,7 @@ void main() {
     final semantics = tester.ensureSemantics();
     await _pump(tester, const Locale('de'));
     await tester.pumpAndSettle();
-    for (final de in ['Home', 'Aktivität', 'Gesundheit']) {
+    for (final de in ['Home', 'Aktivität', 'Gesundheit', 'Mehr']) {
       expect(find.text(de), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp('^${RegExp.escape(de)}')),
           findsWidgets);

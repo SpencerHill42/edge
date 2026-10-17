@@ -2645,6 +2645,7 @@
   "sleepDetailStagedBy": "Fases según {label}",
   "sleepDetailDeviceMissingStages": "{label} no informa {stages}; ese tiempo se cuenta en sus otras fases.",
   "tabToday": "Hoy",
+  "tabMore": "Más",
   "tabSleep": "Sueño",
   "tabActivity": "Actividad",
   "deviceUseScoresTitle": "Usar este dispositivo para las puntuaciones",

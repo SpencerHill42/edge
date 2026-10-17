@@ -66,7 +66,6 @@ import '../activity/day_strain.dart' show DayStrainDetail;
 import '../profile/alarm.dart'
     show AlarmArmState, alarmArmOf, alarmDoor, alarmGlanceCard;
 import '../profile/devices.dart' show formatDayTime;
-import '../profile/profile.dart';
 import '../profile/wearable_numbers.dart'
     show WearableCells, kHomeWearableRows;
 import '../ui2.dart';
@@ -1971,10 +1970,8 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
               ],
             ]),
           ),
-          const SizedBox(width: S.x3),
-          // The coach moved to its own chip under the plan, and Profile is the
-          // same avatar every tab carries.
-          const ProfileAvatar(),
+          // Profile is the "Mehr" tab since Strap Cockpit v0.7, not an
+          // avatar here.
         ]),
       ),
 
@@ -2103,11 +2100,13 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
               recoveryNightsLeft: recoveryNightsLeft),
         ],
 
-        // ── today's plan: only what the app can actually stand behind ──
-        // Skipped on a past day — "3,000 steps left" or "aim for 11.4
-        // strain" about a day already over is an instruction, not a fact.
-        if (isToday)
-          Section(l?.homeTodaysPlan ?? "Today's plan", _plan(c, p, d)),
+        // ── today's plan: removed in Strap Cockpit v0.7 ──
+        // Armin needs no step, strain or sleep goals on Home. The briefing
+        // door that sat under the plan stays (today only, as before).
+        if (isToday) ...[
+          const SizedBox(height: S.x5),
+          _briefingDoor(c, d),
+        ],
 
         // ── the way into the whole day ──
         //
@@ -2366,95 +2365,6 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
   }
 
 
-  Widget _plan(BuildContext c, P p, HomeData d) {
-    final l = AppLocalizations.of(c);
-    final rows = <Widget>[];
-
-    final stepsLeft = d.steps.value == null
-        ? null
-        : (d.stepGoal - d.steps.value!).round();
-    if (stepsLeft != null && stepsLeft > 0) {
-      rows.add(_row(
-          p,
-          LucideIcons.footprints,
-          C.green,
-          l?.homeStepsLeft(thousands(stepsLeft)) ?? '${thousands(stepsLeft)} steps left',
-          l?.homeMovement ?? 'Movement',
-          l?.homeGoalSteps(thousands(d.stepGoal)) ?? 'Goal ${thousands(d.stepGoal)}',
-          false));
-    } else if (stepsLeft != null) {
-      rows.add(_row(p, LucideIcons.footprints, C.green,
-          l?.homeStepGoalMet ?? 'Step goal met',
-          l?.homeMovement ?? 'Movement', l?.actionDone ?? 'Done', true));
-    }
-
-    final target = d.strainTarget;
-    if (target != null && target['value'] is num) {
-      final aim = target['value'] as num;
-      // The strain ring is on this screen now, so a row still saying "aim for
-      // 11.4" beside a ring reading 14.2 is a plan the day already overtook.
-      // Same shape the step goal above it has always had.
-      final met = (d.strain.value ?? -1) >= aim;
-      rows.add(_row(
-          p,
-          LucideIcons.zap,
-          C.purple,
-          met
-              ? (l?.homeStrainTargetMet ?? 'Strain target met')
-              : (l?.homeAimForStrain(aim.toStringAsFixed(1)) ??
-                  'Aim for ${aim.toStringAsFixed(1)} strain'),
-          // Built on a wearable's estimated TRIMP: say so.
-          [
-            l?.homeTraining ?? 'Training',
-            if (target['estimated'] == true) l?.wearableEstimated ?? 'Estimated',
-          ].join(' · '),
-          met
-              ? (l?.actionDone ?? 'Done')
-              : '${(target['low'] as num?)?.toStringAsFixed(1) ?? ''}–'
-                  '${(target['high'] as num?)?.toStringAsFixed(1) ?? ''}',
-          met));
-    }
-
-    final need = d.sleepNeedMin.value;
-    if (need != null) {
-      rows.add(_row(
-          p,
-          LucideIcons.bedDouble,
-          C.blue,
-          l?.homeSleepNeedRow(hm(need)) ?? '${hm(need)} of sleep',
-          l?.homeTonight ?? 'Tonight',
-          d.bedtime.value == null
-              ? (l?.homeNeed ?? 'Need')
-              : (l?.homeBedTime(clock(d.bedtime.value)) ?? 'Bed ${clock(d.bedtime.value)}'),
-          false));
-    }
-
-    final planBody = rows.isEmpty
-        ? StatusCard.forMetric(l?.homeNoPlanTitle ?? 'No plan for today yet', d.sleepNeedMin,
-                // "none are established yet" is the COLD-START reason, and it
-                // is a wrong answer when the baselines exist and are being
-                // withheld.
-                why: d.insightsStale != null
-                    ? (l?.homeNoPlanWhyStale ?? 'Your trends are being updated. This takes a minute after a sync.')
-                    : (l?.homeNoPlanWhyNone ?? 'None are established yet.')) ??
-            const SizedBox.shrink()
-        : Surface(
-            pad: const EdgeInsets.symmetric(horizontal: S.x4, vertical: S.x2),
-            child: Column(children: [
-              for (var i = 0; i < rows.length; i++) ...[
-                if (i > 0) Divider(color: p.line, height: 1),
-                rows[i],
-              ],
-            ]),
-          );
-
-    return Column(children: [
-      planBody,
-      const SizedBox(height: S.x3),
-      _briefingDoor(c, d),
-    ]);
-  }
-
   /// The only quick way into [AiBriefingScreen] used to be the notification
   /// that fires when a briefing is ready — dismiss or miss it, and the
   /// screen was two non-obvious taps deep behind Coach's overflow menu
@@ -2506,36 +2416,6 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
     );
   }
 
-  Widget _row(P p, IconData i, Color col, String title, String kind,
-          String meta, bool done) =>
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: S.x3),
-        child: Row(children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration:
-                BoxDecoration(color: p.wash(col), borderRadius: R.rSm),
-            child: Icon(i, size: 16, color: p.on(col)),
-          ),
-          const SizedBox(width: S.x3),
-          Expanded(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(kind, style: F.over.copyWith(color: p.ink3)),
-                  const SizedBox(height: 2),
-                  Text(title, style: F.body.copyWith(color: p.ink)),
-                ]),
-          ),
-          const SizedBox(width: S.x2),
-          Text(meta,
-              textAlign: TextAlign.right,
-              style: F.cap.copyWith(
-                  color: done ? p.on(C.green) : p.ink3,
-                  fontWeight: done ? FontWeight.w600 : FontWeight.w400)),
-        ]),
-      );
 }
 
 /// What happens in the first weeks, with the counts the pipeline actually

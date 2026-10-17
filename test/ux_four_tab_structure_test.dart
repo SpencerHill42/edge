@@ -33,7 +33,8 @@ void main() {
       footer: [Text('plan below the night')],
     )));
     await t.pump();
-    expect(find.byType(ProfileAvatar), findsOneWidget);
+    // No avatar in tab headers since Strap Cockpit v0.7: Profile is a tab.
+    expect(find.byType(ProfileAvatar), findsNothing);
     expect(find.text('plan below the night'), findsOneWidget);
     // A tab has no way back; the pushed screen keeps its arrow.
     expect(find.byIcon(LucideIcons.chevronLeft), findsNothing);

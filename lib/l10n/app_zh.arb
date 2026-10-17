@@ -2616,6 +2616,7 @@
   "sleepDetailStagedBy": "由 {label} 分期",
   "sleepDetailDeviceMissingStages": "{label} 不报告{stages}；这段时间计入它的其他阶段。",
   "tabToday": "今天",
+  "tabMore": "更多",
   "tabSleep": "睡眠",
   "tabActivity": "活动",
   "deviceUseScoresTitle": "用此设备计算评分",

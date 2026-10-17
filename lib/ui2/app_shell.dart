@@ -1,8 +1,9 @@
-// The three-tab shell (Strap Cockpit v0.7; Edge has four).
+// The tab shell (Strap Cockpit v0.7: Home · Activity · Health · More).
 //
-// Home · Activity · Health. Sleep is no longer a tab: the sleep ring on Home
-// opens the same screen with the sleep plan, alarm and body clock under the
-// night (`SleepTab`, pushed). Stable: the contents personalise, the
+// Home · Activity · Health · More. Sleep is no longer a tab: the sleep ring on
+// Home opens the same screen with the sleep plan, alarm and body clock under
+// the night (`SleepTab`, pushed). More is Edge's Profile, which used to be the
+// avatar in every tab's header. Stable: the contents personalise, the
 // mental map does not. Each domain owns an accent, so colour tells you where
 // you are before the label does. Profile is not a tab; every tab's header
 // carries the avatar into it.
@@ -20,13 +21,15 @@ import '../l10n/app_localizations.dart';
 import 'grammar.dart';
 import 'theme.dart';
 
-/// The three primary destinations, in bar order.
+/// The four primary destinations, in bar order.
 enum ShellDomain {
-  // Strap Cockpit v0.7: Edge's Sleep tab is gone (Armin, 2026-10-17); its
-  // screen is pushed from the Home sleep ring. Today is labelled "Home".
+  // Strap Cockpit v0.7 (Armin, 2026-10-17): Edge's Sleep tab is gone (its
+  // screen is pushed from the Home sleep ring), Today is labelled "Home", and
+  // Profile is the last tab, "Mehr", instead of an avatar on every tab.
   today('Today', LucideIcons.gauge, C.domHome),
   activity('Activity', LucideIcons.dumbbell, C.domMove),
-  health('Health', LucideIcons.heartPulse, C.domHealth);
+  health('Health', LucideIcons.heartPulse, C.domHealth),
+  more('More', LucideIcons.menu, C.domHome);
 
   const ShellDomain(this.label, this.icon, this.accent);
 
@@ -41,6 +44,7 @@ enum ShellDomain {
           ShellDomain.today => l?.tabToday,
           ShellDomain.activity => l?.tabActivity,
           ShellDomain.health => l?.tabHealth,
+          ShellDomain.more => l?.tabMore,
         } ??
         label;
   }

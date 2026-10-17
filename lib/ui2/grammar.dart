@@ -2080,18 +2080,23 @@ class ScreenTitle extends StatelessWidget {
     return Padding(
       // Flush with the cards (no S.x1 indent): v0.4 QA finding 5.
       padding: const EdgeInsets.fromLTRB(0, S.x2, 0, S.x3),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: F.t1.copyWith(color: p.ink),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+      // Fixed row height, the same box Home's greeting sits in: without the
+      // avatar (v0.7) the row would otherwise shrink to the text.
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: kTitleRowHeight),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: F.t1.copyWith(color: p.ink),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-          ?trailing,
-        ],
+            ?trailing,
+          ],
+        ),
       ),
     );
   }

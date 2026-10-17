@@ -15217,6 +15217,10 @@
     "description": "Health tab: subtitle of the link row to the Advanced charts screen."
   },
   "tabToday": "Home",
+  "tabMore": "More",
+  "@tabMore": {
+    "description": "Last tab: profile, devices, settings (Strap Cockpit)."
+  },
   "@tabToday": {
     "description": "Bottom tab: today's scores and plan."
   },

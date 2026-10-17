@@ -96,7 +96,8 @@ class DayNote {
 Map<int, (String, IconData)> _events(AppLocalizations? l) => {
   7: (l?.dayTimelineChargerOn ?? 'On the charger', LucideIcons.batteryCharging),
   8: (l?.dayTimelineChargerOff ?? 'Off the charger', LucideIcons.batteryFull),
-  14: (l?.dayTimelineDoubleTap ?? 'You double-tapped the band', LucideIcons.hand),
+  // 14 (double tap) left out in Strap Cockpit: on Armin's band it is always
+  // an accidental tap, never something he did on purpose (2026-10-17).
   15: (l?.dayTimelineRestarted ?? 'The band restarted', LucideIcons.rotateCw),
   21: (l?.dayTimelineBatteryPackAttached ?? 'Battery pack attached',
       LucideIcons.batteryCharging),

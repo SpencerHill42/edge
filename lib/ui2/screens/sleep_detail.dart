@@ -29,7 +29,6 @@ import '../../state/locale_controller.dart';
 import '../../state/prefs.dart';
 import '../../models/metric.dart';
 import '../profile/devices.dart' show DeviceFilter;
-import '../profile/profile.dart' show ProfileAvatar;
 import '../ui2.dart';
 import 'home_screen.dart';
 import 'investigate.dart';
@@ -410,7 +409,7 @@ class _SleepDetailState extends State<SleepDetail> with RevisionReload {
         padding: const EdgeInsets.fromLTRB(S.x4, S.x2, S.x4, S.x16),
         children: [
           const CockpitBar(),
-          ScreenTitle(title, trailing: const ProfileAvatar()),
+          ScreenTitle(title),
           if (sub.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(left: S.x1, bottom: S.x2),

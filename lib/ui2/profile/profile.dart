@@ -142,8 +142,8 @@ Widget settingsGroup(BuildContext c, String title, List<Widget> rows) {
 Future<void> goto(BuildContext c, Widget w) =>
     Navigator.of(c).push(MaterialPageRoute<void>(builder: (_) => w));
 
-/// The one way into the profile stack. [ProfileAvatar] calls this — profile
-/// is a pushed route, never a tab.
+/// A pushed copy of the profile stack, for "fix it in Profile" doors. Strap
+/// Cockpit v0.7 also has it as the "Mehr" tab (`ProfileHome(embedded: true)`).
 void openProfile(BuildContext c) => goto(c, const ProfileHome());
 
 /// The way into Profile, in the top-right of every tab. It used to be a gear
@@ -264,7 +264,10 @@ class ProfileStats {
 }
 
 class ProfileHome extends StatefulWidget {
-  const ProfileHome({super.key});
+  /// The "Mehr" tab's root (Strap Cockpit v0.7): tab header, no back arrow.
+  final bool embedded;
+
+  const ProfileHome({super.key, this.embedded = false});
 
   @override
   State<ProfileHome> createState() => _ProfileHomeState();
@@ -308,6 +311,7 @@ class _ProfileHomeState extends State<ProfileHome> {
   Widget build(BuildContext c) => FutureBuilder<ProfileStats>(
         future: _stats,
         builder: (c, snap) => ProfileHomeView(
+          embedded: widget.embedded,
           stats: snap.data,
           onDevices: () => _open(c, const MyDevices()),
           onSettings: () => _open(c, const MoreSettings()),
@@ -324,8 +328,12 @@ class ProfileHomeView extends StatelessWidget {
   final ProfileStats? stats;
   final VoidCallback? onDevices, onSettings, onExport, onEdit, onCoach;
 
+  /// The "Mehr" tab's root rather than a pushed screen (Strap Cockpit v0.7).
+  final bool embedded;
+
   const ProfileHomeView(
       {super.key,
+      this.embedded = false,
       this.stats,
       this.onDevices,
       this.onCoach,
@@ -339,19 +347,7 @@ class ProfileHomeView extends StatelessWidget {
     final p = P.of(c);
     final l = AppLocalizations.of(c);
     final s = stats;
-    return Scaffold(
-      backgroundColor: p.bg,
-      body: SafeArea(
-        child: Column(children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: S.x4),
-            child: NavBar(l?.profileTitle ?? 'Profile'),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(S.x4, 0, S.x4, S.x10),
-              children: [
-                const SizedBox(height: S.x4),
+    final groups = <Widget>[
                 settingsGroup(c, l?.profileQuickAccessGroup ?? 'Quick access', [
                   // The band's battery rides the devices row: Profile is
                   // where "is my band all right?" is asked from every tab.
@@ -442,6 +438,33 @@ class ProfileHomeView extends StatelessWidget {
                               'sponsoring keeps it going',
                       onTap: () => open3rdPartyLink(kSponsorUrl)),
                 ]),
+    ];
+    // Strap Cockpit v0.7: the root of the "Mehr" tab. The header every tab
+    // wears, no back arrow.
+    if (embedded) {
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(S.x4, S.x2, S.x4, S.x16),
+        children: [
+          const CockpitBar(),
+          ScreenTitle(l?.tabMore ?? 'More'),
+          ...groups,
+        ],
+      );
+    }
+    return Scaffold(
+      backgroundColor: p.bg,
+      body: SafeArea(
+        child: Column(children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: S.x4),
+            child: NavBar(l?.profileTitle ?? 'Profile'),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(S.x4, 0, S.x4, S.x10),
+              children: [
+                const SizedBox(height: S.x4),
+                ...groups,
               ],
             ),
           ),
@@ -449,5 +472,4 @@ class ProfileHomeView extends StatelessWidget {
       ),
     );
   }
-
 }

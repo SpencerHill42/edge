@@ -35,8 +35,9 @@ unchanged. This file only adds what is specific to the fork.
   "Keine" out of the figure face. Radii: inset 14 (`R.md`), tile 18 (`R.lg`),
   card 24, chip 999. Cards: `card` + 1px `line`, no shadow on dark.
 - Every tab starts with `CockpitBar` (sign + STRAP) and a 40 pt title row
-  (`ScreenTitle`, Home's greeting matches it); list top inset `S.x2`. Avatars
-  and selected sub-tabs use the signal colour, not Edge's domain accents.
+  (`ScreenTitle`, Home's greeting matches it); list top inset `S.x2`. No
+  avatar in tab headers since v0.7 (Profile is the "Mehr" tab). Selected
+  sub-tabs use the signal colour, not Edge's domain accents.
 - Sleep stages: one violet family (`C.stage*`); zones Z1–Z5 blue ramp on dark
   only (`C.zone*`), hue ramp on white (solved blues collapse there).
 - Rings: 270° segmented scale (`Ring`, `DashedRing` in `lib/ui2/charts.dart`).
@@ -81,13 +82,19 @@ unchanged. This file only adds what is specific to the fork.
   one header for all tabs, mono only for labels, figures in Barlow, one
   selection colour, no clipped sub-tabs, German stress level / unit / comma.
 - v0.6: app icon and home-screen name "Turbo Health" (`Info.plist`).
-- v0.7: first restructure step (Armin, 2026-10-17): Sleep tab removed, three
-  tabs Home · Aktivität · Gesundheit (`ShellDomain` has no `sleep`; label
-  `tabToday` = "Home" in de/en). The Home sleep ring pushes `SleepTab(day:)`:
-  the same sleep screen with plan, alarm and body clock, so nothing is lost.
-  `/sleep` notifications land on Home and push it; `/alarm` pushes the alarm
-  over Home. Saved tab moved to `Prefs.shellTabV3`, the four-tab index is
-  translated once. Aktivität and Gesundheit: Armin is still deciding.
+- v0.7: first restructure step (Armin, 2026-10-17). Tabs Home · Aktivität ·
+  Gesundheit · Mehr (`ShellDomain`: no `sleep`, new `more`; `tabToday` =
+  "Home" in de/en, `tabMore` = "Mehr").
+  - Sleep tab removed: the Home sleep ring pushes `SleepTab(day:)`, the same
+    sleep screen with plan, alarm and body clock. `/sleep` notifications land
+    on Home and push it; `/alarm` pushes the alarm over Home.
+  - Profile avatar removed from every header; Profile is the "Mehr" tab
+    (`ProfileHome(embedded: true)`, menu icon). `/profile` lands there.
+  - Home: "Plan für heute" (step, strain, sleep goals) removed; the briefing
+    door under it stays. Day timeline: no "double-tapped the band" line
+    (event 14; always accidental for Armin).
+  - Saved tab under `Prefs.shellTabV3`; the four-tab index is translated once.
+  - Aktivität and Gesundheit: Armin is still deciding whether to keep them.
 
 ## Design QA (every build)
 
