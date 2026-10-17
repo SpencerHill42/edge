@@ -825,7 +825,9 @@ class LiveHeart extends StatelessWidget {
         spacing: S.x2,
         runSpacing: S.x1,
         children: [
-          Row(mainAxisSize: MainAxisSize.min, children: [
+          // Strap Cockpit: a Wrap too — the beat in the wider figure face
+          // pushed its own unit 15 px off a 390 pt screen at 3.1x.
+          Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
             Icon(LucideIcons.heart, size: 18, color: p.on(C.red)),
             const SizedBox(width: S.x2),
             Text('${feed.hr}', style: F.n24.copyWith(color: p.ink)),

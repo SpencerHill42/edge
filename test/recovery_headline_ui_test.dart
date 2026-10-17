@@ -52,7 +52,7 @@ void main() {
         const HomeData(
             recoveryState: 'provisional',
             readiness: Metric(value: 27.6, confidence: .8)));
-    expect(find.text('28'), findsOneWidget);
+    expect(find.text('28 %'), findsOneWidget);
     expect(find.text('Finishing up'), findsOneWidget);
   });
 
@@ -65,7 +65,7 @@ void main() {
             recoveryState: 'final',
             readiness: const Metric(value: 28, confidence: .8),
             readinessUpdate: {'from': 2, 'to': 28, 'at': at}));
-    expect(find.text('28'), findsOneWidget);
+    expect(find.text('28 %'), findsOneWidget);
     expect(find.text('Finishing up'), findsNothing);
     final clock = formatClockOf(DateTime.fromMillisecondsSinceEpoch(at));
     expect(find.text('Updated $clock · 2 → 28'), findsOneWidget);

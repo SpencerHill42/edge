@@ -209,6 +209,8 @@ Map<String, Widget> componentCases() => {
       'ecg_reading_row': Surface(
           pad: EdgeInsets.zero,
           child: EcgReadingRow(reading: _ecgDemoReading, onTap: () {})),
+      // Strap Cockpit: the bar every tab starts with (sign + STRAP).
+      'cockpit_bar': const CockpitBar(),
       'signal': const SignalCard(
           LucideIcons.heartPulse, C.blue, 'Resting heart rate', '52',
           unit: 'bpm', sub: '4 BELOW YOUR BASELINE'),

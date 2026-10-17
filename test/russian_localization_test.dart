@@ -359,7 +359,8 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('Бег'), findsOneWidget);
-    for (final title in ['Сегодня', 'Сон', 'Активность', 'Здоровье']) {
+    // Strap Cockpit v0.7: no Sleep tab, "More" is the fourth.
+    for (final title in ['Сегодня', 'Активность', 'Здоровье', 'Ещё']) {
       expect(find.text(title), findsOneWidget);
     }
     expect(tester.takeException(), isNull);

@@ -46,6 +46,26 @@ Check with `flutter doctor -v`; Android parts can stay red.
    fix it for local builds only (e.g. `ios/Config/Signing.xcconfig`, which is
    gitignored; see `Signing.xcconfig.example`). Do not commit signing changes.
 
+### State on Armin's Mac (set up 2026-10-17)
+
+- Repo `~/Developer/edge`, Flutter 3.41.6 in `~/development/flutter`
+  (PATH and `LANG=en_US.UTF-8` in `~/.zshrc`), CocoaPods 1.17 via Homebrew,
+  Xcode with the iOS 27.0 and 27.1 runtimes.
+- Simulator "iPhone 14 Pro" (Armin's phone) on **iOS 27.0**, created by hand:
+  Xcode only ships current models, and the 27.1 runtime refuses the 14 Pro.
+  `xcrun simctl create "iPhone 14 Pro" com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro com.apple.CoreSimulator.SimRuntime.iOS-27-0`
+- Before the first `pod install`: `flutter precache --ios` (or just
+  `flutter run`, which does both).
+- `flutterfire --version` hangs at 100 % CPU (update check); the CLI itself
+  is installed and the build phase works. Kill it, don't wait.
+- The log line `Firebase init failed … duplicate-app` on launch is harmless.
+- First run without a band: Mein Band einrichten → scroll to the end →
+  Vorerst überspringen → Über dich: Keine Angabe → Weiter → Home.
+- Hot reload from a script: `flutter run … --pid-file <file>`, then
+  `kill -USR1 $(cat <file>)` (reload) or `-USR2` (restart).
+- `flutter pub get` rewrites `pubspec.lock` (quoted SHAs only). Do not
+  commit that: `git checkout pubspec.lock`.
+
 ## Real data in the Simulator
 
 The Simulator cannot pair the band. For real numbers: Armin exports a full
@@ -66,9 +86,14 @@ empty/first-run states, which are worth checking too.
 4. Commit, push to `main`: CI builds the IPA for AltStore (Armin's phone).
    Docs-only commits get `[skip ci]`.
 
-## Open item for the first session
+## CI test status
 
-The CI test job has been red since v0.3 (failures not visible from the cloud:
-the log storage is blocked there). Run `flutter test --concurrency=1`
-locally, list the failures, and fix the ones caused by the fork (theme, l10n,
-shell, fonts) without breaking Edge's invariants.
+Since v0.3 the CI test job was red. On 2026-10-17 the full suite ran locally
+(6182 tests): 22 failures, 21 from the fork, all fixed on `fix/fork-tests`.
+Causes: the cockpit's wider figure face (Barlow, n24 28 / n48 52) and the
+1 px card border overflowing rows at 2.0–3.1x text; ring values now read
+"28 %"; v0.7 tabs (no Sleep tab, "Mehr"); `CockpitBar` missing from the
+gallery; a Russian key; a test-wide sqflite FFI setup that hung Home's
+past-day load. The one remaining failure,
+`health_workout_export_delete_gate_test.dart`, fails on upstream 0.11.3 too
+and is left to upstream.

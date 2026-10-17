@@ -41,11 +41,14 @@ unchanged. This file only adds what is specific to the fork.
 - Sleep stages: one violet family (`C.stage*`); zones Z1–Z5 blue ramp on dark
   only (`C.zone*`), hue ramp on white (solved blues collapse there).
 - Rings: 270° segmented scale (`Ring`, `DashedRing` in `lib/ui2/charts.dart`).
-- App icon: "Turbo Health" from the icon canvas
-  https://claude.ai/artifact/5qyxBj2LV27jaYsMxLvcEY (board "Turbo – L4
-  optimiert"). Source `assets/branding/turbo-health-icon.svg` (Archivo 800,
-  OFL); rendered with Chromium to 1024 px and resized into
-  `ios/Runner/Assets.xcassets/AppIcon.appiconset`.
+- App icon (since 2026-10-17): the grayscale pulse ("Health") from the icon
+  canvas https://claude.ai/artifact/5qyxBj2LV27jaYsMxLvcEY (board "Pro-Look –
+  Graustufen"): chrome pulse line and dot on a dark gray gradient. Source
+  `assets/branding/turbo-health-icon-mono.svg` (full square, iOS masks the
+  corners); rendered with headless Chrome to 1024 px and resized with `sips`
+  into `ios/Runner/Assets.xcassets/AppIcon.appiconset`. The earlier "TH"
+  wordmark icon (board "Turbo – L4 optimiert", v0.6) stays as
+  `assets/branding/turbo-health-icon.svg`.
 
 ## Build and install
 

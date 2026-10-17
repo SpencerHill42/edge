@@ -3352,6 +3352,7 @@
   "homeTryAgain": "Повторить",
   "homeNothingDerivedTitle": "Ночей с оценкой пока нет",
   "homeNothingDerivedBody": "Наденьте браслет на ночь и откройте приложение утром.",
+  "homeUpdatingInline": "обновляется …",
   "homeSyncedThrough": "Данные по {when}",
   "@homeSyncedThrough": {
     "placeholders": {

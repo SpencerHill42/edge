@@ -386,24 +386,44 @@ class SignalCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: S.x3),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Flexible(
-                child: Text(
-                  value,
-                  style: F.value(value).copyWith(color: p.ink),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+          // Strap Cockpit: at accessibility sizes a half-width tile cannot
+          // hold the figure face and its unit on one line ("7…" or worse, an
+          // empty tile), so there the unit goes below the value and the value
+          // scales down rather than breaking mid-figure ("7:1 / 2").
+          if (bigText(c))
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.end,
+              spacing: S.x1,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child:
+                      Text(value, style: F.value(value).copyWith(color: p.ink)),
                 ),
-              ),
-              if (unit.isNotEmpty) ...[
-                const SizedBox(width: S.x1),
-                Text(uiText(c, unit), style: F.cap.copyWith(color: p.ink3)),
+                if (unit.isNotEmpty)
+                  Text(uiText(c, unit), style: F.cap.copyWith(color: p.ink3)),
               ],
-            ],
-          ),
+            )
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Flexible(
+                  child: Text(
+                    value,
+                    style: F.value(value).copyWith(color: p.ink),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (unit.isNotEmpty) ...[
+                  const SizedBox(width: S.x1),
+                  Text(uiText(c, unit), style: F.cap.copyWith(color: p.ink3)),
+                ],
+              ],
+            ),
           if (sub.isNotEmpty) ...[
             const SizedBox(height: S.x1),
             Text(
@@ -1367,6 +1387,17 @@ class MetricRow extends StatelessWidget {
         if (sub.isNotEmpty) Text(sub, style: F.over.copyWith(color: p.ink3)),
       ],
     );
+    final big = bigText(c);
+    // A word ("Not set", "None") keeps Edge's text-face value: the figure face
+    // is for figures, and a phrase in it outgrew the row (cycle settings).
+    final figure = Text(
+      value,
+      style: identical(F.value(value), F.n24)
+          ? F.n24.copyWith(color: p.ink)
+          : F.body.copyWith(color: p.ink, fontWeight: FontWeight.w600),
+      maxLines: big ? null : 1,
+      overflow: big ? null : TextOverflow.ellipsis,
+    );
     final amount = Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -1377,13 +1408,10 @@ class MetricRow extends StatelessWidget {
         // reading `1… br/min` — a truncated measurement, which this row is
         // supposed to never do. It is the name that gives way now.
         // Strap Cockpit: every measured value in the figure face, its unit
-        // small in the text face (v0.4 QA finding 7).
-        Text(
-          value,
-          style: F.n24.copyWith(color: p.ink),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        // small in the text face (v0.4 QA finding 7). The figure face is
+        // too wide for one line at accessibility sizes, so there (alone on
+        // its own line in the Wrap, bounded) the value wraps instead.
+        big ? Flexible(child: figure) : figure,
         if (unit.isNotEmpty) ...[
           const SizedBox(width: 3),
           Text(displayUnit, style: F.cap.copyWith(color: p.ink3)),
@@ -1432,7 +1460,7 @@ class MetricRow extends StatelessWidget {
               .trim(),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: S.x2),
-        child: bigText(c)
+        child: big
             // A dense row cannot stay one line at accessibility sizes without
             // truncating the measurement, and a truncated measurement is worse
             // than a taller row.

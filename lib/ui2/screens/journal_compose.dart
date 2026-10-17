@@ -306,11 +306,13 @@ class _JournalComposeState extends State<JournalCompose> {
                                         Icon(LucideIcons.plusCircle,
                                             size: 18, color: p.ink3),
                                         const SizedBox(width: S.x2),
-                                        Text(
-                                            l?.journalComposeTrackSomethingElse ??
-                                                'Track something else',
-                                            style:
-                                                F.body.copyWith(color: p.ink3)),
+                                        Flexible(
+                                          child: Text(
+                                              l?.journalComposeTrackSomethingElse ??
+                                                  'Track something else',
+                                              style: F.body
+                                                  .copyWith(color: p.ink3)),
+                                        ),
                                       ],
                                     ),
                                   ),

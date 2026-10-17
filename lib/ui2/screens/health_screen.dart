@@ -1566,16 +1566,29 @@ class _HealthScreenState extends State<HealthScreen> with RevisionReload {
             ]),
           ),
           const SizedBox(width: S.x2),
-          Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(v == null ? '' : (m?.format(v) ?? v.toString()),
-                    style: F.n17.copyWith(
-                        color: inRange == false ? p.on(C.orange) : p.ink)),
-                const SizedBox(width: 3),
-                Text(unit, style: F.over.copyWith(color: p.ink3)),
-              ]),
+          ...() {
+            final reading = [
+              Text(v == null ? '' : (m?.format(v) ?? v.toString()),
+                  style: F.n17.copyWith(
+                      color: inRange == false ? p.on(C.orange) : p.ink)),
+              const SizedBox(width: 3),
+              Text(unit, style: F.over.copyWith(color: p.ink3)),
+            ];
+            // Strap Cockpit: the bolder figure face pushed this row 4 px past
+            // the card at 3x, so at accessibility sizes the unit may wrap.
+            return [
+              if (bigText(context))
+                Flexible(
+                    child: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.end,
+                        children: reading))
+              else
+                Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: reading),
+            ];
+          }(),
           // This is the user's own blood work in an app that keeps it on their
           // phone; being able to take it back out is the premise, not a setting.
           const SizedBox(width: S.x2),
