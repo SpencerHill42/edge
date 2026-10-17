@@ -1,7 +1,9 @@
 # Strap Cockpit — private fork of OpenStrap Edge
 
 Armin's personal iPhone app for his WHOOP 5.0 band, built on OpenStrap Edge.
-Private use only, never distributed. UI copy is German.
+Private use only, never distributed. UI copy is German. Home-screen name
+"Turbo Health" (part of Armin's "Turbo" app family) since v0.6; inside the
+app the wordmark is still STRAP.
 
 Read `AGENTS.md` first: Edge's invariants (commit before ACK, never fabricate a
 metric, local day labels, heavy compute off the UI isolate, …) apply here
@@ -38,6 +40,11 @@ unchanged. This file only adds what is specific to the fork.
 - Sleep stages: one violet family (`C.stage*`); zones Z1–Z5 blue ramp on dark
   only (`C.zone*`), hue ramp on white (solved blues collapse there).
 - Rings: 270° segmented scale (`Ring`, `DashedRing` in `lib/ui2/charts.dart`).
+- App icon: "Turbo Health" from the icon canvas
+  https://claude.ai/artifact/5qyxBj2LV27jaYsMxLvcEY (board "Turbo – L4
+  optimiert"). Source `assets/branding/turbo-health-icon.svg` (Archivo 800,
+  OFL); rendered with Chromium to 1024 px and resized into
+  `ios/Runner/Assets.xcassets/AppIcon.appiconset`.
 
 ## Build and install
 
@@ -70,6 +77,7 @@ unchanged. This file only adds what is specific to the fork.
   bundled Instrument Sans + IBM Plex Mono, hairline cards, chips, section
   titles, tab bar; tab names back to Heute · Schlaf · Aktivität · Gesundheit
   so name and content match. Restructuring tabs/screens is a later phase.
+- v0.6: app icon and home-screen name "Turbo Health" (`Info.plist`).
 - v0.5: fixes from the first design QA (`docs/design-qa/2026-10-17-v0.4.md`):
   one header for all tabs, mono only for labels, figures in Barlow, one
   selection colour, no clipped sub-tabs, German stress level / unit / comma.
@@ -109,4 +117,4 @@ unchanged. This file only adds what is specific to the fork.
 5. Verlauf screen from the design.
 6. Garmin history from the GDPR export (requested 2026-10-16): its own series
    beside OpenStrap's, never blended into baselines.
-7. App icon.
+7. ~~App icon~~ (v0.6, Turbo Health).
