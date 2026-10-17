@@ -35,7 +35,8 @@ import '../l10n/presentation_text.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show RenderAbstractViewport;
+import 'package:flutter/rendering.dart'
+    show RenderAbstractViewport, RenderParagraph, RenderProxyBox;
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../data/journal_fields.dart' show formatMinuteOfDay;
@@ -282,53 +283,68 @@ class Section extends StatelessWidget {
   @override
   Widget build(BuildContext c) {
     final p = P.of(c);
+    // At accessibility sizes the action goes UNDER the title: side by side
+    // each gets half the row, and "Trainingsbelastung" next to its action
+    // broke mid-word while the action ellipsised to "Belast…".
+    final stacked = action != null && bigText(c);
+    final heading = WordSafeText(
+      title,
+      maxScale: kHeadingMaxScale,
+      // Strap Cockpit: sections are the canvas's head/m ("Mein
+      // Tag"); card titles inside them stay F.head.
+      style: F.t2.copyWith(color: p.ink),
+      // Two lines keep a normal-size list tidy; at accessibility sizes a
+      // cap only cuts the title ("Kopf, Gewohnheiten u…").
+      maxLines: wrapTitle || bigText(c) ? null : 2,
+      overflow: wrapTitle || bigText(c)
+          ? TextOverflow.visible
+          : TextOverflow.ellipsis,
+    );
+    Widget? link;
+    if (action != null) {
+      link = Pressable(
+        onTap: onAction,
+        child: Padding(
+          padding: stacked
+              ? const EdgeInsets.only(top: S.x1)
+              : const EdgeInsets.symmetric(horizontal: S.x2),
+          child: WordSafeText(
+            action!,
+            style: F.cap.copyWith(
+              color: p.on(C.blue),
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: stacked ? null : 1,
+            overflow: stacked ? null : TextOverflow.ellipsis,
+          ),
+        ),
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(S.x1, S.x5, S.x1, S.x2),
-          child: Row(
-            // spaceBetween owns the gap, so the action sits on the right edge
-            // however short the title is. Previously the title was Expanded
-            // and the action Flexible — both default to flex: 1, so they split
-            // the row 50/50 and the action started at the midpoint instead of
-            // being anchored. Making the action a plain child fixes the anchor
-            // but overflows on a long title, so the TITLE is the half that
-            // gives: Flexible, two lines, ellipsised.
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  title,
-                  // Strap Cockpit: sections are the canvas's head/m ("Mein
-                  // Tag"); card titles inside them stay F.head.
-                  style: F.t2.copyWith(color: p.ink),
-                  maxLines: wrapTitle ? null : 2,
-                  overflow: wrapTitle
-                      ? TextOverflow.visible
-                      : TextOverflow.ellipsis,
+          child: stacked
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [heading, link!],
+                )
+              : Row(
+                  // spaceBetween owns the gap, so the action sits on the
+                  // right edge however short the title is. Previously the
+                  // title was Expanded and the action Flexible — both default
+                  // to flex: 1, so they split the row 50/50 and the action
+                  // started at the midpoint instead of being anchored. Making
+                  // the action a plain child fixes the anchor but overflows
+                  // on a long title, so the TITLE is the half that gives:
+                  // Flexible, two lines, ellipsised.
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(child: heading),
+                    if (link != null) Flexible(child: link),
+                  ],
                 ),
-              ),
-              if (action != null)
-                Flexible(
-                  child: Pressable(
-                    onTap: onAction,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: S.x2),
-                      child: Text(
-                        action!,
-                        style: F.cap.copyWith(
-                          color: p.on(C.blue),
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
         ),
         child,
       ],
@@ -1146,7 +1162,7 @@ class StatusCard extends StatelessWidget {
               leading ?? Icon(icon, size: 16, color: p.ink3),
               const SizedBox(width: S.x2),
               Expanded(
-                child: Text(
+                child: WordSafeText(
                   uiText(c, what),
                   style: F.body.copyWith(
                     color: p.ink2,
@@ -2097,6 +2113,205 @@ class CockpitBar extends StatelessWidget {
 /// greeting and the other tabs' titles share one baseline.
 const double kTitleRowHeight = 40;
 
+/// How far display-size headings (`F.t1`, `F.t2`) grow with Dynamic Type.
+/// iOS's own Title styles stop at about 2.1x at AX5 while body text reaches
+/// 3.1x; past that a 20 pt section title is 62 pt and "Schnellzugriff" no
+/// longer fits a 393 pt phone.
+const double kHeadingMaxScale = 2.0;
+
+/// Text that never breaks inside a word at large text sizes.
+///
+/// Flutter breaks a word that is wider than the line mid-word
+/// ("Schnellzugr / iff", "Systemstandar / d"). This grows with Dynamic Type
+/// up to [maxScale] and further only as far as the longest word still fits
+/// the width it is given; between words it wraps as usual. Headings pass
+/// [kHeadingMaxScale]; body text keeps the full scale unless one word would
+/// not fit.
+class WordSafeText extends StatelessWidget {
+  final String text;
+  final TextStyle style;
+  final int? maxLines;
+  final TextOverflow? overflow;
+  final TextAlign? textAlign;
+  final double maxScale;
+  const WordSafeText(
+    this.text, {
+    super.key,
+    required this.style,
+    this.maxLines,
+    this.overflow,
+    this.textAlign,
+    this.maxScale = double.infinity,
+  });
+
+  @override
+  Widget build(BuildContext c) {
+    final max = MediaQuery.textScalerOf(c).clamp(maxScaleFactor: maxScale);
+    return _WordSafeBox(
+      span: TextSpan(
+        text: text,
+        style: DefaultTextStyle.of(c).style.merge(style),
+      ),
+      maxScaler: max,
+      maxLines: maxLines,
+      ellipsis: overflow == TextOverflow.ellipsis,
+      textAlign: textAlign ?? TextAlign.start,
+      textDirection: Directionality.of(c),
+      // A plain Text underneath, so finders and anything reading
+      // `Text.data` still see it; the box above only picks its scale.
+      child: Text(
+        text,
+        style: style,
+        textScaler: max,
+        maxLines: maxLines,
+        overflow: overflow,
+        textAlign: textAlign,
+      ),
+    );
+  }
+}
+
+// Picks the child paragraph's scale at layout time, from the width it is
+// given. Not a LayoutBuilder: those cannot answer intrinsic sizes, and Home's
+// glance pairs sit in an IntrinsicHeight.
+class _WordSafeBox extends SingleChildRenderObjectWidget {
+  final TextSpan span;
+  final TextScaler maxScaler;
+  final int? maxLines;
+  final bool ellipsis;
+  final TextAlign textAlign;
+  final TextDirection textDirection;
+  const _WordSafeBox({
+    required this.span,
+    required this.maxScaler,
+    required this.maxLines,
+    required this.ellipsis,
+    required this.textAlign,
+    required this.textDirection,
+    required super.child,
+  });
+
+  @override
+  _RenderWordSafe createRenderObject(BuildContext c) => _RenderWordSafe()
+    ..span = span
+    ..maxScaler = maxScaler
+    ..maxLines = maxLines
+    ..ellipsis = ellipsis
+    ..textAlign = textAlign
+    ..textDirection = textDirection;
+
+  @override
+  void updateRenderObject(BuildContext c, _RenderWordSafe r) => r
+    ..span = span
+    ..maxScaler = maxScaler
+    ..maxLines = maxLines
+    ..ellipsis = ellipsis
+    ..textAlign = textAlign
+    ..textDirection = textDirection;
+}
+
+class _RenderWordSafe extends RenderProxyBox {
+  TextSpan _span = const TextSpan();
+  double? _word; // the widest single word at 1x, measured once per text
+  set span(TextSpan v) {
+    if (v == _span) return;
+    _span = v;
+    _word = null;
+    markNeedsLayout();
+  }
+
+  TextScaler _max = TextScaler.noScaling;
+  set maxScaler(TextScaler v) {
+    if (v == _max) return;
+    _max = v;
+    markNeedsLayout();
+  }
+
+  // Only read by the intrinsic and dry measurements; the child paragraph
+  // gets the same values from its Text.
+  int? maxLines;
+  bool ellipsis = false;
+  TextAlign textAlign = TextAlign.start;
+  TextDirection textDirection = TextDirection.ltr;
+
+  double get _widestWord {
+    if (_word case final w?) return w;
+    var widest = 0.0;
+    for (final w in (_span.text ?? '').split(RegExp(r'\s+'))) {
+      if (w.isEmpty) continue;
+      final tp = TextPainter(
+        text: TextSpan(text: w, style: _span.style),
+        textDirection: textDirection,
+        maxLines: 1,
+      )..layout();
+      widest = math.max(widest, tp.width);
+      tp.dispose();
+    }
+    return _word = widest;
+  }
+
+  TextScaler _fit(double width) {
+    final size = _span.style?.fontSize ?? 14;
+    final factor = _max.scale(size) / size;
+    final word = _widestWord;
+    if (!width.isFinite || word <= 0) return _max;
+    // 2 % slack for rounding, so the word does not break on a hair. Below
+    // half size a word is unreadable either way; let it break then.
+    final fit = width * .98 / word;
+    return fit < factor ? TextScaler.linear(math.max(.5, fit)) : _max;
+  }
+
+  TextPainter _painter(double width) => TextPainter(
+    text: _span,
+    textAlign: textAlign,
+    textDirection: textDirection,
+    textScaler: _fit(width),
+    maxLines: maxLines,
+    ellipsis: ellipsis ? '\u2026' : null,
+  )..layout(maxWidth: width);
+
+  double _heightFor(double width) {
+    final tp = _painter(width);
+    final h = tp.height;
+    tp.dispose();
+    return h;
+  }
+
+  RenderParagraph? get _paragraph {
+    RenderObject? o = child;
+    while (o is RenderProxyBox) {
+      o = o.child;
+    }
+    return o is RenderParagraph ? o : null;
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) => _heightFor(width);
+
+  @override
+  double computeMaxIntrinsicHeight(double width) => _heightFor(width);
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final tp = _painter(constraints.maxWidth);
+    final size = constraints.constrain(Size(tp.width, tp.height));
+    tp.dispose();
+    return size;
+  }
+
+  @override
+  void performLayout() {
+    final para = _paragraph;
+    final s = _fit(constraints.maxWidth);
+    // The scale depends on the width, which is only known now; the callback
+    // is the sanctioned way to change a child during layout.
+    if (para != null && para.textScaler != s) {
+      invokeLayoutCallback<BoxConstraints>((_) => para.textScaler = s);
+    }
+    super.performLayout();
+  }
+}
+
 class ScreenTitle extends StatelessWidget {
   final String title;
   final Widget? trailing;
@@ -2115,10 +2330,11 @@ class ScreenTitle extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: Text(
+              child: WordSafeText(
                 title,
+                maxScale: kHeadingMaxScale,
                 style: F.t1.copyWith(color: p.ink),
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),

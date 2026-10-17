@@ -72,9 +72,14 @@ class StartCard extends StatelessWidget {
                 children: [
                   Text(label, style: F.tag(label).copyWith(color: p.ink3)),
                   const SizedBox(height: S.x2),
-                  Text('$count $noun', style: F.t2.copyWith(color: p.ink)),
+                  // Never "Aktivitä / ten" at the largest text size.
+                  WordSafeText(
+                    '$count $noun',
+                    maxScale: kHeadingMaxScale,
+                    style: F.t2.copyWith(color: p.ink),
+                  ),
                   const SizedBox(height: S.x1),
-                  Text(subText, style: F.cap.copyWith(color: p.ink3)),
+                  WordSafeText(subText, style: F.cap.copyWith(color: p.ink3)),
                 ],
               ),
             ),
@@ -83,7 +88,9 @@ class StartCard extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                  color: p.fill(C.signal), shape: BoxShape.circle),
+                color: p.fill(C.signal),
+                shape: BoxShape.circle,
+              ),
               child: Icon(LucideIcons.play, size: 22, color: p.inkOnFill),
             ),
           ],
