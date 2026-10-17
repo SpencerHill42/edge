@@ -143,3 +143,14 @@ unchanged. This file only adds what is specific to the fork.
 6. Garmin history from the GDPR export (requested 2026-10-16): its own series
    beside OpenStrap's, never blended into baselines.
 7. ~~App icon~~ (v0.6, Turbo Health).
+8. VO2max in the app (Armin, 2026-10-17): its own card/trend, not only in
+   the run summary. Exists today: a submax estimate per run, from one
+   completed km at steady state (`sessions.vo2max_estimate`, analytics
+   `clinical/vo2max.dart`, shown in `ui2/activity/summary.dart`). Show the
+   latest value and its trend; no run with a valid km → "—", never a guess.
+9. Fitness age (Armin, 2026-10-17): an estimate from that measured VO2max
+   against age/sex norms, with "X Jahre jünger/älter als dein Alter" next
+   to it. Edge deliberately deleted its old `physiologicalAge` (15.3·maxHr/rhr
+   was a fabricated input, see `derivation_engine.dart`), so: only from a
+   real VO2max, needs age and sex from the profile, abstains otherwise, and
+   the norm table is cited. A new metric belongs in OpenStrap/analytics.
