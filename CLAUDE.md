@@ -95,6 +95,11 @@ unchanged. This file only adds what is specific to the fork.
     (event 14; always accidental for Armin).
   - Saved tab under `Prefs.shellTabV3`; the four-tab index is translated once.
   - Aktivität and Gesundheit: Armin is still deciding whether to keep them.
+- v0.8: no status card on Home while a sync or derive runs and the day
+  already has values; the "Synchronisiert bis" line gets a small spinner and
+  "wird aktualisiert …" instead (`syncedThroughLine(showActivity:)`). The big
+  card stays for a bare day. Cause: iOS defers derivation to the foreground
+  (`derive_scheduler.dart`), so almost every launch derives.
 
 ## Design QA (every build)
 

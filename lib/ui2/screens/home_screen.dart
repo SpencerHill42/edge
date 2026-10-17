@@ -287,12 +287,31 @@ Widget? batteryLine(BuildContext c) {
 /// The status line as Home renders it, so the loading / failed / bare paths
 /// show it too. It answers "how far are we?", and the moment that question is
 /// loudest is the one where there is no day to show.
+///
+/// [showActivity] (Strap Cockpit v0.8): while a sync or a derive runs, the
+/// line carries a small spinner and "wird aktualisiert …" instead of Home
+/// putting a status card above values that are already there. The way
+/// wearable apps do it: last values at once, refresh quietly.
 Widget syncedThroughLine(BuildContext c, String? todayId,
-    [AppLocalizations? l]) {
-  return Text(
-    syncedThroughLabel(lastDataAtOf(c), todayId, l),
-    style: F.cap.copyWith(color: P.of(c).ink3),
-  );
+    [AppLocalizations? l, bool showActivity = false]) {
+  final p = P.of(c);
+  final label = syncedThroughLabel(lastDataAtOf(c), todayId, l);
+  final busy = showActivity && (syncingNowOf(c) || derivingOf(c));
+  if (!busy) return Text(label, style: F.cap.copyWith(color: p.ink3));
+  return Row(mainAxisSize: MainAxisSize.min, children: [
+    SizedBox(
+      width: 10,
+      height: 10,
+      child: CircularProgressIndicator(strokeWidth: 1.5, color: p.ink3),
+    ),
+    const SizedBox(width: S.x2),
+    Flexible(
+      child: Text(
+        '$label · ${l?.homeUpdatingInline ?? 'updating …'}',
+        style: F.cap.copyWith(color: p.ink3),
+      ),
+    ),
+  ]);
 }
 
 bool derivingOf(BuildContext c) {
@@ -1959,7 +1978,7 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
               // How far the band's data reaches, always — the question "am I
               // looking at today, or at last night?" used to be answerable
               // only by opening Profile > Devices.
-              syncedThroughLine(c, d.dayId, l),
+              syncedThroughLine(c, d.dayId, l, !bare && isToday),
               // Its own line, not squeezed into the sync line's row: at
               // accessibility text sizes that row has no slack left, and
               // `Expanded` would only shrink the sync text into extra wrapped
@@ -1988,14 +2007,10 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
             child: Text(l?.homeBackToToday ?? 'Back to today'),
           ),
         ),
-      // A sync or a derive in flight on an ordinary morning. It used to show
-      // only on a bare day, so yesterday's rings sat on screen during a sync
-      // with nothing but a grey "Synced through" line to say anything moved.
-      if (!bare && isToday)
-        if (_phaseStatusCard(c, l) case final phase?) ...[
-          phase,
-          const SizedBox(height: S.x3),
-        ],
+      // A sync or a derive in flight on a day that already has values: no
+      // status card any more (Strap Cockpit v0.8, Armin found it on almost
+      // every launch). The "Synchronisiert bis" line under the greeting shows
+      // a small spinner instead; the card stays for a bare day only.
       // The active wearable's day, cell by cell. Nothing on a WHOOP-only
       // install, nor when the screen is handed its data.
       if (widget.data == null)

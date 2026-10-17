@@ -1475,6 +1475,7 @@
   "homeTryAgain": "Erneut versuchen",
   "homeNothingDerivedTitle": "Noch nichts ausgewertet",
   "homeNothingDerivedBody": "Es wurden noch keine Daten vom Band verarbeitet.",
+  "homeUpdatingInline": "wird aktualisiert …",
   "homeSyncedThrough": "Synchronisiert bis {when}",
   "homeSyncedNever": "Noch keine Daten vom Band",
   "homeSyncingTitle": "Synchronisierung mit deinem Band",
