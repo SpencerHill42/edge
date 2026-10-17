@@ -66,6 +66,13 @@ unchanged. This file only adds what is specific to the fork.
   titles, tab bar; tab names back to Heute · Schlaf · Aktivität · Gesundheit
   so name and content match. Restructuring tabs/screens is a later phase.
 
+## Design QA (every build)
+
+- Before telling Armin a build is ready, run `docs/DESIGN_QA.md` against
+  screenshots of every tab (light and dark) and fix S1/S2 findings first. Keep
+  each audit in `docs/design-qa/`. He should never be the one to spot a jumping
+  title or a wrong font.
+
 ## Band pairing (learned the hard way, 2026-10-17)
 
 - One app owns the band. AccessorySetupKit removals (in-app "Band
