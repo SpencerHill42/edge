@@ -768,11 +768,12 @@ class Hypnogram extends CustomPainter {
 
   Hypnogram(this.stages, this.p, {this.t = 1});
 
+  // Strap Cockpit: the canvas's one violet family instead of four hues.
   static const pigment = <SleepStage, Color>{
-    SleepStage.awake: C.orange,
-    SleepStage.rem: C.teal,
-    SleepStage.light: C.sky,
-    SleepStage.deep: C.blue,
+    SleepStage.awake: C.stageAwake,
+    SleepStage.rem: C.stageRem,
+    SleepStage.light: C.stageLight,
+    SleepStage.deep: C.stageDeep,
   };
 
   /// Contrast each lane is drawn at against the worst surface it can sit on,
@@ -943,7 +944,12 @@ class ZoneRows extends StatelessWidget {
   static const pigment = [C.blueSoft, C.blue, C.green, C.orange, C.red];
 
   /// The bar colours as drawn, solved against the surface like every mark.
-  static List<Color> cols(P p) => [for (final c in pigment) p.on(c)];
+  static List<Color> cols(P p) =>
+      [for (final c in p.dark ? pigmentDark : pigment) p.on(c)];
+
+  /// Strap Cockpit on dark: the canvas's blue ramp, brighter per zone. Light
+  /// keeps [pigment] — solved for white, the blue ramp collapses to one teal.
+  static const pigmentDark = [C.zone1, C.zone2, C.zone3, C.zone4, C.zone5];
 
   /// "95–114 bpm" when zone 2 starts at 115, "171+ bpm", or null when the
   /// edges are unknown. Each row stops one beat below the next one's lower

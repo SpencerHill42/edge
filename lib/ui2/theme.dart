@@ -124,11 +124,30 @@ class C {
   static const strain = Color(0xFF46C3F2);
   static const pulse = Color(0xFFFF9E7A);
 
+  /// Strap Cockpit sleep stages: one violet family, brightness rising from
+  /// deep to awake (design canvas "Schlafphasen"). [Hypnogram] still solves
+  /// each lane to its contrast step, so these set the hue, not the final ink.
+  static const stageDeep = Color(0xFF5643D4);
+  static const stageLight = Color(0xFF8878F0);
+  static const stageRem = Color(0xFFB7ABFF);
+  static const stageAwake = Color(0xFFECE9F7);
+
+  /// Strap Cockpit heart-rate zones Z1–Z5 on dark: one blue family, brighter
+  /// with each zone. On white they would collapse into one teal once solved
+  /// for contrast, so the light theme keeps the hue ramp ([ZoneRows]).
+  static const zone1 = Color(0xFF2C7596);
+  static const zone2 = Color(0xFF3A9FC8);
+  static const zone3 = Color(0xFF46C3F2);
+  static const zone4 = Color(0xFF8FDDF8);
+  static const zone5 = Color(0xFFD2F2FD);
+
   /// Every accent the contrast test sweeps. Adding a colour above without
   /// adding it here means it ships unverified.
   static const all = <Color>[
     green, greenD, blue, purple, orange, red, teal, yellow, pink, indigo,
     sky, blueSoft, signal, sleep, strain, pulse,
+    stageDeep, stageLight, stageRem, stageAwake,
+    zone1, zone2, zone3, zone4, zone5,
     domHome, domSleep, domHealth, domFood, domMove, domMind,
   ];
 }
@@ -151,6 +170,10 @@ class P {
   Color get card2 => dark ? const Color(0xFF1A1F23) : const Color(0xFFECEEEC);
   Color get line => dark ? const Color(0xFF1E2428) : const Color(0xFFE1E4E2);
   Color get track => dark ? const Color(0xFF1F2529) : const Color(0xFFE3E6E4);
+
+  /// Dividers that must read on an inset (canvas "line/strong").
+  Color get lineStrong =>
+      dark ? const Color(0xFF2A3035) : const Color(0xFFD3D8D5);
 
   Color get ink => dark ? const Color(0xFFF1F3F2) : const Color(0xFF0B0D0F);
   Color get ink2 => dark ? const Color(0xFFA9B1B7) : const Color(0xFF474F55);
@@ -262,59 +285,72 @@ class P {
 
 /// ── TYPE ── 7 steps, 3 weights, tabular figures on anything that changes ──
 ///
-/// The family is the platform's own text face where it exists, falling back to
-/// the bundled Manrope (assets/fonts/Manrope) everywhere else — so Android and
-/// the golden tests render the same shapes the design was drawn in rather than
-/// silently landing on Roboto.
+/// Strap Cockpit type, from the design canvas ("Komponenten & Tokens"):
+/// headings and body in the bundled Instrument Sans, labels in IBM Plex Mono,
+/// figures in Barlow Condensed. Manrope stays as the fallback for any glyph
+/// these faces lack. All three are bundled (assets/fonts), never fetched.
 class F {
-  static const _f = '.SF Pro Text';
+  static const _f = 'Instrument Sans';
+  static const _mono = 'IBM Plex Mono';
   static const _fb = ['Manrope'];
   static const _tab = [FontFeature.tabularFigures()];
 
-  // The 7 steps.
+  // The 7 steps. Canvas names in brackets.
+  /// Hero line of a screen [head/xl 600 34].
   static const display = TextStyle(
       fontFamily: _f,
       fontFamilyFallback: _fb,
       fontSize: 34,
       height: 40 / 34,
-      fontWeight: FontWeight.w700,
-      letterSpacing: -.8);
+      fontWeight: FontWeight.w600,
+      letterSpacing: -.34);
+  /// Screen title.
   static const t1 = TextStyle(
       fontFamily: _f,
       fontFamilyFallback: _fb,
-      fontSize: 28,
-      height: 34 / 28,
-      fontWeight: FontWeight.w700,
-      letterSpacing: -.5);
+      fontSize: 26,
+      height: 32 / 26,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -.26);
+  /// Section title, "Mein Tag" [head/m 600 20].
   static const t2 = TextStyle(
       fontFamily: _f,
       fontFamilyFallback: _fb,
-      fontSize: 22,
-      height: 28 / 22,
+      fontSize: 20,
+      height: 26 / 20,
       fontWeight: FontWeight.w600,
-      letterSpacing: -.4);
+      letterSpacing: -.1);
+  /// Card title, "Vitalwerte" [head/s 600 16].
   static const head = TextStyle(
       fontFamily: _f,
       fontFamilyFallback: _fb,
-      fontSize: 17,
-      height: 24 / 17,
-      fontWeight: FontWeight.w600,
-      letterSpacing: -.2);
+      fontSize: 16,
+      height: 22 / 16,
+      fontWeight: FontWeight.w600);
+  /// Running text [body 400 15/1.5].
   static const body = TextStyle(
       fontFamily: _f,
       fontFamilyFallback: _fb,
       fontSize: 15,
-      height: 22 / 15,
-      letterSpacing: -.1);
+      height: 1.5);
+  /// Units, context lines, secondary text (canvas 12–13).
   static const cap = TextStyle(
       fontFamily: _f, fontFamilyFallback: _fb, fontSize: 13, height: 18 / 13);
+  /// Metric label, "RUHEPULS" [label · Plex Mono 500 10.5 +8 %].
   static const over = TextStyle(
+      fontFamily: _mono,
+      fontFamilyFallback: _fb,
+      fontSize: 10.5,
+      height: 14 / 10.5,
+      fontWeight: FontWeight.w500,
+      letterSpacing: .84);
+  /// Status chips and tab labels (canvas 11, sans).
+  static const chip = TextStyle(
       fontFamily: _f,
       fontFamilyFallback: _fb,
       fontSize: 11,
       height: 14 / 11,
-      fontWeight: FontWeight.w600,
-      letterSpacing: .5);
+      fontWeight: FontWeight.w500);
 
   // Numerals — a parallel display ramp. Tabular, so a live value never jitters
   // its own layout as digits change. Strap Cockpit draws every figure in the
@@ -339,7 +375,7 @@ class F {
   static const n24 = TextStyle(
       fontFamily: _num,
       fontFamilyFallback: _fb,
-      fontSize: 26,
+      fontSize: 28,
       height: 1,
       fontWeight: FontWeight.w700,
       letterSpacing: 0,
@@ -375,8 +411,9 @@ class S {
 /// ── RADII ─────────────────────────────────────────────────────────────────
 class R {
   static const sm = 8.0;
-  static const md = 12.0;
-  static const lg = 16.0;
+  // Strap Cockpit canvas: inset 14, tile 18, card 20–24, chip 999.
+  static const md = 14.0;
+  static const lg = 18.0;
   static const xl = 24.0;
   static const xxl = 32.0;
   static const pill = 999.0;
@@ -479,9 +516,14 @@ ThemeData buildTheme(Brightness b) {
   return ThemeData(
     brightness: b,
     scaffoldBackgroundColor: p.bg,
-    colorScheme:
-        ColorScheme.fromSeed(seedColor: C.green, brightness: b, surface: p.card),
-    fontFamily: '.SF Pro Text',
+    // Strap Cockpit: Material controls (switches, progress, filled buttons)
+    // take the signal colour, solved like every other fill.
+    colorScheme: ColorScheme.fromSeed(
+        seedColor: C.signal,
+        brightness: b,
+        surface: p.card,
+        primary: p.fill(C.signal)),
+    fontFamily: 'Instrument Sans',
     fontFamilyFallback: const ['Manrope'],
     splashFactory: NoSplash.splashFactory,
     highlightColor: const Color(0x00000000),

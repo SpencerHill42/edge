@@ -23,8 +23,16 @@ unchanged. This file only adds what is specific to the fork.
   #E1E4E2, track #E3E6E4, ink #0B0D0F / #474F55 / #5F676E. Accents stay the
   same pigments; `P.on()` solves them to AA on white (lime → olive #637131),
   so never paint a raw pigment as text or a thin mark on white.
-- Figures: Barlow Condensed (bundled). Rings: 270° segmented scale
-  (`Ring`, `DashedRing` in `lib/ui2/charts.dart`).
+- Type (canvas → `F`): Instrument Sans for headings/body, IBM Plex Mono for
+  labels, Barlow Condensed for figures, all bundled under `assets/fonts`.
+  display 34/600 (hero) · t1 26 (screen title) · t2 20 (section, "Mein Tag")
+  · head 16 (card title) · body 15/1.5 · cap 13 · over = mono 10.5/500 +8 %
+  (metric label) · chip 11 (status chips, tab labels). Figures n34 36 (rings),
+  n24 28, n17 18. Radii: inset 14 (`R.md`), tile 18 (`R.lg`), card 24, chip
+  999. Cards: `card` + 1px `line`, no shadow on dark.
+- Sleep stages: one violet family (`C.stage*`); zones Z1–Z5 blue ramp on dark
+  only (`C.zone*`), hue ramp on white (solved blues collapse there).
+- Rings: 270° segmented scale (`Ring`, `DashedRing` in `lib/ui2/charts.dart`).
 
 ## Build and install
 
@@ -52,8 +60,24 @@ unchanged. This file only adds what is specific to the fork.
   `_parse`: no stored choice → light); German for the visible untranslated
   strings and "Belastung" instead of "Strain" in short labels
   (`app_de.arb`); no Discord nudge on Heute.
-- Known gap: the Morgen, Abend and Verlauf tabs still show Edge's Sleep,
-  Activity and Health screens under the new names (backlog 4 and 5).
+- v0.4: design pass only (Armin, 2026-10-17: change the look, keep every
+  function and the four tabs). Canvas type scale and radii in `theme.dart`,
+  bundled Instrument Sans + IBM Plex Mono, hairline cards, chips, section
+  titles, tab bar; tab names back to Heute · Schlaf · Aktivität · Gesundheit
+  so name and content match. Restructuring tabs/screens is a later phase.
+
+## Band pairing (learned the hard way, 2026-10-17)
+
+- One app owns the band. AccessorySetupKit removals (in-app "Band
+  entfernen", iOS "Gerät ignorieren", deleting an app) drop the iPhone's bond
+  for every app, but the WHOOP 5 keeps its side.
+- After that the link comes up and then fails with "Encryption is
+  insufficient" / "Authentication is insufficient" (see `openstrap_sync.log`
+  in the app's Documents folder, visible in the Files app). The app only
+  shows "Verbindung wird hergestellt" — it does not classify these iOS ATT
+  errors as a bond refusal (fix candidate, upstream bug).
+- Fix: remove the band in the app and in iOS Bluetooth, take the band off the
+  wrist, tap it until the LED flashes blue (pairing mode, 3 min), then pair.
 
 ## Backlog (Armin's order)
 
@@ -63,8 +87,8 @@ unchanged. This file only adds what is specific to the fork.
    any OpenStrap metric.
 3. Heute cards from the design: Vitalwerte, Stress in Ruhe, Mein Tag,
    Kennzahlen.
-4. Own Morgen- and Abend-Briefing screens (today they show Edge's Sleep and
-   Activity tabs).
+4. Own Morgen- and Abend-Briefing screens (after the design pass; tabs are
+   Edge's four until then).
 5. Verlauf screen from the design.
 6. Garmin history from the GDPR export (requested 2026-10-16): its own series
    beside OpenStrap's, never blended into baselines.

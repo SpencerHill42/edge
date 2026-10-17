@@ -1927,12 +1927,11 @@ class _HomeScreenState extends State<HomeScreen> with RevisionReload {
       // ── Strap Cockpit wordmark ──
       Padding(
         padding: const EdgeInsets.only(top: S.x3),
+        // Canvas: compact in the app = sign + "STRAP", 17 px, +6 % tracking.
         child: Row(children: [
-          Icon(LucideIcons.gauge, size: 22, color: p.on(C.signal)),
+          Icon(LucideIcons.gauge, size: 18, color: p.on(C.signal)),
           const SizedBox(width: S.x2),
-          Text('STRAP', style: F.n24.copyWith(color: p.ink, letterSpacing: 1.6)),
-          const SizedBox(width: S.x1),
-          Text('cockpit', style: F.head.copyWith(color: p.ink2)),
+          Text('STRAP', style: F.n17.copyWith(color: p.ink, letterSpacing: 1.0)),
         ]),
       ),
       // ── greeting ──

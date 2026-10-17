@@ -12626,7 +12626,7 @@
     "description": "Step calibration wearing-location setting"
   },
   "tabHome": "Home",
-  "tabHealth": "Trends",
+  "tabHealth": "Health",
   "tabNutrition": "Nutrition",
   "tabWorkout": "Workout",
   "tabWellness": "Wellness",
@@ -15220,11 +15220,11 @@
   "@tabToday": {
     "description": "Bottom tab: today's scores and plan."
   },
-  "tabSleep": "Morning",
+  "tabSleep": "Sleep",
   "@tabSleep": {
     "description": "Bottom tab: last night, sleep plan, alarm and body clock."
   },
-  "tabActivity": "Evening",
+  "tabActivity": "Activity",
   "@tabActivity": {
     "description": "Bottom tab: workouts, steps and food. Also the Activity screen title."
   },

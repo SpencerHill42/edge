@@ -248,10 +248,13 @@ class Surface extends StatelessWidget {
       child: Container(
         width: double.infinity,
         padding: pad,
+        // Strap Cockpit: a hairline instead of a shadow on dark (canvas cards
+        // are `card` + 1px `line`); white keeps a whisper of elevation.
         decoration: BoxDecoration(
           color: color ?? p.card,
           borderRadius: R.rLg,
-          boxShadow: p.el(elevation),
+          border: Border.all(color: p.line),
+          boxShadow: p.dark ? null : p.el(elevation),
         ),
         child: child,
       ),
@@ -297,7 +300,9 @@ class Section extends StatelessWidget {
               Flexible(
                 child: Text(
                   title,
-                  style: F.head.copyWith(color: p.ink),
+                  // Strap Cockpit: sections are the canvas's head/m ("Mein
+                  // Tag"); card titles inside them stay F.head.
+                  style: F.t2.copyWith(color: p.ink),
                   maxLines: wrapTitle ? null : 2,
                   overflow: wrapTitle
                       ? TextOverflow.visible
@@ -2076,7 +2081,8 @@ class Pill extends StatelessWidget {
     final p = P.of(c);
     final ink = p.on(color);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: S.x3, vertical: 5),
+      // Strap Cockpit status chip: 3 × 8 padding, 11 px label.
+      padding: const EdgeInsets.symmetric(horizontal: S.x2, vertical: 3),
       decoration: BoxDecoration(color: p.wash(color), borderRadius: R.rPill),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -2088,7 +2094,7 @@ class Pill extends StatelessWidget {
           Flexible(
             child: Text(
               text,
-              style: F.cap.copyWith(color: ink, fontWeight: FontWeight.w600),
+              style: F.chip.copyWith(color: ink, fontWeight: FontWeight.w600),
               maxLines: wrap ? null : 1,
               overflow: wrap ? TextOverflow.visible : TextOverflow.ellipsis,
             ),

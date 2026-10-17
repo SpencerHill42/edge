@@ -20,13 +20,12 @@ import 'theme.dart';
 
 /// The four primary destinations, in bar order.
 enum ShellDomain {
-  // Strap Cockpit labels the four as Heute · Morgen · Abend · Verlauf (the
-  // tab* keys in the arb files); the enum names stay so every caller and
-  // test keyed by them keeps working.
+  // Strap Cockpit keeps Edge's four destinations and names (design pass
+  // first, restructure later); only Today wears the cockpit gauge.
   today('Today', LucideIcons.gauge, C.domHome),
-  sleep('Sleep', LucideIcons.sunrise, C.domSleep),
-  activity('Activity', LucideIcons.sunset, C.domMove),
-  health('Health', LucideIcons.chartLine, C.domHealth);
+  sleep('Sleep', LucideIcons.moon, C.domSleep),
+  activity('Activity', LucideIcons.dumbbell, C.domMove),
+  health('Health', LucideIcons.heartPulse, C.domHealth);
 
   const ShellDomain(this.label, this.icon, this.accent);
 
@@ -234,12 +233,12 @@ class _Tab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: S.x1),
-            Icon(domain.icon, size: 22, color: ink),
+            Icon(domain.icon, size: 24, color: ink),
               const SizedBox(height: 3),
               Text(
                 label,
                 textAlign: TextAlign.center,
-              style: F.over.copyWith(
+              style: F.chip.copyWith(
                 color: ink,
                 fontWeight: on ? FontWeight.w600 : FontWeight.w500,
               ),
