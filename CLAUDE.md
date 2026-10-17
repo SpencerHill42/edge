@@ -103,7 +103,9 @@ unchanged. This file only adds what is specific to the fork.
 3. Heute cards from the design: Vitalwerte, Stress in Ruhe, Mein Tag,
    Kennzahlen.
 4. Own Morgen- and Abend-Briefing screens (after the design pass; tabs are
-   Edge's four until then).
+   Edge's four until then). The restructure follows
+   `docs/design-review-whoop-principles.md`: tabs by depth (Tier 1 overview,
+   Tier 2 trends, Tier 3 only behind a tap), colour = meaning, prose behind ⓘ.
 5. Verlauf screen from the design.
 6. Garmin history from the GDPR export (requested 2026-10-16): its own series
    beside OpenStrap's, never blended into baselines.
