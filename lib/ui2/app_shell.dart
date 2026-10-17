@@ -239,13 +239,22 @@ class _Tab extends StatelessWidget {
             const SizedBox(height: S.x1),
             Icon(domain.icon, size: 24, color: ink),
               const SizedBox(height: 3),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-              style: F.chip.copyWith(
-                color: ink,
-                fontWeight: on ? FontWeight.w600 : FontWeight.w500,
-              ),
+              // One line, never broken mid-word ("Hom/e", "Gesu/ndhei/t" at
+              // the largest iOS size). Like iOS's own tab bars the label grows
+              // only a little with Dynamic Type, and a long word in a narrow
+              // tab scales down; the name stays in the semantics label.
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  textScaler: MediaQuery.textScalerOf(c)
+                      .clamp(maxScaleFactor: 1.35),
+                  style: F.chip.copyWith(
+                    color: ink,
+                    fontWeight: on ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
               ),
             ],
           ),
