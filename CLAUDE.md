@@ -60,12 +60,18 @@ unchanged. This file only adds what is specific to the fork.
   Simulator screenshots): `docs/MAC_SETUP.md`. Prefer it over the CI round
   trip for anything visual.
 - `.github/workflows/cockpit-ipa.yml` builds an unsigned `StrapCockpit.ipa` on
-  every push to `main` (Actions → run → Artifacts). Installed with AltStore
-  Classic and a free Apple ID: valid 7 days, AltServer re-signs over Wi-Fi.
-  The build fake-signs `Runner` with `ios/sideload/Runner-sideload.entitlements`
-  (`ldid`, HealthKit only) so AltStore asks for HealthKit; without it the app
-  never shows up under Health. Add a capability there only if AltStore must
-  request it.
+  every push to `main` (Actions → run → Artifacts). The build fake-signs
+  `Runner` with `ios/sideload/Runner-sideload.entitlements` (`ldid`,
+  HealthKit only).
+- **Installing on Armin's iPhone, since 2026-10-18: from this Mac with Xcode,
+  not AltStore.** AltStore and Sideloadly both dropped HealthKit with his free
+  Apple ID (iOS log: "Missing com.apple.developer.healthkit entitlement"),
+  while Xcode's own free provisioning for his Personal Team grants it. Same
+  team and bundle ID as the AltStore install (`PY4FST339R`,
+  `com.example.openstrapEdge.PY4FST339R`), so it replaces that app in place:
+  data and band bond stay. Steps in `docs/MAC_SETUP.md` ("Install on the
+  iPhone"). Valid 7 days, then re-run. **Never refresh or reinstall Turbo
+  Health from AltStore any more**: its re-sign strips HealthKit again.
 - Docs-only commits: put `[skip ci]` in the message so no 20-minute build runs.
 - Upstream: `git remote add upstream https://github.com/OpenStrap/edge`,
   then `git fetch upstream && git merge upstream/main`. Expect conflicts only

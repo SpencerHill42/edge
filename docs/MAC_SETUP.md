@@ -66,6 +66,34 @@ Check with `flutter doctor -v`; Android parts can stay red.
 - `flutter pub get` rewrites `pubspec.lock` (quoted SHAs only). Do not
   commit that: `git checkout pubspec.lock`.
 
+## Install on the iPhone (Xcode, free Personal Team)
+
+Armin's Apple ID is signed in under Xcode → Settings → Accounts (Personal
+Team `PY4FST339R`). `ios/Config/Signing.xcconfig` (gitignored) holds:
+
+```
+APP_BUNDLE_IDENTIFIER = com.example.openstrapEdge.PY4FST339R
+APP_WIDGET_BUNDLE_IDENTIFIER = $(APP_BUNDLE_IDENTIFIER).OpenStrapWidget
+APP_GROUP_IDENTIFIER = group.com.example.openstrapEdge.PY4FST339R
+APPLE_DEVELOPMENT_TEAM = PY4FST339R
+```
+
+That is the AltStore install's own bundle ID, so the install replaces the app
+in place (data and band bond stay; never a second copy, never delete it).
+With the iPhone on the cable and unlocked:
+
+1. `flutter build ios --release --dart-define-from-file=.env`
+2. Check: `codesign -d --entitlements :- build/ios/iphoneos/Runner.app`
+   shows `com.apple.developer.healthkit => true`.
+3. `xcrun devicectl device install app --device 00008120-0009588236D8C01E build/ios/iphoneos/Runner.app`
+4. `xcrun devicectl device info apps --device 00008120-0009588236D8C01E`
+   lists exactly one "Turbo Health".
+
+The signature lasts 7 days; repeat to renew. AltStore must not refresh the app
+any more (its re-sign strips HealthKit). Health errors are visible in the
+phone's log: `idevicesyslog -u 00008120-0009588236D8C01E -m healthkit`
+(libimobiledevice via Homebrew).
+
 ## Real data in the Simulator
 
 The Simulator cannot pair the band. For real numbers: Armin exports a full
