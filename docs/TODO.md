@@ -196,6 +196,9 @@ installs.
   keep to that.
 - **Done when:** both rows show Armin's Garmin history with a chart, and a
   new weigh-in appears after the next app start.
+- **Done 2026-10-18** (PR #8 and the follow-up): weight and body fat show
+  under Körper & Tragezeit with axes and a date axis; the body-fat grant is
+  asked on launch once Health has been read by hand. Confirmed by Armin.
 
 ## Soon (analytics; most of it belongs upstream in OpenStrap/analytics)
 
