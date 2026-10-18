@@ -108,7 +108,7 @@ class _BodyTrendDetailState extends State<BodyTrendDetail> {
       return DateTime(d.year, d.month, d.day);
     }
     var first = dayOf(r.first.ts);
-    final yearAgo = day0.subtract(const Duration(days: 365));
+    final yearAgo = DateTime(day0.year - 1, day0.month, day0.day);
     if (first.isBefore(yearAgo)) first = yearAgo;
     final span = day0.difference(first).inDays + 1;
     final slots = List<double?>.filled(span < 2 ? 2 : span, null);
@@ -136,7 +136,8 @@ class _BodyTrendDetailState extends State<BodyTrendDetail> {
     final loc = MaterialLocalizations.of(c);
     final xLabels = [
       loc.formatShortMonthDay(first),
-      loc.formatShortMonthDay(first.add(Duration(days: (slots.length - 1) ~/ 2))),
+      loc.formatShortMonthDay(
+          DateTime(first.year, first.month, first.day + (slots.length - 1) ~/ 2)),
       l?.metricDetailToday ?? 'Today',
     ];
     return detailScaffold(c, title, [
