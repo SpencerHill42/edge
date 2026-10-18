@@ -82,6 +82,14 @@ changed" in `CLAUDE.md`.
   "Heart-rate-to-energy regression over the waking span…". Translate them via
   l10n (the citation line already is).
 
+### 4b. Sleep screen: skin temperature shown as raw numbers
+
+On the sleep screen (night chart tooltip and legend) "Temp." reads `136.20`
+or `-140.00`, and the legend reads "Hauttemp. -253,5–174,9 rel". These are
+raw ADC-relative values with a dot decimal and no meaning to a reader
+(screenshots 2026-10-18). Show the deviation from his own night baseline
+instead, or leave the number out and keep only the curve. Use a German comma.
+
 ### 5. Design QA
 
 Run `docs/DESIGN_QA.md` on the Simulator for v0.9/v0.10: every tab, light and
@@ -173,6 +181,19 @@ installs.
   is no PSG reference, so look for systematic patterns, e.g. compare with the
   times he reports going to bed and getting up.
 
+### 7b. Breathing rate is withheld at Armin's low sleeping heart rate
+
+- **Seen:** On the night chart, the breathing line is only a short stroke
+  around 01:00, and the summary has no breathing figure.
+- **Cause:** RSA breathing comes from beat timing (`respiration/resp_rate.dart`).
+  The tachogram's Nyquist is 0.5/NN, and the code withholds any window whose
+  ceiling is below 0.40 Hz (24 br/min) to rule out aliasing. That needs
+  HR ≥ 48 bpm. Armin sleeps at 39–61 bpm (mean 43), so almost every window is
+  withheld. Correct by design, but it hits every fit sleeper.
+- **Idea (upstream research):** Accept a window when the peak lies clearly
+  below the ceiling and the RIIV (PPG) estimate agrees, instead of refusing
+  everything under 48 bpm. This needs validation before it ships.
+
 ### 8. Active energy misses everyday movement
 
 - `Calories.dailyEnergy` (analytics `workout/calories.dart`) bills a minute
@@ -195,7 +216,9 @@ installs.
 
 A small-sample artifact: the baseline is the p75 of weekend nights, plus debt
 and a strain bonus, capped at 11 h. Proposed: show the sleep need only after
-enough weekend nights. Armin has not decided yet (see below).
+enough weekend nights. Armin has not decided yet (see below). On 2026-10-18
+the sleep screen said "Licht aus 19:58" from a need of 10h 44m, which is
+absurd for an adult who sleeps ~7–8 h.
 
 ## Open decisions (ask Armin, bundled in one question)
 
@@ -204,6 +227,8 @@ enough weekend nights. Armin has not decided yet (see below).
   data or only what Edge writes to Health.
 - Sleep need: hide it until enough nights exist (item 9)?
 - Provisional rings (item 3): right after waking, or 30 min later?
+- Sleep stages: keep the ranges ("Tief 37m–1h 37m"), or show the point
+  figure with "≈" and move the range behind ⓘ (Tier 3)?
 - Strava (item 6): upload automatically after every finished workout of
   these four sports, or only on a tap in the summary?
 
