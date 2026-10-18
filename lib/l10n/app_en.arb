@@ -15763,5 +15763,24 @@
         "type": "String"
       }
     }
-  }
+  },
+  "stravaTitle": "Strava",
+  "stravaIntro": "Runs, walks, football and padel go to Strava with heart rate after every workout.",
+  "stravaClientId": "Client ID",
+  "stravaClientSecret": "Client secret",
+  "stravaKeysHint": "From strava.com/settings/api. Kept in this iPhone's keychain only.",
+  "stravaConnect": "Connect to Strava",
+  "stravaDisconnect": "Disconnect",
+  "stravaConnected": "Connected",
+  "stravaConnectedAs": "Connected as {name}",
+  "@stravaConnectedAs": {"placeholders": {"name": {"type": "String"}}},
+  "stravaConnectFailed": "Could not connect: {reason}",
+  "@stravaConnectFailed": {"placeholders": {"reason": {"type": "String"}}},
+  "stravaRowSubOff": "Not connected",
+  "stravaStatusDone": "On Strava",
+  "stravaStatusUploading": "Uploading to Strava …",
+  "stravaStatusQueued": "Waiting to upload to Strava",
+  "stravaStatusFailed": "Strava: {reason}",
+  "@stravaStatusFailed": {"placeholders": {"reason": {"type": "String"}}},
+  "stravaRetry": "Retry"
 }

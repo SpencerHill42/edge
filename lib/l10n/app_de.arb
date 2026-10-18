@@ -3338,5 +3338,21 @@
   "reportStageUploading": "{size} MB werden hochgeladen …",
   "reportStageSharing": "Teilen wird vorbereitet …",
   "reportIdCopied": "{id} kopiert",
-  "exerciseCatalogueName": "{key, select, other{{name}}}"
+  "exerciseCatalogueName": "{key, select, other{{name}}}",
+  "stravaTitle": "Strava",
+  "stravaIntro": "Läufe, Spaziergänge, Fußball und Padel gehen nach jedem Training mit Herzfrequenz zu Strava.",
+  "stravaClientId": "Client-ID",
+  "stravaClientSecret": "Client Secret",
+  "stravaKeysHint": "Aus strava.com/settings/api. Bleibt nur im Schlüsselbund dieses iPhones.",
+  "stravaConnect": "Mit Strava verbinden",
+  "stravaDisconnect": "Trennen",
+  "stravaConnected": "Verbunden",
+  "stravaConnectedAs": "Verbunden als {name}",
+  "stravaConnectFailed": "Verbindung fehlgeschlagen: {reason}",
+  "stravaRowSubOff": "Nicht verbunden",
+  "stravaStatusDone": "Auf Strava",
+  "stravaStatusUploading": "Wird zu Strava hochgeladen …",
+  "stravaStatusQueued": "Wartet auf Upload zu Strava",
+  "stravaStatusFailed": "Strava: {reason}",
+  "stravaRetry": "Erneut versuchen"
 }

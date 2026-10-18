@@ -208,6 +208,8 @@ const _notComponents = {
   'ProfileSetupScreen', 'ProfileSetupView',
   // profile routes
   'ProfileHome', 'ProfileHomeView', 'MoreSettings', 'MoreSettingsView',
+  // Strava: a screen, and a row that reads its upload state from prefs.
+  'StravaScreen', 'StravaStatusRow',
   'NotificationSettings', 'NotificationSettingsView', 'EditProfile',
   'EditProfileView', 'DataScreen', 'AlarmScreen', 'AlarmScreenView',
   'ReportIssueScreen',

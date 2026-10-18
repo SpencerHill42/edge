@@ -52,6 +52,7 @@ import 'picker.dart';
 // not a layering mistake.
 import 'poster.dart' show PosterStatRow, posterStatIcon, splitStatUnit;
 import 'share.dart';
+import '../profile/strava_screen.dart' show StravaStatusRow;
 
 /// The defining visual object of an activity. Everything else supports it.
 ///
@@ -1072,6 +1073,13 @@ class _ActivitySummaryState extends State<ActivitySummary> {
             // nav bar — this is the one export action worth naming outright.
             // Text only: no Strava logo/imagery, per the no-brand-assets policy
             // (the brand name as plain text is fine, brand marks are not).
+          // Strap Cockpit: the automatic Strava upload's state (✓, progress,
+          // or the reason with a retry). Empty for other sports.
+          if (r.sessionId case final sid?)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(S.x4, S.x2, S.x4, 0),
+              child: StravaStatusRow(sid, a.name),
+            ),
           if (canExportGpx)
             Padding(
               padding: const EdgeInsets.fromLTRB(S.x4, S.x2, S.x4, 0),

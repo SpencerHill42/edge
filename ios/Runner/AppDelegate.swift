@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import AudioToolbox
+import AuthenticationServices
 import AVFoundation
 import BackgroundTasks
 import CoreMotion
@@ -103,6 +104,10 @@ import CoreMotion
     // bridge below for the system-alert cost it carries.
     if let registrar = registry.registrar(forPlugin: "AppIconBridge") {
       AppIconBridge.register(messenger: registrar.messenger())
+    }
+    // Strava login sheet (ASWebAuthenticationSession), see lib/strava/strava.dart.
+    if let registrar = registry.registrar(forPlugin: "StravaAuthBridge") {
+      StravaAuthBridge.register(messenger: registrar.messenger())
     }
     // Build-time iOS configuration exposed to Dart without requiring --dart-define.
     if let registrar = registry.registrar(forPlugin: "ConfigBridge") {
@@ -353,5 +358,53 @@ enum AppIconBridge {
         result(FlutterMethodNotImplemented)
       }
     }
+  }
+}
+
+/// Strava OAuth through Apple's own login sheet. `authorize` opens the URL and
+/// answers with the callback URL (`turbohealth://localhost?code=…`). The
+/// callback scheme needs no Info.plist entry: the session catches it itself.
+final class StravaAuthBridge: NSObject, ASWebAuthenticationPresentationContextProviding {
+  private static let channelName = "openstrap/strava_auth"
+  private static let shared = StravaAuthBridge()
+  private var session: ASWebAuthenticationSession?
+
+  static func register(messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "authorize",
+            let args = call.arguments as? [String: Any],
+            let raw = args["url"] as? String, let url = URL(string: raw),
+            let scheme = args["scheme"] as? String else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      shared.start(url: url, scheme: scheme, result: result)
+    }
+  }
+
+  private func start(url: URL, scheme: String, result: @escaping FlutterResult) {
+    let s = ASWebAuthenticationSession(url: url, callbackURLScheme: scheme) { [weak self] callback, error in
+      self?.session = nil
+      if let callback = callback {
+        result(callback.absoluteString)
+      } else if let e = error as? ASWebAuthenticationSessionError, e.code == .canceledLogin {
+        result(FlutterError(code: "cancelled", message: nil, details: nil))
+      } else {
+        result(FlutterError(code: "failed", message: error?.localizedDescription, details: nil))
+      }
+    }
+    s.presentationContextProvider = self
+    session = s
+    if !s.start() {
+      session = nil
+      result(FlutterError(code: "failed", message: "could not start", details: nil))
+    }
+  }
+
+  func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+    UIApplication.shared.connectedScenes
+      .compactMap { ($0 as? UIWindowScene)?.keyWindow }
+      .first ?? ASPresentationAnchor()
   }
 }

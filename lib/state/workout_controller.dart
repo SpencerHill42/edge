@@ -57,6 +57,7 @@ import '../widget/widget_service.dart';
 import '../ui2/activity/live.dart' show LiveDraft;
 import 'workout_idle.dart';
 import 'zone_alert.dart';
+import '../strava/strava_sync.dart';
 
 class WorkoutController {
   WorkoutController({
@@ -953,6 +954,9 @@ class WorkoutController {
         startSec: sessionRow['start_ts'] as int,
         endSec: endTs,
       );
+      // Strap Cockpit: run, walk, football and padel go to Strava when it is
+      // connected. Queued, so a workout finished offline goes up later.
+      unawaited(StravaSync.instance.onSessionFinished(id, w.type));
     } catch (e) {
       _log('[workout] could not save session $id: $e — keeping it live');
       _notify();
