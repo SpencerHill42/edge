@@ -89,9 +89,71 @@ dark, plus the pushed sleep screen (Home sleep ring), Mehr and the metric
 detail screens. Save the audit in `docs/design-qa/`. Fix S1/S2 before Armin
 installs.
 
+## Next feature: Strava sync (Armin, 2026-10-18)
+
+### 6. Send workouts to Strava
+
+- **Goal:** Workouts recorded in the app reach Armin's Strava account with
+  heart rate:
+  - Laufen (`Running`, with GPS) → Strava `Run`
+  - Spazieren (`Walking`, with GPS) → `Walk`
+  - Fußball (`Football`, no GPS) → `Soccer`
+  - Padel (`Padel`, no GPS) → `Padel`
+  The catalogue names are in `lib/ui2/activity/catalogue.dart`.
+- **Exists today:** "Share to Strava" in the activity summary
+  (`lib/ui2/activity/summary.dart` ~950–1090) writes a GPX file
+  (`lib/gps/gpx_export.dart`, HR as `gpxtpx:hr`) and opens the share sheet.
+  It is manual and only covers workouts with a route, so football and padel
+  cannot be sent at all.
+- **Approach: the Strava API, on Armin's own API app.**
+  - **API app:** Armin registers it himself at strava.com/settings/api (his
+    login, his client ID/secret). New apps start with 1 athlete, which is
+    enough for him. This is a private build, so the secret may live in the
+    gitignored `.env` (`--dart-define-from-file`). Never commit it.
+  - **OAuth:** in-app login with scope `activity:write` (plus
+    `activity:read` only if needed for the upload status). Keep the tokens in
+    the keychain (`flutter_secure_storage` is already a dependency) and
+    refresh them on expiry. Disconnecting revokes via
+    `POST /oauth/revoke`.
+  - **Upload:** use a file upload (`POST /api/v3/uploads`, multipart), not a
+    manual activity, so the HR graph survives:
+    - Format: TCX or FIT with a time and HR on every trackpoint, plus
+      lat/lng only when the workout has a route. Strava documents position as
+      optional. Verify that a GPS-less file with HR is accepted.
+    - Set `external_id` to the session id, so a retry cannot create a duplicate.
+    - Poll `GET /uploads/{id}` (≥ 1 s apart) until an activity id comes back.
+    - If the file's sport did not map, set the type with
+      `PUT /activities/{id}` and `sport_type`.
+  - **Verify on Armin's account:**
+    - Check that `sport_type: "Padel"` is accepted. Strava's app lists Padel,
+      but older client enums lack it. Fallback: `Workout` named "Padel".
+    - Check that `Soccer` is the API name for "Football (Soccer)".
+  - **Store per session:** `strava_activity_id` and the upload state
+    (queued / uploading / done / failed + reason). Show it in the summary
+    ("Auf Strava ✓" or the error), with a retry button.
+  - **Offline:** keep failed or offline uploads in a queue and retry them on
+    the next foreground (the same moment the derive drains).
+- **Strava API rules 2026 to respect:**
+  - Strava data must not be used in AI features. We only write, never feed
+    Strava responses to the coach.
+  - Caching is limited to 7 days.
+  - New base URL `api-v3.strava.com` from 2027-01-04.
+  - Tokens must go in headers by 2027-06-01.
+  - Check during registration whether a Strava subscription is required for
+    API access (the 2026 change requires one for Standard Tier).
+- **Not this route:**
+  - Apple Health → Strava: Strava's Health import is documented for Apple
+    Watch workouts, and HealthKit is broken in the AltStore build anyway
+    (item 1).
+  - A manual activity (`POST /activities`) has no HR, so use it only as a
+    fallback when an upload fails for a workout without data.
+- **Done when:** a run and a walk show on Strava with map and HR, football
+  and padel with HR and the right sport, nothing is duplicated after a
+  retry, and the status is visible in the app.
+
 ## Soon (analytics; most of it belongs upstream in OpenStrap/analytics)
 
-### 6. Sleep: wake is hardly detected
+### 7. Sleep: wake is hardly detected
 
 - The analytics' own held-out numbers (`lib/src/onehz/sleep/cardio_stager.dart`):
   4-class κ **0.132**, wake sensitivity **11 %**. Consumer wearables reach
@@ -103,7 +165,7 @@ installs.
   is no PSG reference, so look for systematic patterns, e.g. compare with the
   times he reports going to bed and getting up.
 
-### 7. Active energy misses everyday movement
+### 8. Active energy misses everyday movement
 
 - `Calories.dailyEnergy` (analytics `workout/calories.dart`) bills a minute
   only at HR ≥ RHR + 40 % HRR (~100 bpm for Armin). Below that it bills
@@ -121,7 +183,7 @@ installs.
     ride work in kJ ≈ kcal burned at 20–25 % gross efficiency.
 - **Benchmark first:** 3–5 rides, app workout kcal against the ride's kJ.
 
-### 8. Sleep need of 11 h
+### 9. Sleep need of 11 h
 
 A small-sample artifact: the baseline is the p75 of weekend nights, plus debt
 and a strain bonus, capped at 11 h. Proposed: show the sleep need only after
@@ -132,8 +194,10 @@ enough weekend nights. Armin has not decided yet (see below).
 - Keep the Aktivität and Gesundheit tabs? (He may track with Strava instead.)
 - Does he have an Apple Watch? This decides whether Bevel would have its own
   data or only what Edge writes to Health.
-- Sleep need: hide it until enough nights exist (item 8)?
+- Sleep need: hide it until enough nights exist (item 9)?
 - Provisional rings (item 3): right after waking, or 30 min later?
+- Strava (item 6): upload automatically after every finished workout of
+  these four sports, or only on a tap in the summary?
 
 ## Parked
 
@@ -145,7 +209,10 @@ enough weekend nights. Armin has not decided yet (see below).
   per-test annotations) can be deleted.
 - `health_workout_export_delete_gate_test.dart` fails on upstream 0.11.3 too.
 
-## Sources behind items 6–7
+## Sources
+
+Items 7–8 (accuracy):
+
 
 - Keytel et al. 2005, J Sports Sci: https://pubmed.ncbi.nlm.nih.gov/15966347/
 - Apple Watch meta-analysis 2025 (Choe & Kang, 56 studies):
@@ -153,3 +220,10 @@ enough weekend nights. Armin has not decided yet (see below).
 - Six wearables vs PSG (Miller et al. 2022): https://pubmed.ncbi.nlm.nih.gov/36016077/
 - Six wearables incl. WHOOP 4.0 / Apple Watch S8 vs PSG (Univ. Antwerp 2025
   poster): https://medialibrary.uantwerpen.be/files/2246214/626e935b-2a41-4212-8788-0af3eec8611a.pdf
+
+Item 6 (Strava):
+
+- API reference: https://developers.strava.com/docs/reference/
+- Uploads: https://developers.strava.com/docs/uploads/
+- Supported sport types: https://support.strava.com/en-us/articles/15402005-what-sport-types-does-strava-support
+- API changes 2026 (limits, policy): https://tryterra.co/blog/strava-api-changes-2026
