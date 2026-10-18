@@ -7549,5 +7549,13 @@
   "bodyChange90": "90 DAYS",
   "bodyReadings": "READINGS",
   "bodyDisplayOnly": "Your scale's readings from Apple Health, shown as they are. They are not used in any score.",
-  "@bodyLatestFrom": {"placeholders": {"day": {"type": "String"}, "source": {"type": "String"}}}
+  "@bodyLatestFrom": {"placeholders": {"day": {"type": "String"}, "source": {"type": "String"}}},
+  "healthImportFrom": "Import from {store}",
+  "healthRefreshFrom": "Refresh from {store}",
+  "healthFieldWeight": "weight",
+  "healthFieldHeight": "height",
+  "healthFieldAge": "age",
+  "healthFieldSex": "sex",
+  "@healthImportFrom": {"placeholders": {"store": {"type": "String"}}},
+  "@healthRefreshFrom": {"placeholders": {"store": {"type": "String"}}}
 }

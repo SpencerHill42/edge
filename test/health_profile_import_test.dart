@@ -96,7 +96,7 @@ void main() {
       });
     });
 
-    test('Apple asks for a year, not a decade', () {
+    test('Apple asks for a decade, so a height entered once is found', () {
       final windows = <(DateTime, DateTime)>[];
       final importer = HealthProfileImporter(
         isApple: true,
@@ -104,10 +104,10 @@ void main() {
       );
       return importer.read(now: DateTime(2026, 8, 9)).then((_) {
         expect(windows, hasLength(1));
-        // Wide enough to find a value someone records occasionally, narrow
-        // enough that an ancient reading cannot overwrite a current profile.
-        // Pinned exactly: a year-difference check passes for any date in 2025.
-        expect(windows.single.$1, DateTime(2025, 8, 9));
+        // Strap Cockpit: height is entered once (Armin's is from July 2024,
+        // outside a one-year window). Weight keeps the one-year rule, see
+        // 'an old weight never replaces the profile' below.
+        expect(windows.single.$1, DateTime(2016, 8, 9));
       });
     });
   });
@@ -123,6 +123,16 @@ void main() {
         _point(HealthDataType.WEIGHT, 77, DateTime(2026, 4, 1)),
       ], now: now);
       expect(snap.weightKg, 74);
+    });
+
+    test('an old height is taken, an old weight never replaces the profile',
+        () {
+      final snap = importer.snapshotFrom([
+        _point(HealthDataType.HEIGHT, 1.80, DateTime(2024, 7, 1)),
+        _point(HealthDataType.WEIGHT, 81, DateTime(2024, 7, 1)),
+      ], now: now);
+      expect(snap.heightCm, closeTo(180, 0.001));
+      expect(snap.weightKg, isNull);
     });
 
     test('converts height from metres to centimetres', () {

@@ -19,6 +19,8 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../l10n/app_localizations.dart';
+
 /// Whichever store this platform has. Named, because "your phone" is not a
 /// thing a user can go and check a permission on.
 String get storeName => Platform.isIOS ? 'Apple Health' : 'Health Connect';
@@ -84,5 +86,19 @@ Future<void> markImported(HealthImport what, {DateTime? now}) async {
 /// Health" before anything has arrived, "Refresh from Apple Health" after —
 /// same control, and the second word is a promise that it re-reads rather than
 /// stacking a second copy.
-String importLabel(DateTime? last) =>
-    '${last == null ? 'Import' : 'Refresh'} from $storeName';
+String importLabel(DateTime? last, [AppLocalizations? l]) => last == null
+    ? (l?.healthImportFrom(storeName) ?? 'Import from $storeName')
+    : (l?.healthRefreshFrom(storeName) ?? 'Refresh from $storeName');
+
+/// The field names [healthProfileChanges] and the snapshot report, in the
+/// user's language ("Gewicht, Größe" rather than "weight, height").
+String healthFieldNames(Iterable<String> fields, [AppLocalizations? l]) => [
+      for (final f in fields)
+        switch (f) {
+          'weight' => l?.healthFieldWeight ?? f,
+          'height' => l?.healthFieldHeight ?? f,
+          'age' => l?.healthFieldAge ?? f,
+          'sex' => l?.healthFieldSex ?? f,
+          _ => f,
+        },
+    ].join(', ');
