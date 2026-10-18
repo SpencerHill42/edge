@@ -168,13 +168,27 @@ class StravaStatusRow extends StatelessWidget {
     final sync = StravaSync.instance;
     return ValueListenableBuilder<int>(
       valueListenable: sync.revision,
-      builder: (c, _, _) => FutureBuilder<StravaUpload?>(
-        future: sync.stateOf(sessionId),
+      builder: (c, _, _) => FutureBuilder<(StravaUpload?, bool)>(
+        future: _read(sync, sessionId),
         builder: (c, snap) {
-          final u = snap.data;
-          if (u == null) return const SizedBox.shrink();
           final p = P.of(c);
           final l = AppLocalizations.of(c);
+          final (u, connected) = snap.data ?? (null, false);
+          if (u == null) {
+            // A workout from before Strava was connected, or one that was
+            // never queued: offer it, once Strava is there to take it.
+            if (!connected) return const SizedBox.shrink();
+            return Surface(
+              onTap: () => sync.retry(sessionId),
+              child: Row(children: [
+                Icon(LucideIcons.upload, size: 18, color: p.on(C.orange)),
+                const SizedBox(width: S.x3),
+                Expanded(
+                    child: Text(l?.stravaUploadNow ?? 'Upload to Strava',
+                        style: F.body.copyWith(color: p.ink))),
+              ]),
+            );
+          }
           final (icon, color, text) = switch (u.state) {
             StravaState.done => (
                 LucideIcons.circleCheck,
@@ -227,3 +241,6 @@ class StravaStatusRow extends StatelessWidget {
     );
   }
 }
+
+Future<(StravaUpload?, bool)> _read(StravaSync sync, String id) async =>
+    (await sync.stateOf(id), await sync.connected);

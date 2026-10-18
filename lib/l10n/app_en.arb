@@ -15783,5 +15783,6 @@
   "stravaStatusFailed": "Strava: {reason}",
   "@stravaStatusFailed": {"placeholders": {"reason": {"type": "String"}}},
   "stravaRetry": "Retry",
-  "stravaStatusWaiting": "Waiting for the band's heart rate, then to Strava"
+  "stravaStatusWaiting": "Waiting for the band's heart rate, then to Strava",
+  "stravaUploadNow": "Upload to Strava"
 }
