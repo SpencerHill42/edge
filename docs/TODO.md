@@ -180,6 +180,23 @@ installs.
   (`stravaReady`). Still to see on Strava: HR graph on the walk, a run with
   map, whether `Soccer` and `Padel` are accepted as sport types.
 
+### 6b. Weight and body-fat trend (Armin, 2026-10-18)
+
+- **Wanted:** a weight trend and a body-fat trend, under Gesundheit ›
+  Erkunden › "Körper & Tragezeit".
+- **Source:** Apple Health (Garmin Index → Garmin Connect → Health writes
+  both `WEIGHT` and `BODY_FAT_PERCENTAGE`). HealthKit works since the Xcode
+  install (item 1); the profile weight already follows Health (v0.9).
+- **Do:** read the history (not only the newest value) into its own series,
+  two rows in "Körper & Tragezeit" opening the usual metric detail (chart,
+  latest value, change over 30/90 days). Display only: never an input to an
+  OpenStrap metric or baseline, never judged against a "normal" range.
+  `health_screen.dart` has a comment against a "body composition" section;
+  it argues against judging weight, not against showing his own trend, so
+  keep to that.
+- **Done when:** both rows show Armin's Garmin history with a chart, and a
+  new weigh-in appears after the next app start.
+
 ## Soon (analytics; most of it belongs upstream in OpenStrap/analytics)
 
 ### 7. Sleep: wake is hardly detected
