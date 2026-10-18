@@ -291,6 +291,9 @@ absurd for an adult who sleeps ~7–8 h.
 - `low_readiness_agreement_test.dart` (two "pinned day" cases) fails from
   2026-10-18 on, already on 4497ef5c (before any fork-test work): looks
   date-dependent. Not caused by Strava.
+- `vendor_flag_off_families_test.dart` (4) and `device_use_switch_test.dart`
+  (2) fail on main as of 2026-10-18 too (checked before merging TODO 3):
+  pre-existing, not from the fork's changes of that day.
 
 ## Sources
 
