@@ -29,6 +29,7 @@ import 'ui2/profile/profile.dart';
 import 'ui2/screens/ai_briefing.dart';
 import 'ui2/screens/calm_breathing.dart';
 import 'ui2/screens/what_changed.dart';
+import 'health/health_import_state.dart' show HealthImport, lastImportAt;
 import 'health/health_measurement_import.dart' show ImportedMeasurementImporter;
 import 'health/health_profile_import.dart' show autoWeightFromHealth;
 import 'strava/strava_sync.dart';
@@ -76,8 +77,15 @@ class _OpenStrapAppState extends State<OpenStrapApp> with WidgetsBindingObserver
     final app = context.read<AppState>();
     final next = await autoWeightFromHealth(app.user);
     if (next != null && mounted) await app.updateProfile(next);
-    // The weight and body-fat history for Gesundheit › Erkunden (6b).
-    await ImportedMeasurementImporter.body().sync();
+    // The weight and body-fat history for Gesundheit › Erkunden (6b). Once
+    // Health has been read by hand, ask for these two types too: iOS shows
+    // the sheet only for a type it has never asked about (body fat, the
+    // first time), and returns at once on every later launch.
+    final body = ImportedMeasurementImporter.body();
+    if (await lastImportAt(HealthImport.profile) != null) {
+      await body.requestPermission();
+    }
+    await body.sync();
   }
 
   @override
