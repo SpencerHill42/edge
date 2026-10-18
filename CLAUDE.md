@@ -140,6 +140,11 @@ unchanged. This file only adds what is specific to the fork.
 
 ## Backlog (Armin's order)
 
+Near-term work with full context (HealthKit in the AltStore build, provisional
+rings on Home, detail typography, sleep/energy accuracy, open decisions):
+`docs/TODO.md`. Read it at the start of a session.
+
+
 1. ~~White app design~~ (v0.3).
 2. Weight and body fat from Apple Health (Garmin Index scale → Garmin Connect →
    Apple Health) as a trend card in Verlauf. The profile WEIGHT already follows
