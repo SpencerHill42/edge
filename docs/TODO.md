@@ -32,6 +32,10 @@ changed" in `CLAUDE.md`.
 - **Done when:** after an AltStore install over the existing app (never
   delete it, see "Band pairing"), "Turbo Health" is listed under Health ›
   Data Access, the read button works, and the profile weight follows Health.
+- **Status 2026-10-18:** the build now embeds the HealthKit entitlement
+  (`ios/sideload/Runner-sideload.entitlements`, ldid step in
+  `cockpit-ipa.yml`, checked with `ldid -e`). Waiting for Armin's AltStore
+  install to confirm the "Done when" above.
 - **If the free Apple ID refuses HealthKit:** say so to Armin. The fallback is
   installing from Xcode with his personal team, and it has to be the
   same app (same bundle ID) so that only one app owns the band.

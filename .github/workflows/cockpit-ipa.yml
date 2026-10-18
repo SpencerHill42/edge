@@ -47,6 +47,17 @@ jobs:
       - name: Strip Watch companion
         run: rm -rf "build/ios/iphoneos/Runner.app/Watch"
 
+      # Sideload signers (AltStore, Sideloadly) request the capabilities they
+      # find in the binary's entitlements. `--no-codesign` embeds none, so the
+      # app was signed without HealthKit and iOS never listed it under Health
+      # (docs/TODO.md item 1). Fake-sign the main binary with just HealthKit;
+      # the real signature still comes from AltStore on the phone.
+      - name: Embed HealthKit entitlement for sideloading
+        run: |
+          brew install ldid
+          ldid -Sios/sideload/Runner-sideload.entitlements build/ios/iphoneos/Runner.app/Runner
+          ldid -e build/ios/iphoneos/Runner.app/Runner | tee /dev/stderr | grep -q 'com.apple.developer.healthkit'
+
       - name: Package unsigned IPA
         run: |
           cd build/ios/iphoneos
