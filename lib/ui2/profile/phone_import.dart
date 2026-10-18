@@ -135,8 +135,10 @@ class _PhoneImportState extends State<PhoneImport> {
     final importer = RhrSeedImporter();
     if (!await importer.requestPermission()) {
       return (
-        l?.phoneImportRhrDenied(storeName) ??
-            '$storeName did not grant resting heart rate. Nothing was read.',
+        healthNotGranted(
+            l,
+            l?.phoneImportRhrDenied(storeName) ??
+                '$storeName did not grant resting heart rate. Nothing was read.'),
         true,
       );
     }
@@ -162,8 +164,10 @@ class _PhoneImportState extends State<PhoneImport> {
     final importer = ImportedMeasurementImporter();
     if (!await importer.requestPermission()) {
       return (
-        l?.phoneImportMeasurementsDenied(storeName) ??
-            '$storeName did not grant those readings. Nothing was read.',
+        healthNotGranted(
+            l,
+            l?.phoneImportMeasurementsDenied(storeName) ??
+                '$storeName did not grant those readings. Nothing was read.'),
         true,
       );
     }

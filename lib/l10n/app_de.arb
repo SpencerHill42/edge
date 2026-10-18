@@ -3372,5 +3372,6 @@
   "healthFieldWeight": "Gewicht",
   "healthFieldHeight": "Größe",
   "healthFieldAge": "Alter",
-  "healthFieldSex": "Geschlecht"
+  "healthFieldSex": "Geschlecht",
+  "healthRequestFailed": "{store} konnte nicht gefragt werden ({error}). Das liegt an der Installation, nicht an deiner Freigabe in Health."
 }

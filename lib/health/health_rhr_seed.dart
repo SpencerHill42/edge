@@ -38,6 +38,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../data/db.dart';
 import '../data/day_label.dart';
+import 'health_import_state.dart' show lastHealthError, noteHealthError;
 
 /// `baselines` key for the shadow seed. Deliberately NOT one of the keys the
 /// derivation engine reads — a grep for this string should find this file, its
@@ -175,6 +176,7 @@ class RhrSeedImporter {
   /// request — a permission sheet listing more than the feature uses is how a
   /// user learns not to trust the sheet.
   Future<bool> requestPermission() async {
+    lastHealthError = null;
     try {
       await _health.configure();
       final already = await _health.hasPermissions(
@@ -188,6 +190,7 @@ class RhrSeedImporter {
       );
     } catch (e) {
       debugPrint('[rhr_seed] permission: $e');
+      noteHealthError('rhr_seed', e);
       return false;
     }
   }
