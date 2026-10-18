@@ -210,6 +210,8 @@ const _notComponents = {
   'ProfileHome', 'ProfileHomeView', 'MoreSettings', 'MoreSettingsView',
   // Strava: a screen, and a row that reads its upload state from prefs.
   'StravaScreen', 'StravaStatusRow',
+  // Gesundheit › Erkunden › weight / body fat: a screen that reads the DB.
+  'BodyTrendDetail',
   'NotificationSettings', 'NotificationSettingsView', 'EditProfile',
   'EditProfileView', 'DataScreen', 'AlarmScreen', 'AlarmScreenView',
   'ReportIssueScreen',

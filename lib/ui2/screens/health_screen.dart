@@ -33,6 +33,7 @@ import 'home_screen.dart';
 import 'investigate.dart';
 import 'metric_detail.dart';
 import 'wellness_screen.dart';
+import 'body_trend.dart';
 
 /// A read this screen can live without. The wear block and the nap block are
 /// ADDITIONS to the repository interface, so an implementation written before
@@ -343,7 +344,12 @@ class _CatRow {
   /// Only an import writes this series, so with no history the row is left
   /// out entirely instead of being listed as not measured yet.
   final bool importOnly;
-  const _CatRow(this.key, this.series, this.blurb, {this.importOnly = false});
+
+  /// Strap Cockpit (6b): an `imported_measurement` kind (the scale via Apple
+  /// Health), not a `metric_series` key. Opens [BodyTrendDetail].
+  final bool imported;
+  const _CatRow(this.key, this.series, this.blurb,
+      {this.importOnly = false, this.imported = false});
 
   bool shown(Map<String, int> counts) =>
       !importOnly || (counts[series] ?? 0) > 0;
@@ -401,6 +407,10 @@ const _catalogue = <_Cat>[
     _CatRow('trimp', 'trimp', 'Heart points with no cap; Strain is the 0–21 view'),
   ]),
   _Cat('Body & wear', [
+    _CatRow('weight', 'weight', 'From your scale via Apple Health',
+        importOnly: true, imported: true),
+    _CatRow('body_fat', 'body_fat', 'From your scale via Apple Health',
+        importOnly: true, imported: true),
     _CatRow('skin_temp', 'skin_temp_z', 'Distance from your own recent nights'),
     _CatRow('wear', 'worn_min', 'Minutes with a band record present'),
   ]),
@@ -458,10 +468,19 @@ class ExploreData {
   const ExploreData({this.counts = const {}});
 
   static Future<ExploreData> load() async => ExploreData(
-        counts: await LocalDb.metricSeriesCounts([
+        counts: {
+          ...await LocalDb.metricSeriesCounts([
+            for (final f in _catalogue)
+              for (final r in f.rows)
+                if (!r.imported) r.series,
+          ]),
           for (final f in _catalogue)
-            for (final r in f.rows) r.series,
-        ]),
+            for (final r in f.rows)
+              if (r.imported)
+                r.series:
+                    (await LocalDb.importedMeasurements(r.series, limit: 1))
+                        .length,
+        },
       );
 }
 
@@ -1365,6 +1384,20 @@ class _HealthScreenState extends State<HealthScreen> with RevisionReload {
                     Builder(
                       builder: (c) {
                         final r = have[i];
+                        if (r.imported) {
+                          return MetricRow(
+                            r.key == 'weight'
+                                ? LucideIcons.scale
+                                : LucideIcons.percent,
+                            C.blue,
+                            r.key == 'weight'
+                                ? (l?.bodyWeightTitle ?? 'Weight')
+                                : (l?.bodyFatTitle ?? 'Body fat'),
+                            '',
+                            sub: l?.bodyRowSub ?? r.blurb,
+                            onTap: () => go(c, BodyTrendDetail(r.key)),
+                          );
+                        }
                         final s = specOf(r.key);
                         // NO NUMBER IN THE VALUE SLOT, on purpose.
                         //

@@ -112,6 +112,9 @@ class HealthProfileImporter {
   List<HealthDataType> get types => [
     HealthDataType.WEIGHT,
     HealthDataType.HEIGHT,
+    // Asked here so the body-fat trend (docs/TODO.md 6b) has its grant; the
+    // profile itself never reads it.
+    HealthDataType.BODY_FAT_PERCENTAGE,
     if (_isApple) ...[HealthDataType.GENDER, HealthDataType.BIRTH_DATE],
   ];
 

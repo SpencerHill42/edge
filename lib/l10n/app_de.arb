@@ -3356,5 +3356,15 @@
   "stravaStatusFailed": "Strava: {reason}",
   "stravaRetry": "Erneut versuchen",
   "stravaStatusWaiting": "Wartet auf die Herzfrequenz vom Band, dann zu Strava",
-  "stravaUploadNow": "Zu Strava hochladen"
+  "stravaUploadNow": "Zu Strava hochladen",
+  "bodyWeightTitle": "Gewicht",
+  "bodyFatTitle": "Körperfett",
+  "bodyRowSub": "Von deiner Waage über Apple Health",
+  "bodyNoReadingsTitle": "Noch keine Messungen",
+  "bodyNoReadingsBody": "Sie kommen aus Apple Health. Schalte in Garmin Connect unter Apple Health Gewicht und Körperfett ein und erlaube sie unter Profil bearbeiten › Aus Apple Health übernehmen.",
+  "bodyLatestFrom": "{day} · von {source}",
+  "bodyChange30": "30 TAGE",
+  "bodyChange90": "90 TAGE",
+  "bodyReadings": "MESSUNGEN",
+  "bodyDisplayOnly": "Die Messungen deiner Waage aus Apple Health, so wie sie sind. Sie fließen in keinen Wert ein."
 }
