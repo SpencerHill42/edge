@@ -27,6 +27,7 @@ import 'package:flutter/foundation.dart';
 import 'package:health/health.dart';
 
 import '../data/db.dart';
+import 'health_import_state.dart' show lastHealthError, noteHealthError;
 
 /// Stable `imported_measurement.kind` keys. Written to the database, so they
 /// are contract: rename one and every stored row orphans.
@@ -138,6 +139,7 @@ class ImportedMeasurementImporter {
 
   /// READ only. This app writes none of these and never will.
   Future<bool> requestPermission() async {
+    lastHealthError = null;
     try {
       await _health.configure();
       final perms = [for (final _ in types) HealthDataAccess.READ];
@@ -146,6 +148,7 @@ class ImportedMeasurementImporter {
       return await _health.requestAuthorization(types, permissions: perms);
     } catch (e) {
       debugPrint('[imported_measurement] permission: $e');
+      noteHealthError('imported_measurement', e);
       return false;
     }
   }

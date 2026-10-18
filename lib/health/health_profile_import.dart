@@ -120,6 +120,7 @@ class HealthProfileImporter {
 
   /// Ask for READ access. Safe to call repeatedly.
   Future<bool> requestPermission() async {
+    lastHealthError = null;
     try {
       await _health.configure();
       final already = await _health.hasPermissions(
@@ -133,6 +134,7 @@ class HealthProfileImporter {
       );
     } catch (e) {
       debugPrint('[health_profile] permission: $e');
+      noteHealthError('health_profile', e);
       return false;
     }
   }

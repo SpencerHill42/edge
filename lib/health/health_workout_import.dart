@@ -49,6 +49,7 @@ import 'package:health/health.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../data/db.dart';
+import 'health_import_state.dart' show lastHealthError, noteHealthError;
 
 /// Apple-only bridge to `HKWorkoutRoute`. Implemented in
 /// ios/Runner/HealthRoutes.swift; absent on Android by design.
@@ -305,6 +306,7 @@ class HealthWorkoutImporter {
   }
 
   Future<bool> requestPermission() async {
+    lastHealthError = null;
     try {
       await _health.configure();
       final perms = [for (final _ in _readTypes) HealthDataAccess.READ];
@@ -314,6 +316,7 @@ class HealthWorkoutImporter {
       return await _health.requestAuthorization(_readTypes, permissions: perms);
     } catch (e) {
       debugPrint('[imported_workout] permission: $e');
+      noteHealthError('imported_workout', e);
       return false;
     }
   }

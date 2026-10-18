@@ -810,8 +810,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> with RevisionReload {
         if (!mounted) return;
         final loc = AppLocalizations.of(context);
         setState(() {
-          _importNote = loc?.workoutImportDenied(storeName) ??
-              '$storeName did not grant workouts. Nothing was read.';
+          _importNote = healthNotGranted(
+              loc,
+              loc?.workoutImportDenied(storeName) ??
+                  '$storeName did not grant workouts. Nothing was read.');
           _importFailed = true;
         });
         return;

@@ -1345,8 +1345,10 @@ class EditProfile extends StatelessWidget {
         // once.
         if (!await importer.requestPermission()) {
           return (
-            l?.settingsImportNoPermission(storeName) ??
-                '$storeName did not grant those fields. Nothing was read.',
+            healthNotGranted(
+                l,
+                l?.settingsImportNoPermission(storeName) ??
+                    '$storeName did not grant those fields. Nothing was read.'),
             true,
             null,
           );

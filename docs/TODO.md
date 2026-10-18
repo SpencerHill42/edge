@@ -55,6 +55,12 @@ changed" in `CLAUDE.md`.
   from "nothing came back", with German copy for each, and write the
   exception to `openstrap_sync.log` so it shows up in the Files app.
 
+- **Done 2026-10-18:** every Health `requestPermission()` clears and, on a
+  throw, records `lastHealthError` and writes it to `openstrap_sync.log`;
+  callers show `healthNotGranted()`: the failure with its reason ("konnte
+  nicht gefragt werden … liegt an der Installation") instead of "nicht
+  freigegeben". Test: `test/health_error_message_test.dart`.
+
 ### 3. Home rings stay empty for an hour after waking
 
 - **Seen (2026-10-18, 07:46):** Woke at 07:22. The sleep screen already

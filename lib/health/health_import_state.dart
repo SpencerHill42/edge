@@ -20,6 +20,11 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/app_localizations.dart';
+import 'dart:async' show unawaited;
+
+import 'package:flutter/services.dart' show PlatformException;
+
+import '../sync/file_log.dart';
 
 /// Whichever store this platform has. Named, because "your phone" is not a
 /// thing a user can go and check a permission on.
@@ -102,3 +107,29 @@ String healthFieldNames(Iterable<String> fields, [AppLocalizations? l]) => [
           _ => f,
         },
     ].join(', ');
+
+/// The last Health request that FAILED — an exception from the store, such as
+/// "Missing com.apple.developer.healthkit entitlement" in an install signed
+/// without HealthKit. iOS never tells an app that a READ was refused, so a
+/// `false` from a `requestPermission()` after a throw means "could not ask",
+/// not "you said no" (docs/TODO.md item 2). Cleared at the start of every
+/// request.
+String? lastHealthError;
+
+/// Record a failed Health request and write it to `openstrap_sync.log`, which
+/// the Files app shows.
+void noteHealthError(String where, Object e) {
+  lastHealthError = e is PlatformException ? (e.message ?? e.code) : '$e';
+  unawaited(FileLog.write('[health] $where request failed: $e'));
+}
+
+/// What to say after a `requestPermission()` returned false: the failure with
+/// its reason when the request threw, else the caller's "not granted" text.
+String healthNotGranted(AppLocalizations? l, String notGranted) {
+  final e = lastHealthError;
+  if (e == null) return notGranted;
+  return l?.healthRequestFailed(storeName, e) ??
+      '$storeName could not be asked ($e). This is the install, not your '
+          'choice in Health.';
+}
+

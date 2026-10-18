@@ -7557,5 +7557,7 @@
   "healthFieldAge": "age",
   "healthFieldSex": "sex",
   "@healthImportFrom": {"placeholders": {"store": {"type": "String"}}},
-  "@healthRefreshFrom": {"placeholders": {"store": {"type": "String"}}}
+  "@healthRefreshFrom": {"placeholders": {"store": {"type": "String"}}},
+  "healthRequestFailed": "{store} could not be asked ({error}). This is the install, not your choice in Health.",
+  "@healthRequestFailed": {"placeholders": {"store": {"type": "String"}, "error": {"type": "String"}}}
 }
