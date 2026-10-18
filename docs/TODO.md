@@ -106,12 +106,20 @@ installs.
   It is manual and only covers workouts with a route, so football and padel
   cannot be sent at all.
 - **Approach: the Strava API, on Armin's own API app.**
-  - **API app:** Armin registers it himself at strava.com/settings/api (his
-    login, his client ID/secret). New apps start with 1 athlete, which is
-    enough for him. This is a private build, so the secret may live in the
-    gitignored `.env` (`--dart-define-from-file`). Never commit it.
-  - **OAuth:** in-app login with scope `activity:write` (plus
-    `activity:read` only if needed for the upload status). Keep the tokens in
+  - **API app:** Armin registers it himself at strava.com/settings/api with
+    his own login (created 2026-10-18 as "Turbo Health", category Mobile App,
+    website https://github.com/SpencerHill42/edge, callback domain
+    `localhost`). New apps start with 1 athlete, which is enough for him.
+  - **Credentials, not in the build:** The IPA is built on GitHub, and
+    artifacts of this public repo can be downloaded by anyone, so a baked-in
+    secret would leak. Instead, the Strava screen in Mehr asks once for the
+    client ID and secret (paste) and keeps them in the keychain, the same
+    pattern as the coach's BYOK setup.
+  - **OAuth:** in-app login (ASWebAuthenticationSession or similar) with
+    scope `activity:write` (plus `activity:read` only if needed for the
+    upload status). The redirect URI is `turbohealth://localhost`: its host
+    matches the callback domain `localhost`. Register the `turbohealth` URL
+    scheme in `Info.plist`. Keep the tokens in
     the keychain (`flutter_secure_storage` is already a dependency) and
     refresh them on expiry. Disconnecting revokes via
     `POST /oauth/revoke`.
