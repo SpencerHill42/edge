@@ -1374,7 +1374,7 @@ class EditProfile extends StatelessWidget {
         // persists the profile and notifies every listener.
         if (changes.isEmpty) {
           return (
-            l?.settingsImportNoChange(snap.found.join(', ')) ??
+            l?.settingsImportNoChange(healthFieldNames(snap.found, l)) ??
                 'Read ${snap.found.join(', ')}. Your profile already says the '
                     'same thing, so nothing changed.',
             false,
@@ -1383,7 +1383,7 @@ class EditProfile extends StatelessWidget {
         }
         await app.updateProfile(merged);
         return (
-          l?.settingsImportUpdated(changes.join(', '), storeName) ??
+          l?.settingsImportUpdated(healthFieldNames(changes, l), storeName) ??
               'Updated ${changes.join(', ')} from $storeName.',
           false,
           merged
@@ -1564,9 +1564,15 @@ class _EditProfileViewState extends State<EditProfileView> {
                 trailing: Pressable(
                   semanticLabel: l?.actionSave ?? 'Save',
                   onTap: _save,
-                  child: Text(l?.actionSave ?? 'Save',
-                      style: F.body.copyWith(
-                          color: p.on(C.green), fontWeight: FontWeight.w600)),
+                  // One line, never "Speic / hern" in the narrow corner slot.
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(l?.actionSave ?? 'Save',
+                        maxLines: 1,
+                        softWrap: false,
+                        style: F.body.copyWith(
+                            color: p.on(C.green), fontWeight: FontWeight.w600)),
+                  ),
                 )),
           ),
           Expanded(
@@ -1666,7 +1672,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           ),
           const SizedBox(height: S.x4),
           BigButton(
-            importLabel(_lastImport),
+            importLabel(_lastImport, AppLocalizations.of(context)),
             icon: LucideIcons.scale,
             color: C.purple,
             soft: true,

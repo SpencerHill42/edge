@@ -159,8 +159,11 @@ class HealthProfileImporter {
       // returns the same 30 days while implying otherwise. Ask for what we can
       // actually have. Someone who weighs themselves less often than monthly
       // gets nothing, which reports honestly as "nothing to read".
+      // Strap Cockpit: ten years on Apple, because HEIGHT is entered once and
+      // then never again (Armin's is from July 2024 and a one-year window
+      // never saw it). WEIGHT keeps the one-year rule in [_snapshotFrom].
       final start = _isApple
-          ? DateTime(end.year - 1, end.month, end.day)
+          ? DateTime(end.year - 10, end.month, end.day)
           : end.subtract(const Duration(days: 30));
       final points = await _health.getHealthDataFromTypes(
         types: types,
@@ -199,7 +202,13 @@ class HealthProfileImporter {
       return v is NumericHealthValue ? v.numericValue.toDouble() : null;
     }
 
-    final weight = numeric(HealthDataType.WEIGHT);
+    // Weight changes, so only a reading from the last year may replace the
+    // profile's; height may be as old as the read window.
+    final newestWeight = newest(HealthDataType.WEIGHT);
+    final weight = newestWeight != null &&
+            newestWeight.dateTo.isAfter(DateTime(now.year - 1, now.month, now.day))
+        ? numeric(HealthDataType.WEIGHT)
+        : null;
     // The plugin normalises HEIGHT to METRES; the profile stores centimetres.
     final heightM = numeric(HealthDataType.HEIGHT);
 

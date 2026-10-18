@@ -3366,5 +3366,11 @@
   "bodyChange30": "30 TAGE",
   "bodyChange90": "90 TAGE",
   "bodyReadings": "MESSUNGEN",
-  "bodyDisplayOnly": "Die Messungen deiner Waage aus Apple Health, so wie sie sind. Sie fließen in keinen Wert ein."
+  "bodyDisplayOnly": "Die Messungen deiner Waage aus Apple Health, so wie sie sind. Sie fließen in keinen Wert ein.",
+  "healthImportFrom": "Aus {store} übernehmen",
+  "healthRefreshFrom": "Aus {store} aktualisieren",
+  "healthFieldWeight": "Gewicht",
+  "healthFieldHeight": "Größe",
+  "healthFieldAge": "Alter",
+  "healthFieldSex": "Geschlecht"
 }
