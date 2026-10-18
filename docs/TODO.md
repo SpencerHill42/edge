@@ -81,6 +81,14 @@ changed" in `CLAUDE.md`.
   worked out.
 - Keep the #448 tests green and add one for "provisional night on Home".
 
+- **Done 2026-10-18 (Armin: 30 min after a confirmed wake):** `getToday`
+  serves today's night when `recovery_state` is provisional
+  (`overnight_provisional`), the sleep ring greyed like recovery; the
+  settled readiness metric stays empty until `overnightSettled`, so the
+  #448 guard and the pin are unchanged. Before the wake is confirmed the
+  sleep ring says "Wird ausgewertet", not "Kein Schlaf". Test in
+  `test/overnight_settled_test.dart`.
+
 ### 4. Detail values in the wrong font, method texts in English
 
 - Metric detail › "Detailwerte" (`lib/ui2/screens/metric_detail.dart`
@@ -283,6 +291,9 @@ absurd for an adult who sleeps ~7–8 h.
 - `low_readiness_agreement_test.dart` (two "pinned day" cases) fails from
   2026-10-18 on, already on 4497ef5c (before any fork-test work): looks
   date-dependent. Not caused by Strava.
+- `vendor_flag_off_families_test.dart` (4) and `device_use_switch_test.dart`
+  (2) fail on main as of 2026-10-18 too (checked before merging TODO 3):
+  pre-existing, not from the fork's changes of that day.
 
 ## Sources
 
