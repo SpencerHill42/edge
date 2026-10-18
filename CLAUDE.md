@@ -62,6 +62,10 @@ unchanged. This file only adds what is specific to the fork.
 - `.github/workflows/cockpit-ipa.yml` builds an unsigned `StrapCockpit.ipa` on
   every push to `main` (Actions → run → Artifacts). Installed with AltStore
   Classic and a free Apple ID: valid 7 days, AltServer re-signs over Wi-Fi.
+  The build fake-signs `Runner` with `ios/sideload/Runner-sideload.entitlements`
+  (`ldid`, HealthKit only) so AltStore asks for HealthKit; without it the app
+  never shows up under Health. Add a capability there only if AltStore must
+  request it.
 - Docs-only commits: put `[skip ci]` in the message so no 20-minute build runs.
 - Upstream: `git remote add upstream https://github.com/OpenStrap/edge`,
   then `git fetch upstream && git merge upstream/main`. Expect conflicts only
