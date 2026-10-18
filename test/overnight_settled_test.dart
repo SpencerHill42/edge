@@ -393,6 +393,22 @@ void main() {
       expect(h['recovery'], 27.6);
     });
 
+    test('provisional: today\'s own night is served, marked, never settled',
+        () async {
+      // Strap Cockpit TODO 3: 30 min after a confirmed wake Home shows the
+      // night (greyed) instead of an hour of "Kein Schlaf". The settled
+      // readiness metric stays empty: only the provisional one carries it.
+      final wake = nowSec - 50 * 60;
+      await seed(
+          wakeSec: wake, edgeSec: wake + 40 * 60, readiness: 27.6, rmssd: 55);
+      final t = await today();
+      expect(t['status']['overnight_provisional'], isTrue);
+      expect(t['status']['showing_prior_overnight'], isFalse);
+      expect(t['hrv']['rmssd'], 55);
+      expect((t['daily']['readiness'] as Map)['value'], isNot(isA<num>()));
+      expect(todayHeadlineOf(t)['recovery'], 27.6);
+    });
+
     test('final night: a legacy pin without wake yields to the live value',
         () async {
       final wake = nowSec - 3 * 3600;

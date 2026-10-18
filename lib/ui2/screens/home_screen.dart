@@ -1075,6 +1075,15 @@ _RingState _ringOf(HomeRingKind k, HomeData d, AppLocalizations? l) {
     case HomeRingKind.sleep:
       final v = d.sleepMin.value;
       final need = d.sleepNeedMin.value;
+      // Strap Cockpit (TODO 3): the wake is not confirmed yet, so the night is
+      // still being worked out. Not "Kein Schlaf", which said the opposite.
+      if (v == null && d.recoveryState == 'night_in_progress') {
+        return _RingState(k, l?.homeRingSleep ?? 'Sleep', LucideIcons.moon,
+            C.sleep,
+            value: l?.homeSleepEvaluating ?? 'Working it out',
+            why: l?.homeOvernightBuilding ??
+                'Last night is still being worked out.');
+      }
       return v == null
           ? _gap(k, l?.homeRingSleep ?? 'Sleep', LucideIcons.moon, C.sleep,
               d.sleepMin, l?.homeRingNoSleep ?? 'No sleep', l,
@@ -1088,7 +1097,10 @@ _RingState _ringOf(HomeRingKind k, HomeData d, AppLocalizations? l) {
               sub: need == null
                   ? (l?.homeSleepNoTarget ?? 'No target yet')
                   : (l?.homeOfSpan(hm(need)) ?? 'of ${hm(need)}'),
-              frac: need == null || need <= 0 ? null : v / need);
+              frac: need == null || need <= 0 ? null : v / need,
+              // A confirmed wake whose window has not settled: today's own
+              // night, greyed like the provisional recovery beside it.
+              provisional: d.recoveryState == 'provisional');
   }
 }
 
