@@ -97,8 +97,48 @@ class _BodyTrendDetailState extends State<BodyTrendDetail> {
     final c30 = bodyChange(r, 30), c90 = bodyChange(r, 90);
     final day = MaterialLocalizations.of(c)
         .formatMediumDate(DateTime.fromMillisecondsSinceEpoch(last.ts * 1000));
-    // At most a year on the chart, one point per reading.
-    final shown = r.length > 365 ? r.sublist(r.length - 365) : r;
+    // One slot per calendar day from the first reading of the last year to
+    // today, the reading on its own day and nothing in between: an irregular
+    // weigh-in is a dot at its date, never a line drawn through days with no
+    // reading.
+    final today = DateTime.now();
+    final day0 = DateTime(today.year, today.month, today.day);
+    DateTime dayOf(int ts) {
+      final d = DateTime.fromMillisecondsSinceEpoch(ts * 1000);
+      return DateTime(d.year, d.month, d.day);
+    }
+    var first = dayOf(r.first.ts);
+    final yearAgo = day0.subtract(const Duration(days: 365));
+    if (first.isBefore(yearAgo)) first = yearAgo;
+    final span = day0.difference(first).inDays + 1;
+    final slots = List<double?>.filled(span < 2 ? 2 : span, null);
+    for (final x in r) {
+      final i = dayOf(x.ts).difference(first).inDays;
+      if (i >= 0 && i < slots.length) slots[i] = x.value; // newest of a day wins
+    }
+    final vals = [for (final v in slots) ?v];
+    // The line between two weigh-ins, drawn dim UNDER the readings: a
+    // straight join of two real points, never a value of its own (no dot,
+    // nothing to read off it), the way Apple Health draws a sparse series.
+    final joined = List<double?>.of(slots);
+    int? prev;
+    for (var i = 0; i < joined.length; i++) {
+      if (slots[i] == null) continue;
+      if (prev != null && i - prev > 1) {
+        final a = slots[prev]!, b = slots[i]!;
+        for (var k = prev + 1; k < i; k++) {
+          joined[k] = a + (b - a) * (k - prev) / (i - prev);
+        }
+      }
+      prev = i;
+    }
+    final axis = AxisSpec.of(vals, ticks: 3, format: axisFixed);
+    final loc = MaterialLocalizations.of(c);
+    final xLabels = [
+      loc.formatShortMonthDay(first),
+      loc.formatShortMonthDay(first.add(Duration(days: (slots.length - 1) ~/ 2))),
+      l?.metricDetailToday ?? 'Today',
+    ];
     return detailScaffold(c, title, [
       Surface(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -108,15 +148,25 @@ class _BodyTrendDetailState extends State<BodyTrendDetail> {
               l?.bodyLatestFrom(day, last.source) ??
                   '$day · from ${last.source}',
               style: F.cap.copyWith(color: p.ink3)),
-          const SizedBox(height: S.x4),
-          SizedBox(
-            height: 140,
-            child: CustomPaint(
-              size: Size.infinite,
-              painter: LineChart([for (final x in shown) x.value],
-                  p.on(C.blue),
-                  dots: shown.length < 40),
-            ),
+        ]),
+      ),
+      const SizedBox(height: S.x3),
+      ChartFrame(
+        title: title,
+        unit: unit,
+        height: 160,
+        yAxis: axis,
+        xLabels: xLabels,
+        series: slots,
+        child: Stack(children: [
+          CustomPaint(
+            size: Size.infinite,
+            painter: LineChart(joined, p.ink3, fill: false, axis: axis),
+          ),
+          CustomPaint(
+            size: Size.infinite,
+            painter: LineChart(slots, p.on(C.blue),
+                dots: true, fill: false, dotInk: p.card, axis: axis),
           ),
         ]),
       ),
