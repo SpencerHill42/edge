@@ -29,6 +29,7 @@ import 'ui2/profile/profile.dart';
 import 'ui2/screens/ai_briefing.dart';
 import 'ui2/screens/calm_breathing.dart';
 import 'ui2/screens/what_changed.dart';
+import 'health/health_measurement_import.dart' show ImportedMeasurementImporter;
 import 'health/health_profile_import.dart' show autoWeightFromHealth;
 import 'strava/strava_sync.dart';
 import 'ui2/screens/health_screen.dart';
@@ -75,6 +76,8 @@ class _OpenStrapAppState extends State<OpenStrapApp> with WidgetsBindingObserver
     final app = context.read<AppState>();
     final next = await autoWeightFromHealth(app.user);
     if (next != null && mounted) await app.updateProfile(next);
+    // The weight and body-fat history for Gesundheit › Erkunden (6b).
+    await ImportedMeasurementImporter.body().sync();
   }
 
   @override

@@ -35,11 +35,19 @@ const String kKindDiastolic = 'bp_diastolic';
 const String kKindGlucose = 'glucose';
 const String kKindBodyTemp = 'body_temp';
 
+/// Strap Cockpit (docs/TODO.md 6b): the Garmin Index scale's weight and body
+/// fat, via Garmin Connect → Apple Health. Same rules as the rest of this
+/// table: shown with the scale's name, never an input to anything derived.
+const String kKindWeight = 'weight';
+const String kKindBodyFat = 'body_fat';
+
 const Map<HealthDataType, String> kImportedKinds = {
   HealthDataType.BLOOD_PRESSURE_SYSTOLIC: kKindSystolic,
   HealthDataType.BLOOD_PRESSURE_DIASTOLIC: kKindDiastolic,
   HealthDataType.BLOOD_GLUCOSE: kKindGlucose,
   HealthDataType.BODY_TEMPERATURE: kKindBodyTemp,
+  HealthDataType.WEIGHT: kKindWeight,
+  HealthDataType.BODY_FAT_PERCENTAGE: kKindBodyFat,
 };
 
 /// Plausibility bounds per kind, in the plugin's canonical unit (mmHg, mg/dL,
@@ -52,6 +60,8 @@ const Map<String, (double, double)> kImportedBounds = {
   kKindDiastolic: (20, 200),
   kKindGlucose: (10, 1000),
   kKindBodyTemp: (25, 45),
+  kKindWeight: (20, 400), // kg
+  kKindBodyFat: (2, 75), // %
 };
 
 /// Turn raw health-store points into `imported_measurement` rows, dropping
@@ -72,7 +82,9 @@ List<Map<String, Object?>> rowsFrom(List<HealthDataPoint> points) {
     if (kind == null) continue;
     final v = p.value;
     if (v is! NumericHealthValue) continue;
-    final value = v.numericValue.toDouble();
+    var value = v.numericValue.toDouble();
+    // HealthKit's percent unit is a fraction (0.183); show it as 18.3 %.
+    if (kind == kKindBodyFat && value <= 1) value *= 100;
     final bounds = kImportedBounds[kind];
     if (bounds != null && (value < bounds.$1 || value > bounds.$2)) continue;
     // A record with no uuid cannot be updated or deduplicated later, and the
@@ -99,18 +111,29 @@ List<Map<String, Object?>> rowsFrom(List<HealthDataPoint> points) {
 }
 
 class ImportedMeasurementImporter {
-  ImportedMeasurementImporter({Health? health, bool? isApple})
+  ImportedMeasurementImporter({Health? health, bool? isApple, this.types = clinical})
       : _health = health ?? Health(),
         _isApple = isApple ?? (Platform.isIOS || Platform.isMacOS);
 
+  /// Weight and body fat only, read on every launch and foreground (app.dart).
+  /// Reading never prompts; the permission is asked by Edit profile's import.
+  ImportedMeasurementImporter.body({Health? health})
+      : this(health: health, types: bodyTypes);
+
   final Health _health;
   final bool _isApple;
+  final List<HealthDataType> types;
 
-  static const List<HealthDataType> types = [
+  static const List<HealthDataType> clinical = [
     HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
     HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
     HealthDataType.BLOOD_GLUCOSE,
     HealthDataType.BODY_TEMPERATURE,
+  ];
+
+  static const List<HealthDataType> bodyTypes = [
+    HealthDataType.WEIGHT,
+    HealthDataType.BODY_FAT_PERCENTAGE,
   ];
 
   /// READ only. This app writes none of these and never will.

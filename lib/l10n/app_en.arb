@@ -15784,5 +15784,16 @@
   "@stravaStatusFailed": {"placeholders": {"reason": {"type": "String"}}},
   "stravaRetry": "Retry",
   "stravaStatusWaiting": "Waiting for the band's heart rate, then to Strava",
-  "stravaUploadNow": "Upload to Strava"
+  "stravaUploadNow": "Upload to Strava",
+  "bodyWeightTitle": "Weight",
+  "bodyFatTitle": "Body fat",
+  "bodyRowSub": "From your scale via Apple Health",
+  "bodyNoReadingsTitle": "No readings yet",
+  "bodyNoReadingsBody": "They come from Apple Health. Turn on weight and body fat in Garmin Connect's Apple Health settings, and allow them in Edit profile › Import from Apple Health.",
+  "bodyLatestFrom": "{day} · from {source}",
+  "bodyChange30": "30 DAYS",
+  "bodyChange90": "90 DAYS",
+  "bodyReadings": "READINGS",
+  "bodyDisplayOnly": "Your scale's readings from Apple Health, shown as they are. They are not used in any score.",
+  "@bodyLatestFrom": {"placeholders": {"day": {"type": "String"}, "source": {"type": "String"}}}
 }
