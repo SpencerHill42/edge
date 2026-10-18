@@ -118,6 +118,11 @@ import CoreMotion
     if let registrar = registry.registrar(forPlugin: "PedometerBridge") {
       PedometerBridge.register(messenger: registrar.messenger())
     }
+    // The motion coprocessor's activity log (cycling etc.) for commute rides.
+    // See lib/strava/commute.dart.
+    if let registrar = registry.registrar(forPlugin: "MotionActivityBridge") {
+      MotionActivityBridge.register(messenger: registrar.messenger())
+    }
     // HKWorkoutRoute → Dart. Coordinates only; the `health` plugin still reads
     // the workouts themselves. See lib/health/health_workout_import.dart.
     if let registrar = registry.registrar(forPlugin: "HealthRouteBridge") {
@@ -406,5 +411,50 @@ final class StravaAuthBridge: NSObject, ASWebAuthenticationPresentationContextPr
     UIApplication.shared.connectedScenes
       .compactMap { ($0 as? UIWindowScene)?.keyWindow }
       .first ?? ASPresentationAnchor()
+  }
+}
+
+/// The motion coprocessor's own activity log (CMMotionActivityManager): every
+/// change between stationary, walking, running, cycling and automotive, kept
+/// by iOS for seven days whether or not any app was running. Strap Cockpit
+/// reads it for commute rides nobody remembered to start (lib/strava/commute.dart).
+/// Same Motion & Fitness grant as the pedometer above; never prompts here.
+enum MotionActivityBridge {
+  private static let channelName = "openstrap/motion_activity"
+  private static let manager = CMMotionActivityManager()
+
+  static func register(messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "activities" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      let args = call.arguments as? [String: Any] ?? [:]
+      guard let fromMs = args["fromMs"] as? Int, let toMs = args["toMs"] as? Int,
+            CMMotionActivityManager.isActivityAvailable(),
+            CMMotionActivityManager.authorizationStatus() == .authorized else {
+        result([])
+        return
+      }
+      manager.queryActivityStarting(
+        from: Date(timeIntervalSince1970: Double(fromMs) / 1000),
+        to: Date(timeIntervalSince1970: Double(toMs) / 1000),
+        to: OperationQueue.main
+      ) { activities, error in
+        guard error == nil, let activities = activities else {
+          result([])
+          return
+        }
+        // One entry per change, raw: the segmenting is Dart's, where it is tested.
+        result(activities.map { a in
+          [
+            "startMs": Int(a.startDate.timeIntervalSince1970 * 1000),
+            "cycling": a.cycling,
+            "confidence": a.confidence.rawValue, // 0 low, 1 medium, 2 high
+          ] as [String: Any]
+        })
+      }
+    }
   }
 }

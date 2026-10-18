@@ -31,6 +31,9 @@ const kStravaSports = <String, ({String sport, String sportType, String name})>{
   'walking': (sport: 'Other', sportType: 'Walk', name: 'Spaziergang'),
   'football': (sport: 'Other', sportType: 'Soccer', name: 'Fußball'),
   'padel': (sport: 'Other', sportType: 'Padel', name: 'Padel'),
+  // A started ride, and the commute rides saved from the phone's activity log
+  // (commute.dart), which go up flagged as commutes and named 'Pendelfahrt'.
+  'cycling': (sport: 'Biking', sportType: 'Ride', name: 'Radfahrt'),
 };
 
 /// The Strava mapping for a session `type`, or null when it is not synced.
@@ -248,12 +251,14 @@ class StravaApi {
   Future<int> upload(String token,
       {required String tcx,
       required String externalId,
-      required String name}) async {
+      required String name,
+      bool commute = false}) async {
     final req = http.MultipartRequest('POST', Uri.parse('$base/api/v3/uploads'))
       ..headers.addAll(_auth(token))
       ..fields['data_type'] = 'tcx'
       ..fields['external_id'] = externalId
       ..fields['name'] = name
+      ..fields['commute'] = commute ? '1' : '0'
       ..files.add(http.MultipartFile.fromBytes('file', utf8.encode(tcx),
           filename: '$externalId.tcx'));
     final r = await http.Response.fromStream(await _http.send(req));
@@ -285,10 +290,11 @@ class StravaApi {
   /// Set the sport (and name). Returns false when Strava refuses the sport —
   /// the caller then falls back to `Workout`.
   Future<bool> setSport(String token, int activityId, String sportType,
-      {String? name}) async {
+      {String? name, bool? commute}) async {
     final r = await _http.put(Uri.parse('$base/api/v3/activities/$activityId'),
         headers: {..._auth(token), 'Content-Type': 'application/json'},
-        body: jsonEncode({'sport_type': sportType, 'name': ?name}));
+        body: jsonEncode(
+            {'sport_type': sportType, 'name': ?name, 'commute': ?commute}));
     if (r.statusCode == 200) return true;
     if (r.statusCode == 400 || r.statusCode == 422) return false;
     throw StravaException('update: ${r.body}', status: r.statusCode);

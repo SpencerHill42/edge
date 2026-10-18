@@ -17,6 +17,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/db.dart';
+import 'commute.dart' show kCommuteSource;
 import 'strava.dart';
 
 enum StravaState { queued, waiting, uploading, done, failed }
@@ -217,8 +218,10 @@ class StravaSync {
         calories: (s['calories'] as num?)?.toDouble(),
       );
       final token = await _token();
-      final uploadId =
-          await api.upload(token, tcx: tcx, externalId: id, name: sport.name);
+      final commute = s['source'] == kCommuteSource;
+      final name = commute ? 'Pendelfahrt' : sport.name;
+      final uploadId = await api.upload(token,
+          tcx: tcx, externalId: id, name: name, commute: commute);
       int? activity;
       // Strava processes in a few seconds; poll at ≥ 1 s, give up after ~1 min
       // and leave it failed-with-reason for the next drain.
@@ -234,8 +237,8 @@ class StravaSync {
       // Padel is in Strava's app list but may be missing from the API enum:
       // fall back to Workout with the sport in the name.
       if (!await api.setSport(token, activity, sport.sportType,
-          name: sport.name)) {
-        await api.setSport(token, activity, 'Workout', name: sport.name);
+          name: name, commute: commute ? true : null)) {
+        await api.setSport(token, activity, 'Workout', name: name);
       }
       await _put(id, StravaUpload(StravaState.done, activityId: activity));
     } catch (e) {

@@ -32,6 +32,7 @@ import 'ui2/screens/what_changed.dart';
 import 'health/health_import_state.dart' show HealthImport, lastImportAt;
 import 'health/health_measurement_import.dart' show ImportedMeasurementImporter;
 import 'health/health_profile_import.dart' show autoWeightFromHealth;
+import 'strava/commute.dart';
 import 'strava/strava_sync.dart';
 import 'ui2/screens/health_screen.dart';
 import 'ui2/screens/home_screen.dart';
@@ -65,8 +66,13 @@ class _OpenStrapAppState extends State<OpenStrapApp> with WidgetsBindingObserver
       if (app.isPaired) app.openSession();
       unawaited(_syncWeight());
       // New band data was derived: a workout waiting for its beats can go up.
-      app.insightsRevision.addListener(
-          () => unawaited(StravaSync.instance.drain(includeFailed: false)));
+      app.insightsRevision.addListener(() {
+        // Commute rides first: a ride saved now is queued for the same drain.
+        unawaited(CommuteRides.instance
+            .run()
+            .then((_) => StravaSync.instance.drain(includeFailed: false)));
+      });
+      unawaited(CommuteRides.instance.run());
     });
   }
 
@@ -140,8 +146,9 @@ class _OpenStrapAppState extends State<OpenStrapApp> with WidgetsBindingObserver
       // a lock screen looking current.
       unawaited(WidgetService.refresh(app.repo));
       unawaited(_syncWeight());
-      // Strava uploads that failed or were queued offline.
-      unawaited(StravaSync.instance.drain());
+      // Commute rides from the phone's activity log, then Strava uploads that
+      // failed or were queued offline.
+      unawaited(CommuteRides.instance.run().then((_) => StravaSync.instance.drain()));
       if (app.isPaired) app.openSession();
     } else if (state == AppLifecycleState.paused) {
       // Backgrounded: hand the band to the iOS restore path so it can wake-and-drain
