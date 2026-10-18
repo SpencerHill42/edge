@@ -19,7 +19,30 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../data/db.dart';
 import 'strava.dart';
 
-enum StravaState { queued, uploading, done, failed }
+enum StravaState { queued, waiting, uploading, done, failed }
+
+/// Whether a session's data is complete enough to upload.
+///
+/// The band hands its 1 Hz heart rate over in the sync AFTER the workout, so
+/// at the moment of "finish" the session usually has no beats yet (seen on
+/// Armin's first walk). Upload once the beats reach the end of the session;
+/// wait otherwise; after [patience] stop waiting and send what there is, or
+/// nothing when there is neither a beat nor a route.
+enum StravaReady { upload, wait, nothing }
+
+StravaReady stravaReady({
+  required int? lastHrMs,
+  required bool hasRoute,
+  required int endSec,
+  required int nowSec,
+  int patience = 2 * 3600,
+}) {
+  if (lastHrMs != null && lastHrMs >= (endSec - 60) * 1000) {
+    return StravaReady.upload;
+  }
+  if (nowSec - endSec < patience) return StravaReady.wait;
+  return (lastHrMs != null || hasRoute) ? StravaReady.upload : StravaReady.nothing;
+}
 
 class StravaUpload {
   final StravaState state;
@@ -108,15 +131,20 @@ class StravaSync {
     await drain();
   }
 
-  /// Upload everything queued or failed. One drain at a time; never throws.
-  Future<void> drain() async {
+  /// Upload everything queued or waiting for band data, and with
+  /// [includeFailed] (foreground, the retry button) the failed ones too — a
+  /// derive tick must not hammer Strava with a request it already refused.
+  /// One drain at a time; never throws.
+  Future<void> drain({bool includeFailed = true}) async {
     if (_draining) return;
     _draining = true;
     try {
-      if (!await connected) return;
       final all = await _all();
+      if (!all.values.any((u) => u.state != StravaState.done)) return;
+      if (!await connected) return;
       for (final e in all.entries) {
         if (e.value.state == StravaState.done) continue;
+        if (e.value.state == StravaState.failed && !includeFailed) continue;
         await _uploadOne(e.key);
       }
     } catch (e) {
@@ -151,7 +179,6 @@ class StravaSync {
             error: 'Training nicht gefunden'));
         return;
       }
-      await _put(id, const StravaUpload(StravaState.uploading));
       final hrRows = await LocalDb.hrSamplesInRange(start, end);
       final hr = [
         for (final r in hrRows)
@@ -166,11 +193,21 @@ class StravaSync {
             alt: (r['alt'] as num?)?.toDouble(),
           ),
       ];
-      if (hr.isEmpty && fixes.length < 2) {
-        // Nothing to draw a graph from: an upload would be an empty file.
-        await _put(id, const StravaUpload(StravaState.failed,
-            error: 'Keine Herzfrequenz und keine Route aufgezeichnet'));
-        return;
+      switch (stravaReady(
+          lastHrMs: hr.isEmpty ? null : hr.last.tsMs,
+          hasRoute: fixes.length >= 2,
+          endSec: end,
+          nowSec: DateTime.now().millisecondsSinceEpoch ~/ 1000)) {
+        case StravaReady.wait:
+          await _put(id, const StravaUpload(StravaState.waiting));
+          return;
+        case StravaReady.nothing:
+          // Nothing to draw a graph from: an upload would be an empty file.
+          await _put(id, const StravaUpload(StravaState.failed,
+              error: 'Keine Herzfrequenz und keine Route aufgezeichnet'));
+          return;
+        case StravaReady.upload:
+          await _put(id, const StravaUpload(StravaState.uploading));
       }
       final tcx = buildTcx(
         sport: sport.sport,

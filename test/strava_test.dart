@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:openstrap_edge/strava/strava.dart';
+import 'package:openstrap_edge/strava/strava_sync.dart';
 
 void main() {
   group('sport mapping', () {
@@ -104,6 +105,34 @@ void main() {
         return http.Response('{"message":"Bad Request"}', 400);
       }));
       expect(await api.setSport('t', 5, 'Padel'), isFalse);
+    });
+  });
+
+  group('when to upload', () {
+    const end = 1792300000;
+    test('beats up to the end: upload', () {
+      expect(
+          stravaReady(
+              lastHrMs: (end - 5) * 1000, hasRoute: false, endSec: end, nowSec: end + 60),
+          StravaReady.upload);
+    });
+    test('no beats yet right after finishing: wait for the sync', () {
+      expect(stravaReady(lastHrMs: null, hasRoute: false, endSec: end, nowSec: end + 5),
+          StravaReady.wait);
+    });
+    test('beats stop well before the end: still waiting', () {
+      expect(
+          stravaReady(
+              lastHrMs: (end - 900) * 1000, hasRoute: true, endSec: end, nowSec: end + 600),
+          StravaReady.wait);
+    });
+    test('two hours on: send what there is, or nothing at all', () {
+      expect(
+          stravaReady(lastHrMs: null, hasRoute: true, endSec: end, nowSec: end + 7300),
+          StravaReady.upload);
+      expect(
+          stravaReady(lastHrMs: null, hasRoute: false, endSec: end, nowSec: end + 7300),
+          StravaReady.nothing);
     });
   });
 }

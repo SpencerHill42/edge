@@ -174,6 +174,12 @@ installs.
   and padel with HR and the right sport, nothing is duplicated after a
   retry, and the status is visible in the app.
 
+- **Status 2026-10-18:** built (v0.10, see `CLAUDE.md`). Connected on
+  Armin's account, and a walk reached Strava after a retry. The first try
+  had run before the band's beats were synced, so uploads now wait for them
+  (`stravaReady`). Still to see on Strava: HR graph on the walk, a run with
+  map, whether `Soccer` and `Padel` are accepted as sport types.
+
 ## Soon (analytics; most of it belongs upstream in OpenStrap/analytics)
 
 ### 7. Sleep: wake is hardly detected

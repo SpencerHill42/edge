@@ -191,6 +191,12 @@ class StravaStatusRow extends StatelessWidget {
                 C.orange,
                 l?.stravaStatusQueued ?? 'Waiting to upload to Strava'
               ),
+            StravaState.waiting => (
+                LucideIcons.clock,
+                C.orange,
+                l?.stravaStatusWaiting ??
+                    'Waiting for the band\'s heart rate, then to Strava'
+              ),
             StravaState.failed => (
                 LucideIcons.circleAlert,
                 C.red,

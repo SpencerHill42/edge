@@ -62,6 +62,9 @@ class _OpenStrapAppState extends State<OpenStrapApp> with WidgetsBindingObserver
       final app = context.read<AppState>();
       if (app.isPaired) app.openSession();
       unawaited(_syncWeight());
+      // New band data was derived: a workout waiting for its beats can go up.
+      app.insightsRevision.addListener(
+          () => unawaited(StravaSync.instance.drain(includeFailed: false)));
     });
   }
 

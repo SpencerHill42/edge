@@ -3354,5 +3354,6 @@
   "stravaStatusUploading": "Wird zu Strava hochgeladen …",
   "stravaStatusQueued": "Wartet auf Upload zu Strava",
   "stravaStatusFailed": "Strava: {reason}",
-  "stravaRetry": "Erneut versuchen"
+  "stravaRetry": "Erneut versuchen",
+  "stravaStatusWaiting": "Wartet auf die Herzfrequenz vom Band, dann zu Strava"
 }

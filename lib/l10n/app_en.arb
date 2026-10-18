@@ -15782,5 +15782,6 @@
   "stravaStatusQueued": "Waiting to upload to Strava",
   "stravaStatusFailed": "Strava: {reason}",
   "@stravaStatusFailed": {"placeholders": {"reason": {"type": "String"}}},
-  "stravaRetry": "Retry"
+  "stravaRetry": "Retry",
+  "stravaStatusWaiting": "Waiting for the band's heart rate, then to Strava"
 }

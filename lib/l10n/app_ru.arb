@@ -7536,5 +7536,6 @@
   "stravaRetry": "Retry",
   "@stravaConnectedAs": {"placeholders": {"name": {"type": "String"}}},
   "@stravaConnectFailed": {"placeholders": {"reason": {"type": "String"}}},
-  "@stravaStatusFailed": {"placeholders": {"reason": {"type": "String"}}}
+  "@stravaStatusFailed": {"placeholders": {"reason": {"type": "String"}}},
+  "stravaStatusWaiting": "Waiting for the band's heart rate, then to Strava"
 }
