@@ -140,6 +140,15 @@ unchanged. This file only adds what is specific to the fork.
     `AppDelegate.swift`), redirect `turbohealth://localhost`. Write only:
     nothing from Strava reaches the coach.
 
+- Commute rides (Armin, 2026-10-18; `lib/strava/commute.dart`): he forgets to
+  start rides to work. The iPhone's activity log (CMMotionActivityManager,
+  `MotionActivityBridge` in `AppDelegate.swift`, kept 7 days, same Motion
+  grant as the pedometer) gives the cycling spans; a span of 5–60 min with
+  the band's HR covering half of it at ≥ 85 bpm and no overlapping session
+  is saved as a `Cycling` session (`source: auto_commute`) and uploaded as a
+  commute Ride named "Pendelfahrt". Longer rides are Wahoo tours and are
+  left alone. No GPS, so no map. Runs on launch, foreground and every derive.
+
 ## Design QA (every build)
 
 - Before telling Armin a build is ready, run `docs/DESIGN_QA.md` against
