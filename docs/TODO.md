@@ -174,6 +174,29 @@ installs.
   and padel with HR and the right sport, nothing is duplicated after a
   retry, and the status is visible in the app.
 
+- **Status 2026-10-18:** built (v0.10, see `CLAUDE.md`). Connected on
+  Armin's account, and a walk reached Strava after a retry. The first try
+  had run before the band's beats were synced, so uploads now wait for them
+  (`stravaReady`). Still to see on Strava: HR graph on the walk, a run with
+  map, whether `Soccer` and `Padel` are accepted as sport types.
+
+### 6b. Weight and body-fat trend (Armin, 2026-10-18)
+
+- **Wanted:** a weight trend and a body-fat trend, under Gesundheit ›
+  Erkunden › "Körper & Tragezeit".
+- **Source:** Apple Health (Garmin Index → Garmin Connect → Health writes
+  both `WEIGHT` and `BODY_FAT_PERCENTAGE`). HealthKit works since the Xcode
+  install (item 1); the profile weight already follows Health (v0.9).
+- **Do:** read the history (not only the newest value) into its own series,
+  two rows in "Körper & Tragezeit" opening the usual metric detail (chart,
+  latest value, change over 30/90 days). Display only: never an input to an
+  OpenStrap metric or baseline, never judged against a "normal" range.
+  `health_screen.dart` has a comment against a "body composition" section;
+  it argues against judging weight, not against showing his own trend, so
+  keep to that.
+- **Done when:** both rows show Armin's Garmin history with a chart, and a
+  new weigh-in appears after the next app start.
+
 ## Soon (analytics; most of it belongs upstream in OpenStrap/analytics)
 
 ### 7. Sleep: wake is hardly detected
@@ -248,6 +271,9 @@ absurd for an adult who sleeps ~7–8 h.
 - Branch `ci/test-report` (an experiment with `--reporter=github`; it gave no
   per-test annotations) can be deleted.
 - `health_workout_export_delete_gate_test.dart` fails on upstream 0.11.3 too.
+- `low_readiness_agreement_test.dart` (two "pinned day" cases) fails from
+  2026-10-18 on, already on 4497ef5c (before any fork-test work): looks
+  date-dependent. Not caused by Strava.
 
 ## Sources
 

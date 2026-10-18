@@ -22,6 +22,9 @@ import '../screens/home_screen.dart' show deviceBatteryOf;
 import 'data.dart';
 import 'devices.dart';
 import 'settings.dart';
+import 'strava_screen.dart';
+import '../../strava/strava.dart' show StravaTokens;
+import '../../strava/strava_sync.dart';
 
 // ══════════════════ shared list furniture ══════════════════
 
@@ -391,6 +394,21 @@ class ProfileHomeView extends StatelessWidget {
                       AppLocalizations.of(c)?.profileLanguage ?? 'Language',
                       sub: _languageLabel(c, c.watch<LocaleController>().code),
                       onTap: () => _pickLanguage(c))),
+                  // Strap Cockpit: workouts to Strava (lib/strava).
+                  Builder(builder: (c) => ValueListenableBuilder<int>(
+                      valueListenable: StravaSync.instance.revision,
+                      builder: (c, _, _) => FutureBuilder<StravaTokens?>(
+                          future: StravaSync.instance.vault.tokens(),
+                          builder: (c, snap) {
+                            final l = AppLocalizations.of(c);
+                            final t = snap.data;
+                            return SetRow(LucideIcons.activity, C.orange,
+                                l?.stravaTitle ?? 'Strava',
+                                sub: t == null
+                                    ? (l?.stravaRowSubOff ?? 'Not connected')
+                                    : (l?.stravaConnected ?? 'Connected'),
+                                onTap: () => goto(c, const StravaScreen()));
+                          }))),
                 ]),
                 settingsGroup(c, l?.profileYourDataGroup ?? 'Your data', [
                   SetRow(LucideIcons.database, C.green,

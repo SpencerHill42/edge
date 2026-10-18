@@ -128,6 +128,18 @@ unchanged. This file only adds what is specific to the fork.
     launch and every foreground (`autoWeightFromHealth` in `app.dart`), once
     the store was read by hand in Profil bearbeiten.
 
+- v0.10 (Armin, 2026-10-18): Strava sync (`lib/strava/`, docs/TODO.md item 6).
+  - Laufen → Run, Spazieren → Walk, Fußball → Soccer, Padel → Padel
+    (Workout if refused), uploaded as TCX with HR (and the route) via
+    `/api/v3/uploads`, `external_id` = session id, then `PUT sport_type`.
+  - Automatic: queued on finish, uploaded once the band's beats reach the
+    session end (they arrive in the sync after the workout; `stravaReady`),
+    drained after every derive (`insightsRevision`) and every foreground.
+  - Keys and tokens only in the keychain (Mehr › Strava, `StravaVault`);
+    login via ASWebAuthenticationSession (`StravaAuthBridge` in
+    `AppDelegate.swift`), redirect `turbohealth://localhost`. Write only:
+    nothing from Strava reaches the coach.
+
 ## Design QA (every build)
 
 - Before telling Armin a build is ready, run `docs/DESIGN_QA.md` against

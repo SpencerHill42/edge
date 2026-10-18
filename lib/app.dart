@@ -30,6 +30,7 @@ import 'ui2/screens/ai_briefing.dart';
 import 'ui2/screens/calm_breathing.dart';
 import 'ui2/screens/what_changed.dart';
 import 'health/health_profile_import.dart' show autoWeightFromHealth;
+import 'strava/strava_sync.dart';
 import 'ui2/screens/health_screen.dart';
 import 'ui2/screens/home_screen.dart';
 import 'ui2/screens/journal_compose.dart';
@@ -61,6 +62,9 @@ class _OpenStrapAppState extends State<OpenStrapApp> with WidgetsBindingObserver
       final app = context.read<AppState>();
       if (app.isPaired) app.openSession();
       unawaited(_syncWeight());
+      // New band data was derived: a workout waiting for its beats can go up.
+      app.insightsRevision.addListener(
+          () => unawaited(StravaSync.instance.drain(includeFailed: false)));
     });
   }
 
@@ -125,6 +129,8 @@ class _OpenStrapAppState extends State<OpenStrapApp> with WidgetsBindingObserver
       // a lock screen looking current.
       unawaited(WidgetService.refresh(app.repo));
       unawaited(_syncWeight());
+      // Strava uploads that failed or were queued offline.
+      unawaited(StravaSync.instance.drain());
       if (app.isPaired) app.openSession();
     } else if (state == AppLifecycleState.paused) {
       // Backgrounded: hand the band to the iOS restore path so it can wake-and-drain
