@@ -271,6 +271,9 @@ absurd for an adult who sleeps ~7–8 h.
 - Branch `ci/test-report` (an experiment with `--reporter=github`; it gave no
   per-test annotations) can be deleted.
 - `health_workout_export_delete_gate_test.dart` fails on upstream 0.11.3 too.
+- `low_readiness_agreement_test.dart` (two "pinned day" cases) fails from
+  2026-10-18 on, already on 4497ef5c (before any fork-test work): looks
+  date-dependent. Not caused by Strava.
 
 ## Sources
 
