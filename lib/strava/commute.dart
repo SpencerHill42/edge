@@ -23,6 +23,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/db.dart';
+import '../sync/file_log.dart';
 import 'strava_sync.dart';
 
 /// One entry of iOS's activity log: when the phone's classification changed,
@@ -100,12 +101,23 @@ class CommuteRides {
             confidence: (m['confidence'] as num?)?.toInt() ?? 0,
           ),
       ];
+      final spans = cyclingSpans(log, untilMs: nowMs);
+      // Diagnostics in openstrap_sync.log (Files app): what iOS reported and
+      // what became of each span. Commute detection is a heuristic on a
+      // classifier we do not control; the log is how it gets tuned.
+      if (spans.isNotEmpty) await FileLog.write('[commute] ${log.length} activity changes, '
+          '${log.where((a) => a.cycling).length} cycling, '
+          '${spans.length} span(s): ${[
+            for (final s in spans)
+              '${DateTime.fromMillisecondsSinceEpoch(s.startMs)}'
+                  '+${(s.endMs - s.startMs) ~/ 60000}min'
+          ].join(', ')}');
       final prefs = await SharedPreferences.getInstance();
       final decided = (jsonDecode(prefs.getString(_kDone) ?? '[]') as List)
           .cast<String>()
           .toSet();
       // A span still growing (the ride is under way) is not judged yet.
-      for (final s in cyclingSpans(log, untilMs: nowMs)) {
+      for (final s in spans) {
         if (nowMs - s.endMs < 2 * 60 * 1000) continue;
         final id = 'commute_${s.startMs ~/ 1000}';
         if (decided.contains(id)) continue;
@@ -125,6 +137,10 @@ class CommuteRides {
           overlapsSession: overlaps,
           ageSec: nowMs ~/ 1000 - end,
         );
+        await FileLog.write('[commute] ${DateTime.fromMillisecondsSinceEpoch(s.startMs)} '
+            '${(end - start) ~/ 60} min, ${bpm.length} beats, mean '
+            '${bpm.isEmpty ? '-' : (bpm.reduce((a, b) => a + b) / bpm.length).round()} '
+            'bpm, overlap $overlaps -> ${verdict.name}');
         if (verdict == CommuteVerdict.wait) continue;
         decided.add(id);
         if (verdict == CommuteVerdict.skip) continue;
@@ -147,8 +163,9 @@ class CommuteRides {
         return nowMs ~/ 1000 - t < 8 * 24 * 3600;
       }).toList();
       await prefs.setString(_kDone, jsonEncode(keep));
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[commute] $e');
+      await FileLog.write('[commute] failed: $e ${st.toString().split('\n').take(3).join(' | ')}');
     } finally {
       _running = false;
     }
