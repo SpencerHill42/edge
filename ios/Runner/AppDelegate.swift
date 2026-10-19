@@ -431,9 +431,13 @@ enum MotionActivityBridge {
         return
       }
       let args = call.arguments as? [String: Any] ?? [:]
+      // notDetermined is not a no: like the pedometer, the first query is
+      // what raises the Motion & Fitness prompt. Only a real refusal stops.
+      let status = CMMotionActivityManager.authorizationStatus()
       guard let fromMs = args["fromMs"] as? Int, let toMs = args["toMs"] as? Int,
             CMMotionActivityManager.isActivityAvailable(),
-            CMMotionActivityManager.authorizationStatus() == .authorized else {
+            status != .denied, status != .restricted else {
+        NSLog("[commute] activity log unavailable (status \(status.rawValue))")
         result([])
         return
       }
@@ -443,6 +447,7 @@ enum MotionActivityBridge {
         to: OperationQueue.main
       ) { activities, error in
         guard error == nil, let activities = activities else {
+          NSLog("[commute] activity query failed: \(String(describing: error))")
           result([])
           return
         }
