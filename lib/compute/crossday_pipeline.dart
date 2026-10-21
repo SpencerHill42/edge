@@ -298,7 +298,16 @@ Map<String, dynamic> buildCrossDayBundle(
   // ── SLEEP COACH: need (baseline + debt + strain − naps) + performance +
   //    recommended bedtime + cycle-aligned wake (all forward-looking for tonight).
   // baseline need = the personal OSD (from sleepDebt) when known, else 8 h.
-  final osdH = sleepDebt.present ? sleepDebt.value!.osdHours : null;
+  // Strap Cockpit (Armin, 2026-10-21, docs/TODO.md item 9): the OSD is the
+  // p75 of the free nights, and its confidence is freeNights / 5. On two free
+  // nights it read 9.1 h and tonight's need came out at 11 h ("Licht aus
+  // 19:58"). It is used only from 4 free nights (confidence 0.8); before
+  // that the need is absent and the ring shows hours without a target.
+  const minFreeNightConfidence = 0.8;
+  final freeNightsSoFar = (sleepDebt.confidence * 5).round();
+  final osdH = sleepDebt.present && sleepDebt.confidence >= minFreeNightConfidence
+      ? sleepDebt.value!.osdHours
+      : null;
   // Personal optimal sleep duration, floored/capped to a physiological band:
   // the OSD estimate is noisy with few nights and can read implausibly low
   // (e.g. 5.6 h), which would push the recommended bedtime far too late. Adults
@@ -312,12 +321,17 @@ Map<String, dynamic> buildCrossDayBundle(
   // once enough nights exist to estimate an OSD.
   final double? baselineNeedSec =
       osdH == null ? null : (osdH.clamp(7.0, 9.5)) * 3600.0;
-  final debtSec =
-      (sleepDebt.present ? (sleepDebt.value!.debtHours ?? 0.0) : 0.0) * 3600.0;
-  const noOsd = ana.Metric<ana.SleepNeed>.absent(
+  // Strap Cockpit: at most one hour of debt is put on a single night. The
+  // debt here is OSD − habitual, a standing gap rather than last week's
+  // deficit, and adding all of it to tonight asked for 2·OSD − habitual.
+  // Sleep debt is paid back over several nights, not in one.
+  final debtSec = math.min(
+          sleepDebt.present ? (sleepDebt.value!.debtHours ?? 0.0) : 0.0, 1.0) *
+      3600.0;
+  final noOsd = ana.Metric<ana.SleepNeed>.absent(
     tier: ana.Tier.estimate,
-    inputs_used: ['osd_hours'],
-    note: 'need_baseline:have=0,need=1',
+    inputs_used: const ['osd_hours'],
+    note: 'need_baseline:have=${sleepDebt.present ? freeNightsSoFar : 0},need=4',
   );
   ana.Metric<ana.SleepNeed> needAt({
     required double dayStrain,

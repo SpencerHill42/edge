@@ -205,12 +205,18 @@ void main() {
     final xm = await crossDayAsOf(_dayId);
     expect(((xm['regularity'] as Map)['value'] as Map)['sri'], 100);
     expect(((xm['sleep_debt'] as Map)['value'] as Map)['debt_hours'], 0);
-    expect(
-        ((((xm['sleep_coach'] as Map)['need'] as Map)['value'] as Map)[
-                    'need_sec'] as num) /
-                60 -
-            ((full['scalars'] as Map)['tst_min'] as num),
-        inInclusiveRange(-15, 15));
+    // Strap Cockpit (kAlgoVersion 114): the need waits for 4 free nights,
+    // so on these few nights it is absent and says how many it has.
+    final need = (xm['sleep_coach'] as Map)['need'] as Map;
+    final needVal = need['value']; // '—' when absent
+    final needSec = needVal is Map ? needVal['need_sec'] as num? : null;
+    if (needSec == null) {
+      expect(need['note'].toString(), startsWith('need_baseline:'));
+    } else {
+      expect(
+          needSec / 60 - ((full['scalars'] as Map)['tst_min'] as num),
+          inInclusiveRange(-15, 15));
+    }
   }, timeout: const Timeout(Duration(minutes: 3)));
 
   test('a night the watch split in two serves both halves\' minutes',

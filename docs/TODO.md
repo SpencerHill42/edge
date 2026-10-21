@@ -267,6 +267,13 @@ enough weekend nights. Armin has not decided yet (see below). On 2026-10-18
 the sleep screen said "Licht aus 19:58" from a need of 10h 44m, which is
 absurd for an adult who sleeps ~7–8 h.
 
+- **Done 2026-10-21 (kAlgoVersion 114):** Armin's 10h59 was OSD 9.1 h (p75
+  of only two free nights, confidence 0.4) + the whole 1.4 h "debt" (which is
+  OSD − habitual, not a recent deficit) + strain. The need now waits for 4
+  free nights (absent before, the ring shows hours without a target) and adds
+  at most 1 h of debt to a night. Goldens: only `algo_version` and the
+  absent-need note changed.
+
 ## Open decisions (ask Armin, bundled in one question)
 
 - Keep the Aktivität and Gesundheit tabs? (He may track with Strava instead.)
