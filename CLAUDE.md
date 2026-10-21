@@ -145,9 +145,15 @@ unchanged. This file only adds what is specific to the fork.
   `MotionActivityBridge` in `AppDelegate.swift`, kept 7 days, same Motion
   grant as the pedometer) gives the cycling spans; a span of 5–60 min with
   the band's HR covering half of it at ≥ 85 bpm and no overlapping session
-  is saved as a `Cycling` session (`source: auto_commute`) and uploaded as a
-  commute Ride named "Pendelfahrt". Longer rides are Wahoo tours and are
-  left alone. No GPS, so no map. Runs on launch, foreground and every derive.
+  is PROPOSED as a "Radfahrt" in the "Hast du trainiert?" review (since
+  2026-10-21, Weg B: iOS cannot tell Armin's U-Bahn or car from a bike, not
+  even with its automotive flag), with a notification. Confirming saves
+  `suggestion:commute:<start>` and uploads a commute Ride "Pendelfahrt";
+  discarding leaves nothing. Spans merge pieces up to 10 min apart; the
+  pulse floor is resting HR + 25; 2+ min of "in a vehicle" rejects a span.
+  Longer rides are Wahoo tours and are left alone. No GPS, so no map. Runs
+  on launch, foreground and every derive; log lines `[commute]` in
+  `openstrap_sync.log`.
 
 ## Design QA (every build)
 

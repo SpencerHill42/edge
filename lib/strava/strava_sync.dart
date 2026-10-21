@@ -218,7 +218,9 @@ class StravaSync {
         calories: (s['calories'] as num?)?.toDouble(),
       );
       final token = await _token();
-      final commute = s['source'] == kCommuteSource;
+      // An auto-saved ride (before review existed) or a confirmed proposal.
+      final commute = s['source'] == kCommuteSource ||
+          id.startsWith('suggestion:commute:');
       final name = commute ? 'Pendelfahrt' : sport.name;
       final uploadId = await api.upload(token,
           tcx: tcx, externalId: id, name: name, commute: commute);
