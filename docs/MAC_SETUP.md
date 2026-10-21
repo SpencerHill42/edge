@@ -94,6 +94,25 @@ any more (its re-sign strips HealthKit). Health errors are visible in the
 phone's log: `idevicesyslog -u 00008120-0009588236D8C01E -m healthkit`
 (libimobiledevice via Homebrew).
 
+### Automatic renewal over Wi-Fi (since 2026-10-21)
+
+- `tool/renew_iphone.sh` builds origin/main in its own worktree
+  (`~/Developer/edge-renew`, so the working checkout is never touched),
+  checks the HealthKit entitlement, installs over the existing app and checks
+  that exactly one Turbo Health is on the phone. It logs to
+  `~/Library/Logs/turbohealth-renew.log` and shows a macOS notification.
+- The launchd agent `~/Library/LaunchAgents/com.armin.turbohealth.renew.plist`
+  runs it every 3 hours. The script works only when the last install
+  (`~/Library/Application Support/TurboHealthRenew/last_install`) is 4+ days
+  old and the phone is reachable, so a missed night is retried within hours
+  and there are 3 days of slack before the 7-day signature runs out.
+- Wi-Fi: Xcode 15+ reaches a once-paired iPhone on the same network by
+  itself (no "Connect via network" box any more); `devicectl` then shows
+  `Transport Type: localNetwork`. Needs the Mac awake and logged in and the
+  phone on the same Wi-Fi.
+- By hand: `tool/renew_iphone.sh --force`. Agent:
+  `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.armin.turbohealth.renew.plist`.
+
 ## Real data in the Simulator
 
 The Simulator cannot pair the band. For real numbers: Armin exports a full
