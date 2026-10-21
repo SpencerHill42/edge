@@ -456,6 +456,7 @@ enum MotionActivityBridge {
           [
             "startMs": Int(a.startDate.timeIntervalSince1970 * 1000),
             "cycling": a.cycling,
+            "automotive": a.automotive,
             "confidence": a.confidence.rawValue, // 0 low, 1 medium, 2 high
           ] as [String: Any]
         })
