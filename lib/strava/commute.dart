@@ -34,7 +34,29 @@ import 'strava_sync.dart';
 
 /// One entry of iOS's activity log: when the phone's classification changed,
 /// whether it now says cycling, and how sure it is (0 low, 1 medium, 2 high).
-typedef MotionChange = ({int startMs, bool cycling, int confidence});
+typedef MotionChange = ({
+  int startMs,
+  bool cycling,
+  int confidence,
+  bool automotive,
+});
+
+/// How long iOS said "in a vehicle" (medium or high confidence) inside a span.
+/// Armin's evening "rides" of 2026-10-20/21 were the U-Bahn and the car: the
+/// vibration reads as cycling pieces, and merged they looked like a ride.
+int vehicleMsIn(List<MotionChange> log, int fromMs, int toMs,
+    {required int untilMs}) {
+  var ms = 0;
+  for (var i = 0; i < log.length; i++) {
+    final a = log[i];
+    if (!a.automotive || a.confidence < 1) continue;
+    final end = i + 1 < log.length ? log[i + 1].startMs : untilMs;
+    final s = a.startMs < fromMs ? fromMs : a.startMs;
+    final e = end > toMs ? toMs : end;
+    if (e > s) ms += e - s;
+  }
+  return ms;
+}
 
 /// Cycling spans out of the activity log. A stop at a traffic light reads as a
 /// short non-cycling stretch; gaps up to [mergeGapMs] are bridged. Low
@@ -74,8 +96,11 @@ CommuteVerdict commuteVerdict({
   required bool overlapsSession,
   required int ageSec,
   double? restingHr,
+  int vehicleSec = 0,
 }) {
   if (durationSec < 5 * 60 || durationSec > 60 * 60) return CommuteVerdict.skip;
+  // Two minutes of "in a vehicle" inside it: a train or a car, not a bike.
+  if (vehicleSec >= 120) return CommuteVerdict.skip;
   if (overlapsSession) return CommuteVerdict.skip;
   final covered = hrSamples >= durationSec / 2;
   if (!covered) {
@@ -91,7 +116,7 @@ class CommuteRides {
   static const _channel = MethodChannel('openstrap/motion_activity');
   // v2: the decisions made with the 3-minute merge and the fixed 85 bpm are
   // not carried over, so the last days are judged again under the new rules.
-  static const _kDone = 'commute.decided.v2';
+  static const _kDone = 'commute.decided.v3';
   bool _running = false;
 
   /// Look at the last two days of the activity log and save the commute rides
@@ -111,6 +136,7 @@ class CommuteRides {
             startMs: (m['startMs'] as num).toInt(),
             cycling: m['cycling'] == true,
             confidence: (m['confidence'] as num?)?.toInt() ?? 0,
+            automotive: m['automotive'] == true,
           ),
       ];
       final spans = cyclingSpans(log, untilMs: nowMs);
@@ -161,14 +187,27 @@ class CommuteRides {
           ageSec: nowMs ~/ 1000 - end,
           restingHr:
               rhr.isEmpty ? null : rhr.reduce((a, b) => a + b) / rhr.length,
+          vehicleSec: vehicleMsIn(log, s.startMs, s.endMs, untilMs: nowMs) ~/ 1000,
         );
         await FileLog.write('[commute] ${DateTime.fromMillisecondsSinceEpoch(s.startMs)} '
             '${(end - start) ~/ 60} min, ${bpm.length} beats, mean '
             '${bpm.isEmpty ? '-' : (bpm.reduce((a, b) => a + b) / bpm.length).round()} '
-            'bpm, overlap $overlaps -> ${verdict.name}');
+            'bpm, vehicle ${vehicleMsIn(log, s.startMs, s.endMs, untilMs: nowMs) ~/ 60000} min, '
+            'overlap $overlaps -> ${verdict.name}');
         if (verdict == CommuteVerdict.wait) continue;
         decided.add(id);
-        if (verdict == CommuteVerdict.skip) continue;
+        if (verdict == CommuteVerdict.skip) {
+          // A ride saved under the earlier, looser rules that is not one any
+          // more (Armin deleted two on Strava: U-Bahn and car) goes from the
+          // app too.
+          for (final old in [id, ...pieces]) {
+            if ((await LocalDb.session(old))?['source'] == kCommuteSource) {
+              await LocalDb.deleteSession(old);
+              await FileLog.write('[commute] removed $old (not a ride)');
+            }
+          }
+          continue;
+        }
         for (final old in pieces) {
           await LocalDb.deleteSession(old);
           await FileLog.write('[commute] replaced the shorter piece $old');
