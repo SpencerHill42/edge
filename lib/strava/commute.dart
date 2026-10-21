@@ -105,13 +105,15 @@ class CommuteRides {
       // Diagnostics in openstrap_sync.log (Files app): what iOS reported and
       // what became of each span. Commute detection is a heuristic on a
       // classifier we do not control; the log is how it gets tuned.
-      if (spans.isNotEmpty) await FileLog.write('[commute] ${log.length} activity changes, '
-          '${log.where((a) => a.cycling).length} cycling, '
-          '${spans.length} span(s): ${[
-            for (final s in spans)
-              '${DateTime.fromMillisecondsSinceEpoch(s.startMs)}'
-                  '+${(s.endMs - s.startMs) ~/ 60000}min'
-          ].join(', ')}');
+      if (spans.isNotEmpty) {
+        await FileLog.write('[commute] ${log.length} activity changes, '
+            '${log.where((a) => a.cycling).length} cycling, '
+            '${spans.length} span(s): ${[
+              for (final s in spans)
+                '${DateTime.fromMillisecondsSinceEpoch(s.startMs)}'
+                    '+${(s.endMs - s.startMs) ~/ 60000}min'
+            ].join(', ')}');
+      }
       final prefs = await SharedPreferences.getInstance();
       final decided = (jsonDecode(prefs.getString(_kDone) ?? '[]') as List)
           .cast<String>()
