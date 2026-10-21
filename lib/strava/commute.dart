@@ -28,9 +28,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/activity_store.dart';
+import '../data/day_label.dart';
 import '../data/db.dart';
+import '../models/activity_suggestion.dart';
+import '../notify/notification_center.dart';
+import '../notify/notification_event.dart';
+import '../notify/tap_router.dart' show activitySuggestionRoute;
 import '../sync/file_log.dart';
-import 'strava_sync.dart';
 
 /// One entry of iOS's activity log: when the phone's classification changed,
 /// whether it now says cycling, and how sure it is (0 low, 1 medium, 2 high).
@@ -153,6 +158,17 @@ class CommuteRides {
             ].join(', ')}');
       }
       final prefs = await SharedPreferences.getInstance();
+      // One-time: the two auto-saved "rides" that were the U-Bahn (20.10.)
+      // and the car (21.10.), deleted by Armin on Strava, go from the app.
+      if (prefs.getBool('commute.cleanup.v1') != true) {
+        for (final bad in const ['commute_1792511292', 'commute_1792596770']) {
+          if ((await LocalDb.session(bad))?['source'] == kCommuteSource) {
+            await LocalDb.deleteSession(bad);
+            await FileLog.write('[commute] removed $bad (U-Bahn/car)');
+          }
+        }
+        await prefs.setBool('commute.cleanup.v1', true);
+      }
       final decided = (jsonDecode(prefs.getString(_kDone) ?? '[]') as List)
           .cast<String>()
           .toSet();
@@ -161,6 +177,8 @@ class CommuteRides {
         if (nowMs - s.endMs < 2 * 60 * 1000) continue;
         final id = 'commute_${s.startMs ~/ 1000}';
         if (decided.contains(id)) continue;
+        // Proposals live in the review now; a ride already proposed there is
+        // not proposed twice.
         final start = s.startMs ~/ 1000, end = s.endMs ~/ 1000;
         final hr = await LocalDb.hrSamplesInRange(start, end);
         final bpm = [for (final r in hr) (r['hr'] as num).toDouble()];
@@ -212,18 +230,45 @@ class CommuteRides {
           await LocalDb.deleteSession(old);
           await FileLog.write('[commute] replaced the shorter piece $old');
         }
-        await LocalDb.putSession({
-          'id': id,
-          'start_ts': start,
-          'end_ts': end,
-          'type': 'Cycling',
-          'status': 'done',
-          'max_hr': bpm.reduce((a, b) => a > b ? a : b).round(),
-          'duration_min': (end - start) ~/ 60,
-          'source': kCommuteSource,
-          'created_at': s.startMs,
-        });
-        await StravaSync.instance.onSessionFinished(id, 'Cycling');
+        // Weg B (Armin, 2026-10-21): iOS cannot tell his U-Bahn or car from a
+        // bike, so a detected ride is only a PROPOSAL. It joins the "Hast du
+        // trainiert?" review as a Radfahrt; confirming it saves the session
+        // (id 'suggestion:commute:<start>') and sends it to Strava as a
+        // commute, discarding it leaves nothing behind.
+        final store = ActivityStore(await LocalDb.instance);
+        final created = await store.reconcile(ActivityKind.workout, [
+          {
+            'id': 'commute:$start',
+            'start_ts': start,
+            'end_ts': end,
+            'sport': 'Cycling',
+            'commute': true,
+            'max_hr': bpm.reduce((a, b) => a > b ? a : b).round(),
+          },
+        ]);
+        for (final sug in created) {
+          if (!await store.mayNotifyNew(sug)) continue;
+          String hm(int t) {
+            final d = DateTime.fromMillisecondsSinceEpoch(t * 1000);
+            return '${d.hour.toString().padLeft(2, '0')}:'
+                '${d.minute.toString().padLeft(2, '0')}';
+          }
+          await NotificationCenter.instance.emit(
+              NotificationEvent(
+                dedupeKey: '${sug.startTs}:activity:${sug.id}',
+                category: NotifCategory.reminders,
+                priority: NotifPriority.normal,
+                title: 'Radfahrt erkannt',
+                body: '${hm(sug.startTs)}–${hm(sug.endTs)}, '
+                    '${sug.durationMin} Min. Tippe, um sie zu bestätigen: '
+                    'dann geht sie zu Strava.',
+                date: dayLabelOf(
+                    DateTime.fromMillisecondsSinceEpoch(sug.startTs * 1000)),
+                route: activitySuggestionRoute(sug.id, sug.kind.name),
+              ),
+              allowPermissionPrompt: false);
+        }
+        await FileLog.write('[commute] proposed commute:$start for review');
       }
       // Bounded: a week of decisions is all the activity log can ever offer.
       final keep = decided.where((d) {

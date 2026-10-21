@@ -41,6 +41,7 @@ import 'local_repository.dart';
 import 'series_codec.dart';
 import '../gps/route_models.dart';
 import '../gps/route_math.dart' as rmath;
+import '../strava/strava_sync.dart';
 
 class LocalRepositoryImpl extends LocalRepository {
   LocalRepositoryImpl({required this.getProfileMap, this.saveProfileFields, this.onActivitiesChanged});
@@ -86,6 +87,10 @@ class LocalRepositoryImpl extends LocalRepository {
         validateAgainstId: 'suggestion:${suggestion.id}',
         sessionId: 'suggestion:${suggestion.id}', suggestion: suggestion);
       await HealthExporter.exportWorkoutId('suggestion:${suggestion.id}');
+      // Strap Cockpit: a confirmed run, walk, football, padel or ride goes to
+      // Strava (a confirmed commute proposal as a commute Ride).
+      await StravaSync.instance.onSessionFinished('suggestion:${suggestion.id}',
+          workoutType ?? suggestion.sport);
     } else {
       await ActivityStore(await LocalDb.instance).confirm(suggestion,
         startTs: start, endTs: end,
