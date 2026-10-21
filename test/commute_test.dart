@@ -18,6 +18,22 @@ void main() {
       expect(spans, [(startMs: 10 * m, endMs: 32 * m)]);
     });
 
+    test('Armin\'s patchy ride home (1, 2, 8, 4 min, gaps up to 8) is one ride',
+        () {
+      final t0 = 17 * 60 * m;
+      final spans = cyclingSpans([
+        (startMs: t0 + 32 * m, cycling: true, confidence: 2),
+        (startMs: t0 + 33 * m, cycling: false, confidence: 1),
+        (startMs: t0 + 42 * m, cycling: true, confidence: 2),
+        (startMs: t0 + 44 * m, cycling: false, confidence: 1),
+        (startMs: t0 + 50 * m, cycling: true, confidence: 2),
+        (startMs: t0 + 58 * m, cycling: false, confidence: 1),
+        (startMs: t0 + 67 * m, cycling: true, confidence: 2),
+        (startMs: t0 + 71 * m, cycling: false, confidence: 2),
+      ], untilMs: t0 + 120 * m);
+      expect(spans, [(startMs: t0 + 32 * m, endMs: t0 + 71 * m)]);
+    });
+
     test('low confidence is not cycling, and a long stop splits two rides',
         () {
       final spans = cyclingSpans([
@@ -58,6 +74,18 @@ void main() {
       expect(v(min: 3), CommuteVerdict.skip);
       expect(v(min: 75, samples: 4500), CommuteVerdict.skip);
     });
+    test('an easy ride home at 76 bpm counts for a resting pulse of 45', () {
+      expect(
+          commuteVerdict(
+              durationSec: 20 * 60,
+              hrSamples: 1200,
+              meanHr: 76,
+              overlapsSession: false,
+              ageSec: 3600,
+              restingHr: 45),
+          CommuteVerdict.save);
+    });
+
     test('a car ride read as cycling: resting pulse, skipped', () {
       expect(v(hr: 68), CommuteVerdict.skip);
     });

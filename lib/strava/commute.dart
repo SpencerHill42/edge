@@ -9,10 +9,16 @@
 // Guards, so a car ride or a Wahoo tour does not become a commute:
 //   · 5–60 minutes: longer rides are recorded on the Wahoo and reach Strava
 //     from there; a commute-flagged copy would be a duplicate.
-//   · the band's HR covers at least half the span and averages ≥ 85 bpm:
-//     iOS sometimes reads a bumpy car ride as cycling, and sitting in a car does
-//     not raise the pulse.
+//   · the band's HR covers at least half the span and averages at least
+//     resting HR + 25 (≈ 70 for Armin, whose RHR is ~45; a fixed 85 missed
+//     his easy rides home at 74–81): iOS sometimes reads a bumpy car ride as
+//     cycling, and sitting in a car does not raise the pulse.
 //   · nothing already recorded overlaps it (a manually started ride wins).
+//     An earlier, shorter auto-commute piece of the same ride is replaced.
+//
+// iOS's cycling classification is patchy with the phone in a bag: one 20-minute
+// ride arrives as 1, 2, 8 and 4 minutes with gaps of up to 8 (Armin's log,
+// 2026-10-21), so pieces up to [kRideGapMs] apart are one ride.
 // A ride whose beats have not synced yet is left for the next run, until a
 // day has passed.
 
@@ -33,10 +39,12 @@ typedef MotionChange = ({int startMs, bool cycling, int confidence});
 /// Cycling spans out of the activity log. A stop at a traffic light reads as a
 /// short non-cycling stretch; gaps up to [mergeGapMs] are bridged. Low
 /// confidence does not count as cycling.
+const kRideGapMs = 10 * 60 * 1000;
+
 List<({int startMs, int endMs})> cyclingSpans(
   List<MotionChange> log, {
   required int untilMs,
-  int mergeGapMs = 3 * 60 * 1000,
+  int mergeGapMs = kRideGapMs,
 }) {
   final raw = <({int startMs, int endMs})>[];
   for (var i = 0; i < log.length; i++) {
@@ -65,6 +73,7 @@ CommuteVerdict commuteVerdict({
   required double? meanHr,
   required bool overlapsSession,
   required int ageSec,
+  double? restingHr,
 }) {
   if (durationSec < 5 * 60 || durationSec > 60 * 60) return CommuteVerdict.skip;
   if (overlapsSession) return CommuteVerdict.skip;
@@ -73,13 +82,16 @@ CommuteVerdict commuteVerdict({
     // The band syncs after the ride; give it a day before giving up.
     return ageSec < 24 * 3600 ? CommuteVerdict.wait : CommuteVerdict.skip;
   }
-  return (meanHr ?? 0) >= 85 ? CommuteVerdict.save : CommuteVerdict.skip;
+  final floor = (restingHr ?? 60) + 25;
+  return (meanHr ?? 0) >= floor ? CommuteVerdict.save : CommuteVerdict.skip;
 }
 
 class CommuteRides {
   static final instance = CommuteRides();
   static const _channel = MethodChannel('openstrap/motion_activity');
-  static const _kDone = 'commute.decided';
+  // v2: the decisions made with the 3-minute merge and the fixed 85 bpm are
+  // not carried over, so the last days are judged again under the new rules.
+  static const _kDone = 'commute.decided.v2';
   bool _running = false;
 
   /// Look at the last two days of the activity log and save the commute rides
@@ -127,17 +139,28 @@ class CommuteRides {
         final hr = await LocalDb.hrSamplesInRange(start, end);
         final bpm = [for (final r in hr) (r['hr'] as num).toDouble()];
         final near = await LocalDb.sessionsInRange(start - 4 * 3600, end);
-        final overlaps = near.any((x) {
+        bool hits(Map<String, dynamic> x) {
           final xs = (x['start_ts'] as num?)?.toInt() ?? 0;
           final xe = (x['end_ts'] as num?)?.toInt() ?? xs;
           return x['id'] != id && xs < end && xe > start;
-        });
+        }
+        // An auto-commute piece of this same ride (saved before the pieces
+        // merged) does not block it: it is replaced below.
+        final pieces = [
+          for (final x in near)
+            if (hits(x) && x['source'] == kCommuteSource) x['id'] as String,
+        ];
+        final overlaps =
+            near.any((x) => hits(x) && x['source'] != kCommuteSource);
+        final rhr = await LocalDb.trailingSeriesValues('rhr', 14);
         final verdict = commuteVerdict(
           durationSec: end - start,
           hrSamples: bpm.length,
           meanHr: bpm.isEmpty ? null : bpm.reduce((a, b) => a + b) / bpm.length,
           overlapsSession: overlaps,
           ageSec: nowMs ~/ 1000 - end,
+          restingHr:
+              rhr.isEmpty ? null : rhr.reduce((a, b) => a + b) / rhr.length,
         );
         await FileLog.write('[commute] ${DateTime.fromMillisecondsSinceEpoch(s.startMs)} '
             '${(end - start) ~/ 60} min, ${bpm.length} beats, mean '
@@ -146,6 +169,10 @@ class CommuteRides {
         if (verdict == CommuteVerdict.wait) continue;
         decided.add(id);
         if (verdict == CommuteVerdict.skip) continue;
+        for (final old in pieces) {
+          await LocalDb.deleteSession(old);
+          await FileLog.write('[commute] replaced the shorter piece $old');
+        }
         await LocalDb.putSession({
           'id': id,
           'start_ts': start,
