@@ -1810,7 +1810,12 @@ import 'vendor_sleep.dart';
 // store `skin_temp_ambient_r` and the illness watch leaves out WHOOP 4 nights
 // whose skin temp tracks ambient (|r| >= 0.8, or unmeasured). One-shot,
 // raw-free: days derived before v106 drop naps overlapping the next night.
-const int kAlgoVersion = 113;
+// 113 → 114 (Strap Cockpit, edge-only): the sleep coach's need uses the
+// free-night OSD only from 4 free nights (sleep debt confidence ≥ 0.8; absent
+// before, note need_baseline:have=N,need=4), and adds at most 1 h of sleep debt
+// to a night (was all of it: 9.1 h OSD + 1.4 h debt + strain read 11 h on two
+// free nights). Sleep performance follows the need.
+const int kAlgoVersion = 114;
 /// The sibling SHAs this version was derived against, asserted against
 /// pubspec.yaml in test/db_serve_version_and_reads_test.dart.
 ///
