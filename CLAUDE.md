@@ -194,8 +194,12 @@ rings on Home, detail typography, sleep/energy accuracy, open decisions):
    `docs/design-review-whoop-principles.md`: tabs by depth (Tier 1 overview,
    Tier 2 trends, Tier 3 only behind a tap), colour = meaning, prose behind ⓘ.
 5. Verlauf screen from the design.
-6. Garmin history from the GDPR export (requested 2026-10-16): its own series
-   beside OpenStrap's, never blended into baselines.
+6. ~~Garmin history from the GDPR export~~ (2026-10-22,
+   `lib/import/garmin_import.dart`): sleep, resting HR, HRV, breathing, steps,
+   VO2max and workouts from the DI_CONNECT JSONs (or their ZIP) via the normal
+   import. By Armin's decision these measurements DO feed the baselines
+   (`garmin_export` is left out of `LocalDb.importedDates`); Garmin's scores
+   are not imported, and a band-measured day always wins.
 7. ~~App icon~~ (v0.6, Turbo Health).
 8. VO2max in the app (Armin, 2026-10-17): its own card/trend, not only in
    the run summary. Exists today: a submax estimate per run, from one

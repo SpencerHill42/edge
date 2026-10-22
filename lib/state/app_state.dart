@@ -99,6 +99,7 @@ import '../gestures/gesture_settings.dart';
 import '../health/auto_workout_import.dart';
 import '../health/health_export.dart';
 import '../health/phone_pedometer.dart';
+import '../import/garmin_import.dart';
 import '../import/noop_import.dart';
 import '../import/whoop_import.dart';
 import '../platform/tasker_bridge.dart';
@@ -668,6 +669,21 @@ class AppState extends ChangeNotifier {
     );
     lastWhoopImport = res;
     bumpInsights(); // see importNoopCsv — imported rows have to reach the tabs
+    notifyListeners();
+    return res.days;
+  }
+
+  GarminImportResult? lastGarminImport;
+
+  /// Garmin Connect data export (JSON files or their ZIP) → days + workouts.
+  Future<int> importGarminExport(List<String> paths) async {
+    final res = await GarminImporter.importFiles(
+      paths,
+      engine: _derive,
+      profile: _profile,
+    );
+    lastGarminImport = res;
+    bumpInsights();
     notifyListeners();
     return res.days;
   }
