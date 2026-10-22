@@ -175,7 +175,7 @@ Map<String, dynamic> buildCrossDayBundle(
   final recentDurH = allDurH.length <= 7
       ? allDurH
       : allDurH.sublist(allDurH.length - 7);
-  final sleepDebt = ana.sleepDebt(recentDurH, freeDurH);
+  final sleepDebt = cockpitSleepDebt(recentDurH, freeDurH);
 
   // ── percentile-of-you for today vs history (history = all-but-last) ────────
   // rhr is LOWER-is-better — the same orientation `_glassInput` ten lines below
@@ -311,7 +311,7 @@ Map<String, dynamic> buildCrossDayBundle(
   // Personal optimal sleep duration, floored/capped to a physiological band:
   // the OSD estimate is noisy with few nights and can read implausibly low
   // (e.g. 5.6 h), which would push the recommended bedtime far too late. Adults
-  // need ~7-9.5 h, so clamp into that range.
+  // need ~7-9 h, so clamp into that range.
   //
   // NO 8 h DEFAULT. It used to substitute the population mean when there was no
   // personal estimate, and every number built on it — tonight's need, the
@@ -320,11 +320,9 @@ Map<String, dynamic> buildCrossDayBundle(
   // screen saying so. Absent input yields an absent metric; the coach fills in
   // once enough nights exist to estimate an OSD.
   final double? baselineNeedSec =
-      osdH == null ? null : (osdH.clamp(7.0, 9.5)) * 3600.0;
-  // Strap Cockpit: at most one hour of debt is put on a single night. The
-  // debt here is OSD − habitual, a standing gap rather than last week's
-  // deficit, and adding all of it to tonight asked for 2·OSD − habitual.
-  // Sleep debt is paid back over several nights, not in one.
+      osdH == null ? null : (osdH.clamp(7.0, 9.0)) * 3600.0;
+  // Strap Cockpit: at most one hour of debt is put on a single night; sleep
+  // debt is paid back over several nights, not in one ([cockpitSleepDebt]).
   final debtSec = math.min(
           sleepDebt.present ? (sleepDebt.value!.debtHours ?? 0.0) : 0.0, 1.0) *
       3600.0;
@@ -707,6 +705,51 @@ double? _todayNum(List<Map<String, dynamic>> days, String key) {
   final last = days.last;
   if (last['is_today'] != true) return null;
   return _numOrNull(last[key]);
+}
+
+/// Strap Cockpit (Armin, 2026-10-22): the sleep need's baseline is the MEDIAN
+/// of the free nights, not analytics' p75. Weekend nights carry the week's
+/// catch-up sleep, so their long tail is debt being paid, not need: with the
+/// Garmin history imported the p75 read 9.3 h against a 8.1 h median, and the
+/// need came out at 10.6 h. Sleep-extension studies put adult need near 8 h
+/// (Wehr 1993; Klerman & Dijk 2005; Kitamura 2016).
+///
+/// The debt is the NET shortfall of the last (up to) 7 nights against that
+/// baseline, so a long night pays back a short one. Analytics' OSD − habitual
+/// was a standing gap that the need then added on top of the same baseline.
+/// Same confidence as analytics (free nights / 5, 0.3–0.85).
+ana.Metric<ana.SleepDebt> cockpitSleepDebt(
+  List<double> recentH,
+  List<double> freeH,
+) {
+  const inputs = ['sleep_duration_recent', 'sleep_duration_free'];
+  if (recentH.length < 3) {
+    return const ana.Metric<ana.SleepDebt>.absent(
+      tier: ana.Tier.high,
+      inputs_used: inputs,
+      note: 'need more recent nights to estimate habitual sleep',
+    );
+  }
+  final habitual = _median(recentH)!;
+  if (freeH.isEmpty) {
+    return ana.Metric<ana.SleepDebt>(
+      value: ana.SleepDebt(null, habitual, null, false),
+      confidence: 0.3,
+      tier: ana.Tier.high,
+      inputs_used: inputs,
+      note: 'no free night yet — cannot honestly estimate your sleep need',
+    );
+  }
+  final base = _median(freeH)!;
+  final shortfall = recentH.fold<double>(0, (sum, h) => sum + (base - h));
+  return ana.Metric<ana.SleepDebt>(
+    value: ana.SleepDebt(base, habitual, math.max(0.0, shortfall), true),
+    confidence: (freeH.length / 5.0).clamp(0.3, 0.85),
+    tier: ana.Tier.high,
+    inputs_used: inputs,
+    note: 'median of your free nights; debt = net shortfall of the last '
+        '${recentH.length} nights against it',
+  );
 }
 
 /// Sat/Sun => free day. We lack a real work/free calendar; the weekday split is

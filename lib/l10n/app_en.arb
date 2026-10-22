@@ -5399,6 +5399,10 @@
     "description": "Range picker chip: 6-month window, on the metric detail screen."
   },
   "metricDetailRangeYear": "Year",
+  "metricDetailRangeAll": "All",
+  "@metricDetailRangeAll": {
+    "description": "Range picker chip: every stored day (imported history included), on the metric detail screen."
+  },
   "@metricDetailRangeYear": {
     "description": "Range picker chip: 1-year window, on the metric detail screen."
   },
@@ -15806,5 +15810,61 @@
   "@healthRefreshFrom": {"placeholders": {"store": {"type": "String"}}},
   "healthRequestFailed": "{store} could not be asked ({error}). This is the install, not your choice in Health.",
   "@healthRequestFailed": {"placeholders": {"store": {"type": "String"}, "error": {"type": "String"}}},
-  "homeSleepEvaluating": "Working it out"
+  "homeSleepEvaluating": "Working it out",
+  "labMarkerRbc": "Red blood cells",
+  "@labMarkerRbc": {
+    "description": "Lab marker name (Red blood cells)."
+  },
+  "labMarkerRdw": "RDW",
+  "@labMarkerRdw": {
+    "description": "Lab marker name (RDW)."
+  },
+  "labMarkerWbc": "White blood cells",
+  "@labMarkerWbc": {
+    "description": "Lab marker name (White blood cells)."
+  },
+  "labMarkerPlatelets": "Platelets",
+  "@labMarkerPlatelets": {
+    "description": "Lab marker name (Platelets)."
+  },
+  "labMarkerGlucose": "Glucose",
+  "@labMarkerGlucose": {
+    "description": "Lab marker name (Glucose)."
+  },
+  "labMarkerNonHdl": "Non-HDL cholesterol",
+  "@labMarkerNonHdl": {
+    "description": "Lab marker name (Non-HDL cholesterol)."
+  },
+  "labMarkerSodium": "Sodium",
+  "@labMarkerSodium": {
+    "description": "Lab marker name (Sodium)."
+  },
+  "labMarkerPotassium": "Potassium",
+  "@labMarkerPotassium": {
+    "description": "Lab marker name (Potassium)."
+  },
+  "labMarkerCalcium": "Calcium",
+  "@labMarkerCalcium": {
+    "description": "Lab marker name (Calcium)."
+  },
+  "labMarkerCrp": "CRP",
+  "@labMarkerCrp": {
+    "description": "Lab marker name (CRP)."
+  },
+  "labMarkerEsr": "ESR",
+  "@labMarkerEsr": {
+    "description": "Lab marker name (ESR)."
+  },
+  "labMarkerGgt": "GGT",
+  "@labMarkerGgt": {
+    "description": "Lab marker name (GGT)."
+  },
+  "labMarkerLdh": "LDH",
+  "@labMarkerLdh": {
+    "description": "Lab marker name (LDH)."
+  },
+  "labMarkerBilirubin": "Bilirubin",
+  "@labMarkerBilirubin": {
+    "description": "Lab marker name (Bilirubin)."
+  }
 }

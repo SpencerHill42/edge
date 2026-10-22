@@ -44,8 +44,10 @@ final Map<String, num> kMethodBand = {
     if (family != 'colmi') '$family/calories/$hr': hr == 'hr_1min' ? 10 : 5,
     // 0.42 / 2.27 points.
     '$family/readiness/rhr_only_partial': hr == 'hr_1min' ? 1 : 3,
-    // 0.03 / 0.06 h, off the nights the row is served from.
-    '$family/sleep_debt_need_sri/$rest': 0.1,
+    // Off the nights the row is served from. Strap Cockpit v115 sums the
+    // shortfall of 7 nights, so a per-night error counts up to 7 times:
+    // device stages ≤ 0.07 h, the 5-min HR stager 0.28 h.
+    '$family/sleep_debt_need_sri/$rest': rest == 'hr_5min' ? 0.3 : 0.1,
   },
   // 26.25 min against the synthetic truth, over 24 nights: our HR-led
   // window over 5-min HR (1-min profiles 10.35, for scale). The error is in

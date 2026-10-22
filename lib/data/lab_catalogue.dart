@@ -355,6 +355,181 @@ const kLabMarkers = <LabMarker>[
     category: LabCategory.organ,
     ranges: [LabRefRange(low: 90, high: 200)],
   ),
+  // ── Strap Cockpit (2026-10-22): the rest of a German GP panel ────────────
+  // Typical adult intervals as most German labs print them; the one on your
+  // own report still applies (see the file header).
+  LabMarker(
+    key: 'rbc',
+    label: 'Red blood cells',
+    unit: '10⁶/µL',
+    category: LabCategory.blood,
+    decimals: 2,
+    ranges: [
+      LabRefRange(low: 4.5, high: 5.9, scope: LabRefScope.male),
+      LabRefRange(low: 4.1, high: 5.1, scope: LabRefScope.female),
+    ],
+  ),
+  LabMarker(
+    key: 'mcv',
+    label: 'MCV',
+    unit: 'fL',
+    category: LabCategory.blood,
+    decimals: 1,
+    ranges: [
+      LabRefRange(low: 80, high: 96),
+    ],
+  ),
+  LabMarker(
+    key: 'mch',
+    label: 'MCH',
+    unit: 'pg',
+    category: LabCategory.blood,
+    decimals: 1,
+    ranges: [
+      LabRefRange(low: 27, high: 33),
+    ],
+  ),
+  LabMarker(
+    key: 'mchc',
+    label: 'MCHC',
+    unit: 'g/dL',
+    category: LabCategory.blood,
+    decimals: 1,
+    ranges: [
+      LabRefRange(low: 32, high: 36),
+    ],
+  ),
+  LabMarker(
+    key: 'rdw',
+    label: 'RDW',
+    unit: '%',
+    category: LabCategory.blood,
+    decimals: 1,
+    ranges: [
+      LabRefRange(low: 11.5, high: 14.5),
+    ],
+  ),
+  LabMarker(
+    key: 'wbc',
+    label: 'White blood cells',
+    unit: '10³/µL',
+    category: LabCategory.blood,
+    decimals: 1,
+    ranges: [
+      LabRefRange(low: 4.0, high: 10.0),
+    ],
+  ),
+  LabMarker(
+    key: 'platelets',
+    label: 'Platelets',
+    unit: '10³/µL',
+    category: LabCategory.blood,
+    decimals: 0,
+    ranges: [
+      LabRefRange(low: 150, high: 400),
+    ],
+  ),
+  LabMarker(
+    key: 'glucose',
+    label: 'Glucose',
+    unit: 'mg/dL',
+    category: LabCategory.metabolic,
+    decimals: 0,
+    note: 'Fasting or not is not always on the report, so no range is shown; fasting glucose has its own marker.',
+  ),
+  LabMarker(
+    key: 'non_hdl',
+    label: 'Non-HDL cholesterol',
+    unit: 'mg/dL',
+    category: LabCategory.lipids,
+    decimals: 0,
+    ranges: [
+      LabRefRange(low: 0, high: 130),
+    ],
+  ),
+  LabMarker(
+    key: 'sodium',
+    label: 'Sodium',
+    unit: 'mmol/L',
+    category: LabCategory.vitamins,
+    decimals: 0,
+    ranges: [
+      LabRefRange(low: 135, high: 145),
+    ],
+  ),
+  LabMarker(
+    key: 'potassium',
+    label: 'Potassium',
+    unit: 'mmol/L',
+    category: LabCategory.vitamins,
+    decimals: 1,
+    ranges: [
+      LabRefRange(low: 3.5, high: 5.1),
+    ],
+  ),
+  LabMarker(
+    key: 'calcium',
+    label: 'Calcium',
+    unit: 'mmol/L',
+    category: LabCategory.vitamins,
+    decimals: 2,
+    ranges: [
+      LabRefRange(low: 2.15, high: 2.6),
+    ],
+  ),
+  LabMarker(
+    key: 'crp',
+    label: 'CRP',
+    unit: 'mg/L',
+    category: LabCategory.inflammation,
+    decimals: 1,
+    ranges: [
+      LabRefRange(low: 0, high: 5),
+    ],
+    note: 'Standard CRP. The sensitive assay (hs-CRP) is its own marker.',
+  ),
+  LabMarker(
+    key: 'esr',
+    label: 'ESR',
+    unit: 'mm/h',
+    category: LabCategory.inflammation,
+    decimals: 0,
+    ranges: [
+      LabRefRange(low: 0, high: 15, scope: LabRefScope.male),
+      LabRefRange(low: 0, high: 20, scope: LabRefScope.female),
+    ],
+  ),
+  LabMarker(
+    key: 'ggt',
+    label: 'GGT',
+    unit: 'U/L',
+    category: LabCategory.organ,
+    decimals: 0,
+    ranges: [
+      LabRefRange(low: 8, high: 61, scope: LabRefScope.male),
+      LabRefRange(low: 5, high: 36, scope: LabRefScope.female),
+    ],
+  ),
+  LabMarker(
+    key: 'ldh',
+    label: 'LDH',
+    unit: 'U/L',
+    category: LabCategory.organ,
+    decimals: 0,
+    ranges: [
+      LabRefRange(low: 120, high: 250),
+    ],
+  ),
+  LabMarker(
+    key: 'bilirubin',
+    label: 'Bilirubin',
+    unit: 'mg/dL',
+    category: LabCategory.organ,
+    decimals: 1,
+    ranges: [
+      LabRefRange(low: 0.1, high: 1.2),
+    ],
+  ),
 ];
 
 final Map<String, LabMarker> kLabMarkersByKey = {
