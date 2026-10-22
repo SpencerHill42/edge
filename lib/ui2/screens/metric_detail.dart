@@ -705,8 +705,18 @@ class _MetricDetailState extends State<MetricDetail> {
       l?.metricDetailRange30Days ?? '30 days',
       l?.metricDetailRange6Months ?? '6 months',
       l?.metricDetailRangeYear ?? 'Year',
+      l?.metricDetailRangeAll ?? 'All',
     ];
   }
+
+  /// Days back to the first stored point: the "All" window. Imported history
+  /// (a Garmin export) reaches years past the install.
+  int _allSpan(MetricData d) =>
+      d.series.isEmpty ? 0 : (daysBehind(d.series.first.t) ?? 0) + 1;
+
+  /// The window behind range button [i]; the one past [_windows] is "All".
+  int _winAt(MetricData d, int i) =>
+      i < _windows.length ? _windows[i] : _allSpan(d);
 
   /// TODAY. A tile on Home shows today's number, so the screen behind that tap
   /// opens on today's number — anything else is a different question than the
@@ -766,13 +776,15 @@ class _MetricDetailState extends State<MetricDetail> {
     for (var i = 1; i < _windows.length; i++) {
       if (d.daysAvailable >= _windows[i]) n = i + 1;
     }
+    // "All" only when it reaches past the year.
+    if (n == _windows.length && _allSpan(d) > _windows.last) n++;
     return n;
   }
 
   /// The reason the next range up is not there yet, in its own words.
   String? _lockedNote(BuildContext c, MetricData d) {
     final n = _offered(d);
-    if (n >= _windows.length) return null;
+    if (n >= _windows.length) return null; // "All" has no threshold to wait for
     final l = AppLocalizations.of(c);
     final label = _labelsOf(c)[n];
     return l?.metricDetailLockedNote(label, _windows[n], d.daysAvailable) ??
@@ -881,7 +893,7 @@ class _MetricDetailState extends State<MetricDetail> {
     final d = _d ?? const MetricData();
 
     final all = d.series;
-    final win = _windows[_range.clamp(0, _offered(d) - 1)];
+    final win = _winAt(d, _range.clamp(0, _offered(d) - 1));
     // Dense: one slot per calendar day in the window, `null` where no day
     // derived. The painter breaks the line at a null rather than joining over
     // it, and the axis labels can be dated because the slots ARE the dates.
@@ -1193,7 +1205,12 @@ class _MetricDetailState extends State<MetricDetail> {
     // WHICH DAY the newest reading is from. `metric_series` gets a row only on
     // a day that derives, so after a sync gap the newest stored point is days
     // old — and this line is the answer to "is there a today?".
-    final asOf = all.isEmpty ? '' : axisDay(all.last.t);
+    final behind = all.isEmpty ? null : daysBehind(all.last.t);
+    final asOf = behind == null
+        ? ''
+        : behind <= 0
+            ? (l?.metricDetailToday ?? 'Today')
+            : (l?.beatsDaysAgo(behind) ?? '$behind days ago');
     // Your usual range: the band behind the chart and the verdict on the
     // newest reading. Null under two weeks of history.
     final stored = valuesOf(all);
@@ -1488,6 +1505,10 @@ class _MetricDetailState extends State<MetricDetail> {
             ];
             final have = [for (final v in hrs) ?v];
             if (have.isEmpty) return const SizedBox.shrink();
+            // Imported days (a Garmin export) chart a value with no wear
+            // record behind it, so "the rest are gaps in both charts" would
+            // be false. The wear bars only describe band-measured windows.
+            if (vals.length > have.length) return const SizedBox.shrink();
             final axis =
                 AxisSpec.of(have, ticks: 2, floor: 0, ceil: 24, format: axisInt);
             return Padding(

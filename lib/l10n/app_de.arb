@@ -1125,6 +1125,7 @@
   "metricDetailRange30Days": "30 Tage",
   "metricDetailRange6Months": "6 Monate",
   "metricDetailRangeYear": "Jahr",
+  "metricDetailRangeAll": "Alles",
   "metricDetailLockedNote": "{label} braucht {needed} Tage Verlauf. Bisher sind es {have}.",
   "metricDetailNotShownTitle": "Nicht als Trend angezeigt",
   "metricDetailNothingRecordedToday": "Heute nichts aufgezeichnet",
@@ -3374,5 +3375,19 @@
   "healthFieldAge": "Alter",
   "healthFieldSex": "Geschlecht",
   "healthRequestFailed": "{store} konnte nicht gefragt werden ({error}). Das liegt an der Installation, nicht an deiner Freigabe in Health.",
-  "homeSleepEvaluating": "Wird ausgewertet"
+  "homeSleepEvaluating": "Wird ausgewertet",
+  "labMarkerRbc": "Erythrozyten",
+  "labMarkerRdw": "Erythrozytenverteilungsbreite",
+  "labMarkerWbc": "Leukozyten",
+  "labMarkerPlatelets": "Thrombozyten",
+  "labMarkerGlucose": "Glukose",
+  "labMarkerNonHdl": "Non-HDL-Cholesterin",
+  "labMarkerSodium": "Natrium",
+  "labMarkerPotassium": "Kalium",
+  "labMarkerCalcium": "Calcium",
+  "labMarkerCrp": "CRP",
+  "labMarkerEsr": "Blutsenkung",
+  "labMarkerGgt": "Gamma-GT",
+  "labMarkerLdh": "LDH",
+  "labMarkerBilirubin": "Bilirubin"
 }

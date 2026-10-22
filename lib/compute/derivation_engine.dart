@@ -1819,7 +1819,11 @@ import 'vendor_sleep.dart';
 // from a Garmin Connect export (`source: 'garmin_export'`, measurements only)
 // are no longer masked out of the baselines (LocalDb.importedDates). For
 // anyone without such an import nothing changes.
-const int kAlgoVersion = 114;
+// 114 → 115 (Strap Cockpit, edge-only): the sleep need's baseline is the
+// median of the free nights (was analytics' p75), clamped to 7–9 h (was
+// 9.5), and the sleep debt is the net shortfall of the last 7 nights against
+// it (was p75 − habitual). `sleep_debt` carries the same numbers.
+const int kAlgoVersion = 115;
 /// The sibling SHAs this version was derived against, asserted against
 /// pubspec.yaml in test/db_serve_version_and_reads_test.dart.
 ///

@@ -2327,6 +2327,7 @@
   "metricDetailRange30Days": "30 дней",
   "metricDetailRange6Months": "6 месяцев",
   "metricDetailRangeYear": "Год",
+  "metricDetailRangeAll": "Всё",
   "metricDetailLockedNote": "Для «{label}» нужны данные за {needed} дн. У вас — {have}.",
   "@metricDetailLockedNote": {
     "placeholders": {
@@ -7560,5 +7561,19 @@
   "@healthRefreshFrom": {"placeholders": {"store": {"type": "String"}}},
   "healthRequestFailed": "{store} could not be asked ({error}). This is the install, not your choice in Health.",
   "@healthRequestFailed": {"placeholders": {"store": {"type": "String"}, "error": {"type": "String"}}},
-  "homeSleepEvaluating": "Working it out"
+  "homeSleepEvaluating": "Working it out",
+  "labMarkerRbc": "Эритроциты",
+  "labMarkerRdw": "Ширина распределения эритроцитов",
+  "labMarkerWbc": "Лейкоциты",
+  "labMarkerPlatelets": "Тромбоциты",
+  "labMarkerGlucose": "Глюкоза",
+  "labMarkerNonHdl": "Холестерин не-ЛПВП",
+  "labMarkerSodium": "Натрий",
+  "labMarkerPotassium": "Калий",
+  "labMarkerCalcium": "Кальций",
+  "labMarkerCrp": "СРБ",
+  "labMarkerEsr": "СОЭ",
+  "labMarkerGgt": "ГГТ",
+  "labMarkerLdh": "ЛДГ",
+  "labMarkerBilirubin": "Билирубин"
 }
