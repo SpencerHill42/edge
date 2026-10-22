@@ -36,6 +36,10 @@ if [[ "${1:-}" != "--force" && -f "$STATE/last_install" ]]; then
 fi
 
 # Reachable? (cable, or Wi-Fi with "Connect via network")
+# A sleeping phone lists as "available (paired)" until something asks for it;
+# one details call brings the Wi-Fi tunnel up.
+xcrun devicectl device info details --device "$UDID" >/dev/null 2>&1 || true
+sleep 3
 if ! xcrun devicectl list devices 2>/dev/null | grep "$UDID" | grep -q "connected"; then
   log "due, but the iPhone is not reachable; next try later"
   exit 0
