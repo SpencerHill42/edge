@@ -1815,6 +1815,10 @@ import 'vendor_sleep.dart';
 // before, note need_baseline:have=N,need=4), and adds at most 1 h of sleep debt
 // to a night (was all of it: 9.1 h OSD + 1.4 h debt + strain read 11 h on two
 // free nights). Sleep performance follows the need.
+// (no bump) Garmin export import (Strap Cockpit, edge-only): days imported
+// from a Garmin Connect export (`source: 'garmin_export'`, measurements only)
+// are no longer masked out of the baselines (LocalDb.importedDates). For
+// anyone without such an import nothing changes.
 const int kAlgoVersion = 114;
 /// The sibling SHAs this version was derived against, asserted against
 /// pubspec.yaml in test/db_serve_version_and_reads_test.dart.

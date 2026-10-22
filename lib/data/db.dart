@@ -9812,13 +9812,21 @@ class LocalDb {
   /// short of deleting the superseded row. `metric_series_version` needs no
   /// such guard: it is `PRIMARY KEY (date)` and the last writer replaces it,
   /// which is exactly why the stamp exists.
+  ///
+  /// `garmin_export` is the one import NOT masked (Armin's decision,
+  /// 2026-10-22): it carries only measurements (resting HR, overnight RMSSD,
+  /// breathing rate, sleep, steps), the same quantities off another wrist
+  /// sensor (see [familySeamKeys]), so they seed the baselines from day one.
+  /// The band's own measurement still replaces such a day ([isMeasuredDayRow]).
   static const String _importedDatesSql =
       'SELECT date FROM metric_series_version '
-      "WHERE date IS NOT NULL AND source IS NOT NULL AND source <> 'band' "
+      'WHERE date IS NOT NULL AND source IS NOT NULL '
+      "AND source NOT IN ('band', 'garmin_export') "
       'UNION '
       'SELECT r.day_id FROM day_result r '
       '$_servedDayJoin '
-      "WHERE r.day_id IS NOT NULL AND r.payload_json LIKE '%\"imported\":true%'";
+      "WHERE r.day_id IS NOT NULL AND r.payload_json LIKE '%\"imported\":true%' "
+      "AND r.payload_json NOT LIKE '%\"source\":\"garmin_export\"%'";
 
   /// Day labels whose stored scalars are ANOTHER vendor's derived numbers.
   ///

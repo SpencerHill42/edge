@@ -19,6 +19,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../import/backup_crypto.dart';
+import '../../import/garmin_import.dart';
 import '../../import/import_container.dart';
 import '../../import/journal_csv_import.dart';
 import '../../import/lab_csv_import.dart';
@@ -377,9 +378,23 @@ Future<ImportOutcome> runImport(
   // fine, both refused, both with advice for the other file.
   final raw = <String>[];
   final csv = <String>[];
+  final garmin = <String>[];
   for (final p in plain) {
     if (_isDbBackup(p)) continue;
+    if (await GarminImporter.isGarminExport(p)) {
+      garmin.add(p);
+      continue;
+    }
     (await isNoopExport(p) ? raw : csv).add(p);
+  }
+  if (garmin.isNotEmpty) {
+    sources.add('Garmin export');
+    days += await app.importGarminExport(garmin);
+    final r = app.lastGarminImport;
+    if (r != null) {
+      workouts += r.workouts;
+      skipped += r.skippedExistingDays;
+    }
   }
 
   if (decrypted.isNotEmpty) sources.add('Encrypted backup');
