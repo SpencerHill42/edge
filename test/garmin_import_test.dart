@@ -110,7 +110,7 @@ void main() {
       archive.addFile(ArchiveFile.bytes(e.key, utf8.encode(jsonEncode(e.value))));
     }
     final zip = File(p.join(tmp.path, 'garmin.zip'))
-      ..writeAsBytesSync(ZipEncoder().encode(archive)!);
+      ..writeAsBytesSync(ZipEncoder().encode(archive));
     final csv = File(p.join(tmp.path, 'x.csv'))..writeAsStringSync('a,b\n1,2\n');
 
     expect(await GarminImporter.isGarminExport(zip.path), isTrue);
