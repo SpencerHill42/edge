@@ -1,4 +1,4 @@
-# To-do for Claude Code (state 2026-10-18)
+# To-do for Claude Code (state 2026-10-24)
 
 Collected in the claude.ai chat with Armin, written for the next Claude Code
 session on his Mac. Order = priority. Each item says what Armin saw, the cause
@@ -88,6 +88,31 @@ changed" in `CLAUDE.md`.
   #448 guard and the pin are unchanged. Before the wake is confirmed the
   sleep ring says "Wird ausgewertet", not "Kein Schlaf". Test in
   `test/overnight_settled_test.dart`.
+
+### 3b. Belastung stays empty: age and sex disappear from the profile (BUG)
+
+- **Seen (2026-10-24, 19:16):** Home Belastung ring "–", card "Dein Alter fehlt,
+  und dieser Wert wird daraus berechnet". Earlier the same day Armin had a
+  strain value. Profil bearbeiten shows Geschlecht and Alter "Nicht
+  festgelegt" (weight 74.5 is there). He says the fields "delete themselves";
+  importing from Apple Health brought back only the weight.
+- **Gate:** `onehz_pipeline.dart` (~line 975): `strainAbsentNote` is non-null
+  without age (`hrMax == null`) or without sex, so strain, TRIMP and calories
+  go absent. `needInputNote('age')` is the card text.
+- **Found so far:** `AppState.updateProfile` only merges (`{...user, ...fields}`),
+  nothing there clears a field; `signOut`/`resetAllData` remove the whole
+  `local_profile_json`. `health_profile_import.dart` fills age and sex only
+  when Health has birthday/sex, and Armin's Health probably holds neither.
+  The cause of the loss is NOT found. Suspects to check: a reinstall via Xcode
+  (since 2026-10-18) wiping SharedPreferences, the Garmin import or a backup
+  restore writing a profile without these fields, the headless profile read
+  (`ios_bg_task.dart` `_loadProfile`).
+- **Do:** reproduce (log `local_profile_json` on launch, on foreground, after
+  Garmin import and after Health import), find what drops age/sex, fix it.
+  Then: when a field is missing, say so on the ring ("Alter und Geschlecht
+  fehlen" with a tap into Profil bearbeiten) instead of a bare "–".
+- **Done when:** age and sex survive restart, Garmin import, Health import and
+  an Xcode reinstall; a regression test covers the merge.
 
 ### 4. Detail values in the wrong font, method texts in English
 
@@ -273,6 +298,58 @@ absurd for an adult who sleeps ~7–8 h.
   free nights (absent before, the ring shows hours without a target) and adds
   at most 1 h of debt to a night. Goldens: only `algo_version` and the
   absent-need note changed.
+
+## Garmin reference (Armin, 2026-10-24)
+
+Armin's Garmin history (738 days, imported 2026-10-22, `garmin_import.dart`)
+is the only long reference he has. There are NO nights where Garmin and the
+WHOOP overlap (Cirqa sold 2026-10-13), so nothing here is trained on paired
+sensor data. Garmin's scores are not imported today (decision 2026-10-22: no
+foreign scores in baselines); here they may serve only as a learning target
+and a comparison, in their own series, never in a baseline.
+
+### 10. Check what the Garmin export really holds
+
+List the files and fields of the ZIP: which scores (sleep score, body battery,
+training readiness, stress), which time series (HR, stress, sleep movement),
+and whether any raw signal exists. Write the result into this file. Everything
+below depends on it.
+
+### 11. Garmin sleep score: reproduce it, maybe
+
+Fit Garmin's score on Garmin's own nightly inputs (duration, stage minutes,
+restlessness, HRV, resting HR) over the old nights. Hold out the last ~100
+nights; show nothing unless the error is small. Apply it to our nights as
+"nachgebildet nach deinem Garmin-Verlauf", never as a Garmin value. Caveat: our
+stages come from `cardio_stager` and differ from Garmin's, so expect a
+systematic offset. Also the open question from Armin's 2026-10-24 remark: the
+Home ring is time over need (103 %), not quality; a transparent 0–100 sleep
+note (duration vs need, efficiency, deep/REM share, restlessness, regularity)
+is the alternative.
+
+### 12. Recovery: ours against a Garmin reproduction
+
+Our readiness (HRV + RHR autonomic 0.70, RR, temp, 14-night baseline) next to
+a reproduction of Garmin's Training Readiness / body battery from Garmin's own
+inputs. Show both over the Garmin history to see where they disagree. Only
+nights with a real input count; no fill.
+
+### 13. VO2max: reverse-engineer and compare
+
+Garmin's VO2max (`MetricsMaxMetData_*.json`) against our submax estimate
+(`clinical/vo2max.dart`, one completed km, ACSM + %HRR). Use the runs in the
+Garmin history that have both a Garmin value and a usable km to measure our
+bias and spread. A correction only if it holds on held-out runs and is cited as
+a calibration against this one watch; otherwise just report the gap. Feeds
+CLAUDE.md items 8 and 9.
+
+### 14. Garmin's counterpart to Belastung
+
+Find out which Garmin metric plays the role of our strain (candidates:
+training load / acute load, training effect, body battery drain, stress). Put
+it next to our 0–21 strain over the history, then see whether it can be
+reproduced from the HR data we have. Write down which Garmin metric it is and
+why before building anything.
 
 ## Open decisions (ask Armin, bundled in one question)
 
