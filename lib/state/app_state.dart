@@ -527,6 +527,9 @@ class AppState extends ChangeNotifier {
   String? _onboardChoice;
   String? get onboardChoice => _onboardChoice;
 
+  /// Whether [_loadProfile] has read the stored profile yet.
+  bool _profileLoaded = false;
+
   Future<void> _loadProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_kProfile);
@@ -537,6 +540,7 @@ class AppState extends ChangeNotifier {
         /* ignore corrupt blob */
       }
     }
+    _profileLoaded = true;
     _onboardChoice = prefs.getString(_kOnboard);
     // The companion-URL override is loaded in _initCompanion (single source of
     // truth for every network call — announcements, OTA, telemetry, import).
@@ -1155,8 +1159,22 @@ class AppState extends ChangeNotifier {
   Future<Map<String, dynamic>> updateProfile(
     Map<String, dynamic> fields,
   ) async {
-    user = {...?user, ...fields};
     final prefs = await SharedPreferences.getInstance();
+    // Strap Cockpit (TODO 3b): at launch the Health weight sync could land
+    // before [_loadProfile] had read the stored profile, so `user` was still
+    // null and the profile was saved as the weight alone: age and sex gone,
+    // Belastung empty. Until the load has run, merge onto what is stored.
+    if (!_profileLoaded) {
+      final raw = prefs.getString(_kProfile);
+      if (raw != null) {
+        try {
+          user = {...(jsonDecode(raw) as Map).cast<String, dynamic>(), ...?user};
+        } catch (_) {
+          /* corrupt blob: nothing to keep */
+        }
+      }
+    }
+    user = {...?user, ...fields};
     await prefs.setString(_kProfile, jsonEncode(user));
     notifyListeners();
     return user!;
