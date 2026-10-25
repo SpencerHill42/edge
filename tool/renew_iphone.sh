@@ -62,6 +62,9 @@ cp "$REPO/.env" "$WORKTREE/.env"
 cp "$REPO/ios/Config/Signing.xcconfig" "$WORKTREE/ios/Config/Signing.xcconfig"
 
 cd "$WORKTREE"
+# The phone itself as the destination: a free team's profile is generated
+# for its registered devices, and a generic build registered none ("Your team
+# has no devices").
 # A fresh 7-day profile every time: move the cached ones aside and let
 # xcodebuild fetch new ones (`flutter build ios` cannot pass
 # -allowProvisioningUpdates, so it silently reused the old profile).
@@ -75,8 +78,8 @@ done
 APP="build/xc/Build/Products/Release-iphoneos/Runner.app"
 if ! flutter build ios --config-only --release --dart-define-from-file=.env >> "$LOG" 2>&1 ||
    ! xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release \
-       -destination 'generic/platform=iOS' -derivedDataPath build/xc \
-       -allowProvisioningUpdates build >> "$LOG" 2>&1; then
+       -destination "id=$UDID" -derivedDataPath build/xc \
+       -allowProvisioningUpdates -allowProvisioningDeviceRegistration build >> "$LOG" 2>&1; then
   git checkout -q -- pubspec.lock 2>/dev/null || true
   if tail -200 "$LOG" | grep -q "No Accounts"; then
     log "build FAILED: Xcode is signed out of the Apple ID"
