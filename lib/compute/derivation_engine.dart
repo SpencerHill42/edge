@@ -1823,7 +1823,13 @@ import 'vendor_sleep.dart';
 // median of the free nights (was analytics' p75), clamped to 7–9 h (was
 // 9.5), and the sleep debt is the net shortfall of the last 7 nights against
 // it (was p75 − habitual). `sleep_debt` carries the same numbers.
-const int kAlgoVersion = 115;
+// 115 → 116 (Strap Cockpit, edge-only): Garmin-export days stay out of the
+// rhr/rmssd/resp_rate/readiness baselines and the cross-day vendor-score
+// inputs (LocalDb.garminSeamKeys); their TRIMP is scaled to the band's level
+// by the ratio of the window's medians once 7 band days exist
+// (scaleGarminTrimp); a profile sleep goal (5–11 h) is the sleep need's
+// baseline and the debt is measured against it.
+const int kAlgoVersion = 116;
 /// The sibling SHAs this version was derived against, asserted against
 /// pubspec.yaml in test/db_serve_version_and_reads_test.dart.
 ///
@@ -2189,6 +2195,32 @@ bool pinnableNight({required int wakeSec, int? onsetSec}) {
 }
 
 /// The cross-day inputs an importer fills with its vendor's own scores.
+/// Strap Cockpit (2026-10-25): a Garmin-export day's TRIMP comes from 1-min HR
+/// and runs below the band's 1 Hz all-day TRIMP (130 vs 185 a day), so the
+/// training load read a normal band week as a hard one. Scale the Garmin days
+/// by the ratio of the two medians in this window, once there are 7 band days
+/// with TRIMP; before that they stay as they are. In place.
+@visibleForTesting
+void scaleGarminTrimp(List<Map<String, dynamic>> days, Set<String> garmin) {
+  double? median(Iterable<num?> xs) {
+    final v = [for (final x in xs) if (x != null && x > 0) x.toDouble()]..sort();
+    return v.isEmpty ? null : v[v.length ~/ 2];
+  }
+
+  final band = [for (final d in days) if (!garmin.contains(d['date'])) d['trimp'] as num?]
+      .where((x) => x != null && x > 0)
+      .toList();
+  if (band.length < 7) return;
+  final mb = median(band);
+  final mg = median([for (final d in days) if (garmin.contains(d['date'])) d['trimp'] as num?]);
+  if (mb == null || mg == null) return;
+  final f = mb / mg;
+  for (final d in days) {
+    final t = d['trimp'] as num?;
+    if (t != null && garmin.contains(d['date'])) d['trimp'] = t * f;
+  }
+}
+
 const _crossDayVendorScoreKeys = [
   'rhr',
   'rmssd',
@@ -2628,10 +2660,13 @@ class _BaselineHistoryCache {
     final imported = await LocalDb.importedDates();
     final foreignFamily =
         await LocalDb.foreignFamilyDates(ignore: kWearableFamilies);
+    final garmin = await LocalDb.garminExportDates();
     Future<List<_DatedValue>> hist(String key) async {
       final rows = await LocalDb.metricSeries(key);
-      final seam =
-          LocalDb.familySeamKeys.contains(key) ? foreignFamily : const <String>{};
+      final seam = {
+        if (LocalDb.familySeamKeys.contains(key)) ...foreignFamily,
+        if (LocalDb.garminSeamKeys.contains(key)) ...garmin,
+      };
       final out = <_DatedValue>[];
       for (final row in rows) {
         final date = row['date'];
@@ -6632,7 +6667,10 @@ class DerivationEngine {
     final reviewRevision = await LocalDb.activityReviewRevision();
     final rows = await LocalDb.recentDayResults(_crossDayWindow);
     final today = LocalDb.localDayLabelNow();
-    final imported = await LocalDb.importedDates();
+    // Garmin-export days count as imported for the vendor-score keys here
+    // (rhr, rmssd, readiness, resp_rate, skin temp): see LocalDb.garminSeamKeys.
+    final garmin = await LocalDb.garminExportDates();
+    final imported = {...await LocalDb.importedDates(), ...garmin};
     final (days, json) = await _runIsolateCancellable(() {
       final days = <Map<String, dynamic>>[];
       for (final row in rows.reversed) {
@@ -6647,6 +6685,7 @@ class DerivationEngine {
         );
         if (rec != null) days.add(rec);
       }
+      scaleGarminTrimp(days, garmin);
       // `built_for_day` is what makes the `is_today` stamps inside `days`
       // interpretable later. Without it the envelope carries day-relative facts
       // with no day attached, and any reader has to assume freshness.

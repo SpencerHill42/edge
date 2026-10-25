@@ -20,6 +20,10 @@ class Profile {
   // sees [toMap]) bands on the same set the zones screen shows.
   final List<int>? hrZoneBounds;
 
+  /// Strap Cockpit: the user's own sleep target in hours, the sleep need's
+  /// baseline when set (crossday_pipeline.dart). Null: estimated.
+  final double? sleepGoalHours;
+
   const Profile({
     this.ageYears,
     this.weightKg,
@@ -27,6 +31,7 @@ class Profile {
     this.sex,
     this.restingHrManual,
     this.hrZoneBounds,
+    this.sleepGoalHours,
   });
 
   static Profile fromMap(Map<String, dynamic>? m) {
@@ -38,6 +43,7 @@ class Profile {
       sex: (m['sex'] as String?)?.toLowerCase(),
       restingHrManual: (m['resting_hr'] as num?)?.round(),
       hrZoneBounds: manualZoneBoundsFromProfile(m),
+      sleepGoalHours: (m['sleep_goal_h'] as num?)?.toDouble(),
     );
   }
 
@@ -48,6 +54,7 @@ class Profile {
         if (sex != null) 'sex': sex,
         if (restingHrManual != null) 'resting_hr': restingHrManual,
         if (hrZoneBounds != null) 'hr_zone_bounds': hrZoneBounds,
+        if (sleepGoalHours != null) 'sleep_goal_h': sleepGoalHours,
       };
 
   // NO `hrMaxTanaka` HERE. It was `208 − 0.7·age` inlined on the profile, which
