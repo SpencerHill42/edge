@@ -2223,17 +2223,14 @@ class MonoTable extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(r.$1,
-                        style: F.cap
-                            .copyWith(color: p.ink3, fontFamily: 'Menlo')),
+                        style: F.cap.copyWith(color: p.ink3)),
                   ),
                   const SizedBox(width: S.x3),
                   Flexible(
                     child: Text(r.$2,
                         textAlign: TextAlign.right,
                         style: F.cap.copyWith(
-                            color: p.ink,
-                            fontFamily: 'Menlo',
-                            fontWeight: FontWeight.w600)),
+                            color: p.ink, fontWeight: FontWeight.w600)),
                   ),
                 ]),
           ),

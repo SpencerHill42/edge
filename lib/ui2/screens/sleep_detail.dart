@@ -24,6 +24,7 @@ import '../../compute/vendor_sleep.dart' show vendorStagesReported;
 import '../../data/day_label.dart';
 import '../../data/local_repository.dart';
 import '../../l10n/app_localizations.dart';
+import '../../l10n/decimal_text.dart';
 import '../../state/app_state.dart';
 import '../../state/locale_controller.dart';
 import '../../state/prefs.dart';
@@ -1271,9 +1272,8 @@ class _SleepDetailState extends State<SleepDetail> with RevisionReload {
         (l?.sleepDetailHrv ?? 'HRV', '${at('hrv')!.round()} ms', C.green),
       if (at('resp') != null)
         (l?.sleepDetailBreathing ?? 'Breathing',
-            '${at('resp')!.toStringAsFixed(1)} br/min', C.teal),
-      if (at('skin_temp') != null)
-        (l?.sleepDetailTemp ?? 'Temp', at('skin_temp')!.toStringAsFixed(2), C.orange),
+            '${displayFixed(at('resp')!, 1)} br/min', C.teal),
+      // No skin temp: an ADC-relative count is no reading (TODO 4b).
     ];
 
     return Padding(
@@ -1944,7 +1944,7 @@ class _SleepDetailState extends State<SleepDetail> with RevisionReload {
     // unlabelled lines on three invisible axes was the least readable chart
     // in the app.
     void lane(List<(int, double)> raw, String label, String unit, Color col,
-        {String Function(double) format = axisInt}) {
+        {String Function(double) format = axisInt, bool numbers = true}) {
       if (raw.isEmpty || cols == 0) return;
       final g = grid(raw);
       final present = <double>[for (final v in g) ?v];
@@ -1959,9 +1959,12 @@ class _SleepDetailState extends State<SleepDetail> with RevisionReload {
         if (v < lo) lo = v;
         if (v > hi) hi = v;
       }
-      legend.add(('$label ${format(lo)}–${format(hi)} ${uiText(c, unit)}', col));
+      legend.add((
+        numbers ? '$label ${format(lo)}–${format(hi)} ${uiText(c, unit)}' : label,
+        col
+      ));
       axes.add(AxisSpec.of(present, ticks: 2, format: format));
-      units.add(unit);
+      if (unit.isNotEmpty) units.add(unit);
     }
 
     // Solved against the card, like every other mark: raw pigment measures
@@ -1970,10 +1973,11 @@ class _SleepDetailState extends State<SleepDetail> with RevisionReload {
     lane(hr, loc?.sleepDetailHeartRate ?? 'Heart rate', 'bpm', p.on(C.red));
     lane(hrv, loc?.sleepDetailHrv ?? 'HRV', 'ms', p.on(C.green));
     lane(resp, loc?.sleepDetailBreathing ?? 'Breathing', 'br/min', p.on(C.teal));
-    // Skin temperature is ADC-relative — a deviation, never a °C. The unit
-    // says so rather than implying a thermometer.
-    lane(temp, loc?.sleepDetailSkinTemp ?? 'Skin temp', 'rel', p.on(C.orange),
-        format: axisFixed);
+    // Skin temperature is ADC-relative — a deviation, never a °C. Strap
+    // Cockpit (TODO 4b): its numbers ("-253,5–174,9 rel", "136.20") meant
+    // nothing to a reader, so the lane is the curve alone.
+    lane(temp, loc?.sleepDetailSkinTemp ?? 'Skin temp', '', p.on(C.orange),
+        format: axisFixed, numbers: false);
 
     if (series.isEmpty) {
       return summary.isEmpty

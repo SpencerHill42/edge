@@ -1063,7 +1063,7 @@ class _InvestigateState extends State<Investigate> {
             const SizedBox(height: S.x3),
             Text(
               uiText(c, spec.citation),
-              style: F.over.copyWith(color: p.ink3, fontFamily: 'Menlo'),
+              style: F.over.copyWith(color: p.ink3),
             ),
           ],
         ],
