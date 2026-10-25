@@ -212,6 +212,7 @@ const _notComponents = {
   'StravaScreen', 'StravaStatusRow',
   // Gesundheit › Erkunden › weight / body fat: a screen that reads the DB.
   'BodyTrendDetail',
+  'LabDetail',
   'NotificationSettings', 'NotificationSettingsView', 'EditProfile',
   'EditProfileView', 'DataScreen', 'AlarmScreen', 'AlarmScreenView',
   'ReportIssueScreen',

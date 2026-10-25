@@ -15866,5 +15866,27 @@
   "labMarkerBilirubin": "Bilirubin",
   "@labMarkerBilirubin": {
     "description": "Lab marker name (Bilirubin)."
-  }
+  },
+  "labDetailHistory": "History",
+  "@labDetailHistory": {"description": "Lab marker detail screen."},
+  "labDetailDraws": "Results",
+  "@labDetailDraws": {"description": "Lab marker detail screen."},
+  "labDetailEmpty": "No result for this marker any more.",
+  "@labDetailEmpty": {"description": "Lab marker detail screen."},
+  "labDetailRemoveHint": "Swipe left to remove a result.",
+  "@labDetailRemoveHint": {"description": "Lab marker detail screen."},
+  "labDetailAround": "Around the blood draw",
+  "@labDetailAround": {"description": "Lab marker detail screen."},
+  "labDetailAroundBody": "Your sensors in the 7 days up to each draw, next to your usual (the 60 days before). Side by side only: a few draws are too few to compute a relationship.",
+  "@labDetailAroundBody": {"description": "Lab marker detail screen."},
+  "labDetailNoSensors": "No sensor data for this date.",
+  "@labDetailNoSensors": {"description": "Lab marker detail screen."},
+  "labDetailUsual": "usual {value}",
+  "@labDetailUsual": {"description": "Lab marker detail screen.", "placeholders": {"value": {"type": "String"}}},
+  "labDetailTraining3d": "Training, 3 days before",
+  "@labDetailTraining3d": {"description": "Lab marker detail screen."},
+  "labDetailNoTraining": "none",
+  "@labDetailNoTraining": {"description": "Lab marker detail screen."},
+  "labDetailSessions": "{count} × · {minutes} min",
+  "@labDetailSessions": {"description": "Lab marker detail screen.", "placeholders": {"count": {"type": "int"}, "minutes": {"type": "int"}}}
 }

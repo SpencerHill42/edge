@@ -34,6 +34,7 @@ import 'investigate.dart';
 import 'metric_detail.dart';
 import 'wellness_screen.dart';
 import 'body_trend.dart';
+import 'lab_detail.dart';
 
 /// A read this screen can live without. The wear block and the nap block are
 /// ADDITIONS to the repository interface, so an implementation written before
@@ -1506,6 +1507,7 @@ class _HealthScreenState extends State<HealthScreen> with RevisionReload {
             for (var i = 0; i < rows.length; i++) ...[
               if (i > 0) Divider(color: p.line, height: 1),
               _lab(p, byKey[rows[i]['marker'].toString()], rows[i], sex,
+                  () => _openLab(c, byKey[rows[i]['marker'].toString()], sex),
                   () => _removeResult(byKey[rows[i]['marker'].toString()],
                       rows[i], l)),
             ],
@@ -1540,25 +1542,35 @@ class _HealthScreenState extends State<HealthScreen> with RevisionReload {
       ? m.label
       : uiText(context, m.label);
 
+  /// Strap Cockpit: a row opens the marker's history (lab_detail.dart).
+  void _openLab(BuildContext c, LabMarker? m, String? sex) {
+    if (m == null) return;
+    go(
+        c,
+        LabDetail(m, sex: sex, remove: (r) async {
+          final l = _l;
+          if (l != null) await _removeResult(m, r, l);
+        }));
+  }
+
   Widget _lab(P p, LabMarker? m, Map<String, dynamic> r, String? sex,
-      VoidCallback onRemove) {
+      VoidCallback onOpen, VoidCallback onRemove) {
     final l = AppLocalizations.of(context);
     final v = (r['value'] as num?)?.toDouble();
     final unit = (r['unit'] ?? m?.unit ?? '').toString();
     final range = m?.rangeFor(sex);
     final inRange = v == null || m == null ? null : m.inRange(v, sex: sex);
 
-    // The whole row is the control, with the bin as its affordance — the same
-    // shape a logged meal takes, and it costs no width, which at 3x text is
-    // the difference between a row that fits and one that overflows.
-    return Pressable(
-      onTap: onRemove,
-      semanticLabel:
-          l?.healthRemoveMarkerFrom(
-            _markerName(m, r['marker'].toString()),
-            r['taken_on'].toString(),
-          ) ??
-          'Remove ${m?.label ?? r['marker']} from ${r['taken_on']}',
+    // Strap Cockpit: the row opens the marker's history (lab_detail.dart);
+    // only the bin removes. The whole row used to be the delete control.
+    final removeLabel = l?.healthRemoveMarkerFrom(
+          _markerName(m, r['marker'].toString()),
+          r['taken_on'].toString(),
+        ) ??
+        'Remove ${m?.label ?? r['marker']} from ${r['taken_on']}';
+    final open = Pressable(
+      onTap: onOpen,
+      semanticLabel: _markerName(m, r['marker'].toString()),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: S.x3),
         child: Row(children: [
@@ -1596,7 +1608,7 @@ class _HealthScreenState extends State<HealthScreen> with RevisionReload {
           const SizedBox(width: S.x2),
           ...() {
             final reading = [
-              Text(v == null ? '' : (m?.format(v) ?? v.toString()),
+              Text(v == null ? '' : (m == null ? v.toString() : labNum(m, v)),
                   style: F.n17.copyWith(
                       color: inRange == false ? p.on(C.orange) : p.ink)),
               const SizedBox(width: 3),
@@ -1617,13 +1629,22 @@ class _HealthScreenState extends State<HealthScreen> with RevisionReload {
                     children: reading),
             ];
           }(),
-          // This is the user's own blood work in an app that keeps it on their
-          // phone; being able to take it back out is the premise, not a setting.
-          const SizedBox(width: S.x2),
-          Icon(LucideIcons.trash2, size: 16, color: p.ink3),
         ]),
       ),
     );
+    return Row(children: [
+      Expanded(child: open),
+      // This is the user's own blood work in an app that keeps it on their
+      // phone; being able to take it back out is the premise, not a setting.
+      Pressable(
+        onTap: onRemove,
+        semanticLabel: removeLabel,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(S.x3, S.x3, 0, S.x3),
+          child: Icon(LucideIcons.trash2, size: 16, color: p.ink3),
+        ),
+      ),
+    ]);
   }
 
   /// One reading of one marker on one date. Named in full before it goes:
@@ -1754,8 +1775,11 @@ class _HealthScreenState extends State<HealthScreen> with RevisionReload {
     await _loadLabs();
   }
 
-  String _num(double v) =>
-      v == v.roundToDouble() ? v.round().toString() : v.toStringAsFixed(1);
+  // Up to two decimals, display decimal mark: "0.7–1.4" hid a 0.74 floor, so
+  // a creatinine of 0.70 read as inside the printed range and was flagged.
+  String _num(double v) => v == v.roundToDouble()
+      ? v.round().toString()
+      : displayFixed(v, (v * 10).roundToDouble() == v * 10 ? 1 : 2);
 
   /// Deliberately plain. Entering blood work is a rare, careful act; it does
   /// not need a designed flow, it needs the marker, the number and the date.
