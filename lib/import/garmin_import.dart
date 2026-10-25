@@ -17,7 +17,17 @@
 //   UDSFile_*.json              → steps, that day's resting HR
 //   MetricsMaxMetData_*.json    → VO2max
 //   *_summarizedActivities.json → sessions
+//   turbo_garmin_derived.json   → OUR numbers for those days (see below)
 // A ZIP of the export (or of those files) works too.
+//
+// OUR NUMBERS (Armin, 2026-10-25). `test/garmin_history_replay_test.dart`
+// runs the export's monitoring FIT files (1-min HR) through the real Garmin
+// path and our engine. Compared with Garmin's own metrics over two years,
+// resting HR (r 0.84) and strain (7-day sum vs acute load, r 0.70) held up;
+// sleep from 1-min HR alone and the HR-only readiness did not. So that file
+// carries only [_derivedKeys], and a day takes them over Garmin's resting HR:
+// strain and its baselines learn two years of training, sleep and HRV stay
+// Garmin's measurements.
 
 import 'dart:convert';
 import 'dart:io';
@@ -39,7 +49,14 @@ class GarminImportResult {
   const GarminImportResult(this.days, this.workouts, this.skippedExistingDays);
 }
 
-enum _GarminFile { sleep, healthStatus, daily, maxMet, activities }
+enum _GarminFile { sleep, healthStatus, daily, maxMet, activities, derived }
+
+/// What `turbo_garmin_derived.json` may set on a day: our resting HR and
+/// strain with the series strain's own baselines read.
+const _derivedKeys = {
+  'rhr', 'rhr_nocturnal', 'sleeping_hr_nadir', 'dip_pct', 'waking_hr',
+  'strain', 'trimp', 'trimp_net', 'quiet_hrr', 'max_hr_used', 'worn_min',
+};
 
 _GarminFile? _kindOf(String name) {
   final base = p.basename(name);
@@ -55,6 +72,7 @@ _GarminFile? _kindOf(String name) {
   if (base.endsWith('_summarizedActivities.json')) {
     return _GarminFile.activities;
   }
+  if (base == 'turbo_garmin_derived.json') return _GarminFile.derived;
   return null;
 }
 
@@ -137,8 +155,25 @@ class GarminImporter {
     final days = <String, Map<String, num?>>{};
     Map<String, num?> day(String d) => days.putIfAbsent(d, () => {});
     final activities = <Map<String, dynamic>>[];
+    final derived = <String, Map<String, double>>{};
 
     for (final (kind, json) in docs) {
+      if (kind == _GarminFile.derived) {
+        // {"2025-03-04": {"strain": 9.1, ...}, ...}
+        if (json is! Map) continue;
+        for (final MapEntry(:key, :value) in json.entries) {
+          if (key is! String || value is! Map) continue;
+          final keep = <String, double>{
+            for (final MapEntry(key: k, value: v) in value.entries)
+              if (_derivedKeys.contains(k) && v is num && v.isFinite)
+                k as String: v.toDouble(),
+          };
+          if (keep.isEmpty) continue;
+          derived[key] = keep;
+          day(key); // a day with only our numbers is still a day
+        }
+        continue;
+      }
       for (final r in _records(json, kind)) {
         switch (kind) {
           case _GarminFile.sleep:
@@ -183,6 +218,8 @@ class GarminImporter {
             if (d != null && v != null && v > 0) day(d)['vo2max'] = v;
           case _GarminFile.activities:
             activities.add(r);
+          case _GarminFile.derived:
+            break; // read above
         }
       }
     }
@@ -199,7 +236,9 @@ class GarminImporter {
         kept++;
         continue;
       }
-      await _writeDay(e.key, e.value, finalized: !rawDays.contains(e.key));
+      await _writeDay(e.key, e.value,
+          ours: derived[e.key] ?? const {},
+          finalized: !rawDays.contains(e.key));
       written++;
     }
     for (final a in activities) {
@@ -235,9 +274,11 @@ class GarminImporter {
   static Future<void> _writeDay(
     String date,
     Map<String, num?> f, {
+    Map<String, double> ours = const {},
     required bool finalized,
   }) async {
-    final rhr = f['rhr'], rmssd = f['rmssd'], resp = f['resp'];
+    // Our resting HR (from the watch's 1-min HR) over Garmin's daily value.
+    final rhr = ours['rhr'] ?? f['rhr'], rmssd = f['rmssd'], resp = f['resp'];
     final steps = f['steps'], vo2max = f['vo2max'];
     final tst = f['tst'];
     num? min(num? s) => s == null ? null : s / 60;
@@ -280,6 +321,7 @@ class GarminImporter {
       'deep_min': min(f['deep'])?.toDouble(),
       'light_min': min(f['light'])?.toDouble(),
       'efficiency': (acct?['efficiency_pct'] as num?)?.toDouble(),
+      ...ours,
     };
     final bundle = <String, dynamic>{
       'date': date,
@@ -288,7 +330,10 @@ class GarminImporter {
       'imported': true,
       'source': 'garmin_export',
       'day_confidence': 0.7,
-      'flags': const ['IMPORTED_GARMIN'],
+      'flags': [
+        'IMPORTED_GARMIN',
+        if (ours.isNotEmpty) 'DERIVED_FROM_GARMIN_RAW',
+      ],
       'clinical': {
         if (rmssd != null) 'hrv_time': env({'rmssd': rmssd}),
         if (rhr != null) 'resting_hr': env({'low30Mean': rhr}),
