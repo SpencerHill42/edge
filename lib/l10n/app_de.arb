@@ -3389,5 +3389,16 @@
   "labMarkerEsr": "Blutsenkung",
   "labMarkerGgt": "Gamma-GT",
   "labMarkerLdh": "LDH",
-  "labMarkerBilirubin": "Bilirubin"
+  "labMarkerBilirubin": "Bilirubin",
+  "labDetailHistory": "Verlauf",
+  "labDetailDraws": "Werte",
+  "labDetailEmpty": "Zu diesem Marker gibt es keinen Wert mehr.",
+  "labDetailRemoveHint": "Zum Löschen eines Werts nach links wischen.",
+  "labDetailAround": "Rund um die Blutabnahme",
+  "labDetailAroundBody": "Deine Sensorwerte der 7 Tage bis zur Blutabnahme, neben deinem Üblichen (die 60 Tage davor). Nur nebeneinander: Für einen berechneten Zusammenhang sind ein paar Blutabnahmen zu wenig.",
+  "labDetailNoSensors": "Keine Sensordaten zu diesem Termin.",
+  "labDetailUsual": "üblich {value}",
+  "labDetailTraining3d": "Training, 3 Tage davor",
+  "labDetailNoTraining": "keins",
+  "labDetailSessions": "{count} × · {minutes} Min."
 }

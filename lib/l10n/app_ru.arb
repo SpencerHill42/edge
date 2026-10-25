@@ -7575,5 +7575,18 @@
   "labMarkerEsr": "СОЭ",
   "labMarkerGgt": "ГГТ",
   "labMarkerLdh": "ЛДГ",
-  "labMarkerBilirubin": "Билирубин"
+  "labMarkerBilirubin": "Билирубин",
+  "labDetailHistory": "История",
+  "labDetailDraws": "Результаты",
+  "labDetailEmpty": "Для этого показателя больше нет результатов.",
+  "labDetailRemoveHint": "Чтобы удалить результат, смахните влево.",
+  "labDetailAround": "Вокруг сдачи крови",
+  "labDetailAroundBody": "Показания датчиков за 7 дней до сдачи крови рядом с вашими обычными (60 дней до этого). Только для сравнения: нескольких анализов слишком мало, чтобы вычислить связь.",
+  "labDetailNoSensors": "Нет данных датчиков на эту дату.",
+  "labDetailUsual": "обычно {value}",
+  "@labDetailUsual": {"placeholders": {"value": {"type": "String"}}},
+  "labDetailTraining3d": "Тренировки за 3 дня до",
+  "labDetailNoTraining": "нет",
+  "labDetailSessions": "{count} × · {minutes} мин",
+  "@labDetailSessions": {"placeholders": {"count": {"type": "int"}, "minutes": {"type": "int"}}}
 }
