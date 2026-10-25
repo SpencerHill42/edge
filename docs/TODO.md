@@ -113,6 +113,11 @@ changed" in `CLAUDE.md`.
   fehlen" with a tap into Profil bearbeiten) instead of a bare "–".
 - **Done when:** age and sex survive restart, Garmin import, Health import and
   an Xcode reinstall; a regression test covers the merge.
+- **Done 2026-10-25 (PR #26):** a launch race. `_syncWeight` (post-frame)
+  could call `updateProfile` before `AppState._loadProfile` had read the
+  stored profile, so `user` was null and the profile was saved as the weight
+  alone. `updateProfile` now merges onto the stored profile until the load
+  has run; `test/profile_launch_race_test.dart` fails without the fix.
 
 ### 4. Detail values in the wrong font, method texts in English
 
@@ -127,6 +132,10 @@ changed" in `CLAUDE.md`.
   English and not in the ARB files. Example: Aktive Energie › METHODE
   "Heart-rate-to-energy regression over the waking span…". Translate them via
   l10n (the citation line already is).
+- **Done 2026-10-25 (PR #26):** Menlo removed (metric detail rows,
+  investigate citation). All but three method texts were already in
+  `display_text.dart`; HRV, breathing and HRV stability now have de and ru
+  (`investigateMethod*`).
 
 ### 4b. Sleep screen: skin temperature shown as raw numbers
 
@@ -135,6 +144,9 @@ or `-140.00`, and the legend reads "Hauttemp. -253,5–174,9 rel". These are
 raw ADC-relative values with a dot decimal and no meaning to a reader
 (screenshots 2026-10-18). Show the deviation from his own night baseline
 instead, or leave the number out and keep only the curve. Use a German comma.
+
+**Done 2026-10-25 (PR #26):** the lane is the curve alone (no numbers in the
+legend or the scrub card); breathing in the scrub card uses the comma.
 
 ### 5. Design QA
 
@@ -315,6 +327,28 @@ training readiness, stress), which time series (HR, stress, sleep movement),
 and whether any raw signal exists. Write the result into this file. Everything
 below depends on it.
 
+**Done 2026-10-25.** Besides the JSON summaries (sleep with Garmin's sleep
+score and 11 sub-scores, Training Readiness with its 6 factor percents,
+acute/chronic load, body battery and all-day stress in the UDS files, HRV
+status, MaxMet/VO2max, fitness age, endurance/hill score) the export holds
+**12,164 FIT files** in `DI-Connect-Uploaded-Files`: `monitoring_b` with
+**1-minute heart rate on 635 days** (2024-10-16 to 2026-10-13, median 1,187
+samples a day), stress, steps and intensity; activity files with 1 s records;
+and newer message types (370/371 look like the HRV status summary and the
+overnight 5-min HRV values; 397/398 likely skin temperature). No
+beat-to-beat RR outside workouts. Reproduction checks (holdout = newest
+100 nights or newest quarter):
+- Sleep score from its own sub-scores: MAE 1.5 points (96 % within ±5).
+  From raw night values (duration, stages, awake, restlessness, sleep
+  stress): MAE 3.1 (77 % within ±5); without Garmin's sleep stress 4.4.
+  Guessing the mean: 7.6.
+- Training Readiness from its 6 factors: MAE 10 (guessing 28), dominated by
+  recovery time; intraday re-scores make it noisy. Not reproducible enough.
+- Acute load vs a plain 7-day sum of activity training loads: r = 0.83.
+- Biggest lever: the 1-minute HR is exactly what the Garmin wearable path
+  (`garmin_inputs.dart`, synthetic_garmin_day_test) derives from, so OUR
+  algorithms could be run over two years of Garmin nights.
+
 ### 11. Garmin sleep score: reproduce it, maybe
 
 Fit Garmin's score on Garmin's own nightly inputs (duration, stage minutes,
@@ -350,6 +384,12 @@ training load / acute load, training effect, body battery drain, stress). Put
 it next to our 0–21 strain over the history, then see whether it can be
 reproduced from the HR data we have. Write down which Garmin metric it is and
 why before building anything.
+
+## New from Cowork (Armin, 2026-10-25)
+
+- Pill navigation from the reel (design, needs the reference).
+- Better coach model: day context, an event table, test questions.
+- Sleep note 0–100 as a second value beside the ring (see item 11).
 
 ## Open decisions (ask Armin, bundled in one question)
 
