@@ -106,6 +106,18 @@ phone's log: `idevicesyslog -u 00008120-0009588236D8C01E -m healthkit`
   (`~/Library/Application Support/TurboHealthRenew/last_install`) is 4+ days
   old and the phone is reachable, so a missed night is retried within hours
   and there are 3 days of slack before the 7-day signature runs out.
+- The 7 days are the PROVISIONING PROFILE's, not the install's. Until
+  2026-10-25 the script used `flutter build ios`, which cannot pass
+  `-allowProvisioningUpdates`, so every renewal re-used the profile from the
+  first install and the app stopped opening on that profile's date. Now it
+  moves the cached profiles for the bundle aside, builds with
+  `flutter build ios --config-only` + `xcodebuild -allowProvisioningUpdates`
+  (app in `build/xc/Build/Products/Release-iphoneos/`), refuses to install a
+  profile with under 6 days left, and is due when the stored expiry
+  (`profile_expires`) is under 48 h away.
+- It needs Armin's Apple ID signed in under Xcode → Settings → Accounts. When
+  that session lapses the build fails with "No Accounts" and the notification
+  says so; only Armin can sign in again.
 - Wi-Fi: Xcode 15+ reaches a once-paired iPhone on the same network by
   itself (no "Connect via network" box any more); `devicectl` then shows
   `Transport Type: localNetwork`. Needs the Mac awake and logged in and the
