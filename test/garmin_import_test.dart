@@ -104,6 +104,12 @@ void main() {
         },
       ],
       'DI_CONNECT/DI-Connect-Uploaded-Files/ignored.json': {'x': 1},
+      // Our engine's numbers off the watch's 1-min HR: they win on rhr and
+      // add strain; anything outside the allowed keys is dropped.
+      'turbo_garmin_derived.json': {
+        '2026-10-02': {'rhr': 47.0, 'strain': 9.5, 'trimp': 120.0, 'tst_min': 1.0},
+        '2026-10-03': {'strain': 3.0},
+      },
     };
     final archive = Archive();
     for (final e in files.entries) {
@@ -131,7 +137,7 @@ void main() {
     final rhr = await LocalDb.metricSeries('rhr', measuredOnly: true);
     expect(
       rhr.where((x) => x['date'] == '2026-10-02').single['value'],
-      48, // the day's own reading, not Garmin's 7-day average
+      47, // ours over Garmin's daily value
     );
     final day = jsonDecode(
         (await LocalDb.dayResult('2026-10-02'))!['payload_json'] as String);
@@ -141,6 +147,14 @@ void main() {
     expect(s['vo2max'], 55);
     expect(s['tst_min'], 420);
     expect(s['resp_rate'], 15);
+    expect(s['strain'], 9.5);
+    expect(s['trimp'], 120);
+    expect(s['tst_min'], 420, reason: 'sleep stays Garmin\'s');
+    expect(day['flags'], contains('DERIVED_FROM_GARMIN_RAW'));
+    final strain = await LocalDb.metricSeries('strain', measuredOnly: true);
+    expect(strain.where((x) => x['date'] == '2026-10-02').single['value'], 9.5);
+    // A band-measured day keeps its own numbers.
+    expect(strain.where((x) => x['date'] == '2026-10-03'), isEmpty);
 
     final session = await LocalDb.session('garmin_1');
     expect(session!['type'], 'padel');
