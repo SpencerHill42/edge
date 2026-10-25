@@ -24,6 +24,7 @@ import '../../health/health_export.dart' show HealthLinkState;
 import '../../health/health_import_state.dart';
 import '../../health/health_profile_import.dart';
 import '../../l10n/app_localizations.dart';
+import '../../l10n/decimal_text.dart';
 import '../../platform/tasker_bridge.dart';
 import '../../notify/notification_prefs.dart';
 import '../../notify/notification_service.dart';
@@ -1453,6 +1454,12 @@ class _EditProfileViewState extends State<EditProfileView> {
   late final _weight =
       TextEditingController(text: _u.weightField(widget.initial['weight_kg'] as num?));
   late String? _sex = (widget.initial['sex'] as String?)?.toLowerCase();
+  // Strap Cockpit: the sleep target in hours, typed with comma or point.
+  late final _sleepGoal = TextEditingController(
+      text: switch (widget.initial['sleep_goal_h']) {
+        final num g => displayFixed(g, g == g.roundToDouble() ? 0 : 1),
+        _ => '',
+      });
 
   /// When the store last gave us something. Null is "never", which is also
   /// what an unreadable preference reads as — the first-run word on the button
@@ -1533,10 +1540,15 @@ class _EditProfileViewState extends State<EditProfileView> {
     final age = Typed.of(_age.text);
     final height = Typed.of(_height.text);
     final weight = Typed.of(_weight.text);
+    final sleepGoal = Typed.of(_sleepGoal.text.replaceAll(',', '.'));
+    final goalBad = sleepGoal.bad ||
+        (sleepGoal.value != null &&
+            (sleepGoal.value! < 5 || sleepGoal.value! > 11));
     final bad = [
       if (age.bad) (l?.settingsAgeFieldLabel ?? 'Age'),
       if (height.bad) uiText(context, _u.heightLabel),
       if (weight.bad) uiText(context, _u.weightLabel),
+      if (goalBad) (l?.settingsSleepGoalFieldLabel ?? 'SLEEP GOAL (HOURS)'),
     ];
     if (bad.isNotEmpty) {
       sayUnreadable(context, bad);
@@ -1549,6 +1561,7 @@ class _EditProfileViewState extends State<EditProfileView> {
       // Typed in the units on the label, stored in metric.
       'height_cm': height.value == null ? null : _u.heightToCm(_height.text),
       'weight_kg': weight.value == null ? null : _u.weightToKg(_weight.text),
+      'sleep_goal_h': sleepGoal.value,
     });
   }
 
@@ -1633,6 +1646,18 @@ class _EditProfileViewState extends State<EditProfileView> {
                         : uiText(c, _u.weightLabel).toUpperCase(),
                     TextInputType.number,
                   ),
+                  const SizedBox(height: S.x4),
+                  _text(
+                    c,
+                    _sleepGoal,
+                    l?.settingsSleepGoalFieldLabel ?? 'SLEEP GOAL (HOURS)',
+                    const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  const SizedBox(height: S.x1),
+                  Text(
+                      l?.settingsSleepGoalHint ??
+                          'The base of your sleep need. Empty: estimated from your free nights.',
+                      style: F.over.copyWith(color: p.ink3)),
                   ..._importBlock(p, c),
                   const SizedBox(height: S.x6),
                 StatusCard(

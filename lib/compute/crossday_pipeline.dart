@@ -175,7 +175,12 @@ Map<String, dynamic> buildCrossDayBundle(
   final recentDurH = allDurH.length <= 7
       ? allDurH
       : allDurH.sublist(allDurH.length - 7);
-  final sleepDebt = cockpitSleepDebt(recentDurH, freeDurH);
+  // Strap Cockpit (Armin, 2026-10-25): his own sleep target, when set, is the
+  // baseline the need and the debt are measured against.
+  final goalRaw = (profile['sleep_goal_h'] as num?)?.toDouble();
+  final sleepGoalH =
+      goalRaw != null && goalRaw >= 5 && goalRaw <= 11 ? goalRaw : null;
+  final sleepDebt = cockpitSleepDebt(recentDurH, freeDurH, goal: sleepGoalH);
 
   // ── percentile-of-you for today vs history (history = all-but-last) ────────
   // rhr is LOWER-is-better — the same orientation `_glassInput` ten lines below
@@ -305,9 +310,10 @@ Map<String, dynamic> buildCrossDayBundle(
   // that the need is absent and the ring shows hours without a target.
   const minFreeNightConfidence = 0.8;
   final freeNightsSoFar = (sleepDebt.confidence * 5).round();
-  final osdH = sleepDebt.present && sleepDebt.confidence >= minFreeNightConfidence
-      ? sleepDebt.value!.osdHours
-      : null;
+  final osdH = sleepGoalH ??
+      (sleepDebt.present && sleepDebt.confidence >= minFreeNightConfidence
+          ? sleepDebt.value!.osdHours
+          : null);
   // Personal optimal sleep duration, floored/capped to a physiological band:
   // the OSD estimate is noisy with few nights and can read implausibly low
   // (e.g. 5.6 h), which would push the recommended bedtime far too late. Adults
@@ -320,7 +326,9 @@ Map<String, dynamic> buildCrossDayBundle(
   // screen saying so. Absent input yields an absent metric; the coach fills in
   // once enough nights exist to estimate an OSD.
   final double? baselineNeedSec =
-      osdH == null ? null : (osdH.clamp(7.0, 9.0)) * 3600.0;
+      osdH == null
+          ? null
+          : (sleepGoalH ?? osdH.clamp(7.0, 9.0)) * 3600.0;
   // Strap Cockpit: at most one hour of debt is put on a single night; sleep
   // debt is paid back over several nights, not in one ([cockpitSleepDebt]).
   final debtSec = math.min(
@@ -720,8 +728,9 @@ double? _todayNum(List<Map<String, dynamic>> days, String key) {
 /// Same confidence as analytics (free nights / 5, 0.3–0.85).
 ana.Metric<ana.SleepDebt> cockpitSleepDebt(
   List<double> recentH,
-  List<double> freeH,
-) {
+  List<double> freeH, {
+  double? goal,
+}) {
   const inputs = ['sleep_duration_recent', 'sleep_duration_free'];
   if (recentH.length < 3) {
     return const ana.Metric<ana.SleepDebt>.absent(
@@ -731,6 +740,19 @@ ana.Metric<ana.SleepDebt> cockpitSleepDebt(
     );
   }
   final habitual = _median(recentH)!;
+  if (goal != null) {
+    // The user's own target: no free nights needed, full confidence in what
+    // the target is (the debt against it is still measured).
+    final short = recentH.fold<double>(0, (sum, h) => sum + (goal - h));
+    return ana.Metric<ana.SleepDebt>(
+      value: ana.SleepDebt(goal, habitual, math.max(0.0, short), freeH.isNotEmpty),
+      confidence: 0.85,
+      tier: ana.Tier.high,
+      inputs_used: [...inputs, 'sleep_goal'],
+      note: 'your sleep goal; debt = net shortfall of the last '
+          '${recentH.length} nights against it',
+    );
+  }
   if (freeH.isEmpty) {
     return ana.Metric<ana.SleepDebt>(
       value: ana.SleepDebt(null, habitual, null, false),

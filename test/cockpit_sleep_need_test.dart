@@ -26,4 +26,11 @@ void main() {
     expect(m.value!.osdHours, isNull);
     expect(m.confidence, 0.3);
   });
+
+  test('a sleep goal is the baseline, no free nights needed', () {
+    final m = cockpitSleepDebt([7.5, 8.0, 7.0], const [], goal: 8);
+    expect(m.value!.osdHours, 8);
+    expect(m.value!.debtHours, closeTo(1.5, 1e-9));
+    expect(m.confidence, 0.85);
+  });
 }

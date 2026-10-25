@@ -9861,6 +9861,26 @@ class LocalDb {
   /// difference behind it.
   static const Set<String> familySeamKeys = {'skin_temp_adc'};
 
+  /// Strap Cockpit (2026-10-25): keys whose Garmin-export days stay out of
+  /// the baselines after all. Next to two weeks of the band, the Garmin years
+  /// read RMSSD 86 vs 100 ms, breathing 14.4 vs 15.8 /min and resting HR 48.7
+  /// vs 46.0 bpm (ours off 1-min HR), so every band night scored against them
+  /// (breathing at the 1st percentile, a 41 % recovery after two rest days).
+  /// Strain, TRIMP, quiet HRR and sleep keep the Garmin years.
+  static const Set<String> garminSeamKeys = {
+    'rhr', 'rmssd', 'resp_rate', 'readiness', 'readiness_z', 'ln_rmssd',
+  };
+
+  /// Days whose scalars came from a Garmin export ([garminSeamKeys]).
+  static Future<Set<String>> garminExportDates() async {
+    final db = await instance;
+    return {
+      for (final r in await db.rawQuery(
+          "SELECT date FROM metric_series_version WHERE source = 'garmin_export'"))
+        r['date'] as String,
+    };
+  }
+
   /// Day labels whose scalars were measured by a DIFFERENT band family than the
   /// most recent stamped day — the mask for [familySeamKeys] baselines.
   ///
