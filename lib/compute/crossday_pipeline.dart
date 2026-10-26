@@ -345,6 +345,16 @@ Map<String, dynamic> buildCrossDayBundle(
   }) =>
       baselineNeedSec == null
           ? noOsd
+          // Strap Cockpit (Armin, 2026-10-26): with a sleep goal the need IS
+          // the goal — no debt, strain or nap terms on top.
+          : sleepGoalH != null
+          ? ana.Metric<ana.SleepNeed>(
+              value: ana.SleepNeed(sleepGoalH * 3600.0),
+              confidence: 1.0,
+              tier: ana.Tier.high,
+              inputs_used: const ['sleep_goal'],
+              note: 'your sleep goal',
+            )
           : ana.sleepNeed(
               baselineNeedSec: baselineNeedSec,
               sleepDebtSec: debtSec < 0 ? 0.0 : debtSec,
