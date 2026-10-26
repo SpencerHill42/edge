@@ -1397,16 +1397,9 @@ class EditProfile extends StatelessWidget {
         // profile map is a merge, so writing only what is present would keep
         // a stale value alive and score the day against a body that is no
         // longer described.
-        await app.updateProfile({
-          for (final k in const [
-            'name',
-            'sex',
-            'age',
-            'height_cm',
-            'weight_kg',
-          ])
-            k: fields[k],
-        });
+        // The form sends every one of its fields, a cleared one as null, so
+        // the map is passed whole: a list kept here dropped the sleep goal.
+        await app.updateProfile(Map.of(fields));
         if (c.mounted) Navigator.of(c).maybePop();
       },
     );
