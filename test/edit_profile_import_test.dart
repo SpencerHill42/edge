@@ -96,4 +96,18 @@ void main() {
     expect(find.textContaining('Import from '), findsOneWidget);
     expect(find.textContaining('Refresh from '), findsNothing);
   });
+
+  testWidgets('the sleep goal is saved, with a decimal comma', (t) async {
+    Map<String, dynamic>? saved;
+    await pump(
+        t,
+        EditProfileView(
+            initial: _initial, onSave: (f) async => saved = f));
+    final goal = find.byType(TextField).last;
+    await t.enterText(goal, '7,5');
+    await t.tap(find.text('Save'));
+    await t.pumpAndSettle();
+    expect(saved?['sleep_goal_h'], 7.5);
+    expect(saved?['weight_kg'], 72.4, reason: 'the other fields ride along');
+  });
 }
