@@ -3,6 +3,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openstrap_edge/compute/crossday_pipeline.dart';
+import 'package:openstrap_edge/compute/inputs/garmin_inputs.dart' show at;
 
 void main() {
   test('median of free nights, net 7-night shortfall', () {
@@ -32,5 +33,18 @@ void main() {
     expect(m.value!.osdHours, 8);
     expect(m.value!.debtHours, closeTo(1.5, 1e-9));
     expect(m.confidence, 0.85);
+  });
+
+  test('with a sleep goal the need is the goal, no debt or strain on top', () {
+    final days = [
+      for (var i = 1; i <= 10; i++)
+        {
+          'date': '2026-10-${i.toString().padLeft(2, '0')}',
+          'tst_min': 380.0, // short nights: a debt that would otherwise count
+          'strain': 18.0,
+        },
+    ];
+    final cd = buildCrossDayBundle(days, {'sleep_goal_h': 8.0});
+    expect(at(cd, ['sleep_coach', 'need', 'value', 'need_sec']), 8 * 3600);
   });
 }

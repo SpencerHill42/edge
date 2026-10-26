@@ -1829,6 +1829,9 @@ import 'vendor_sleep.dart';
 // by the ratio of the window's medians once 7 band days exist
 // (scaleGarminTrimp); a profile sleep goal (5–11 h) is the sleep need's
 // baseline and the debt is measured against it.
+// (no bump) With a profile sleep goal the need is the goal itself, no debt,
+// strain or nap terms (Armin, 2026-10-26). Cross-day only, rebuilt every
+// pass; no stored day changes.
 const int kAlgoVersion = 116;
 /// The sibling SHAs this version was derived against, asserted against
 /// pubspec.yaml in test/db_serve_version_and_reads_test.dart.
