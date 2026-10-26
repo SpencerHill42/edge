@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../../l10n/display_text.dart';
 // Settings, and editing the profile.
 //
@@ -1399,7 +1401,10 @@ class EditProfile extends StatelessWidget {
         // longer described.
         // The form sends every one of its fields, a cleared one as null, so
         // the map is passed whole: a list kept here dropped the sleep goal.
+        final goalBefore = app.user?['sleep_goal_h'];
         await app.updateProfile(Map.of(fields));
+        // The sleep need reads the goal in the cross-day rollup.
+        if (fields['sleep_goal_h'] != goalBefore) unawaited(app.rebuildRollups());
         if (c.mounted) Navigator.of(c).maybePop();
       },
     );

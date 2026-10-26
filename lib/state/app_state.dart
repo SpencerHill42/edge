@@ -2352,6 +2352,19 @@ class AppState extends ChangeNotifier {
   /// Empty when idle. Updated per-day as the sweep advances.
   String reanalyzeProgress = '';
 
+  /// Strap Cockpit: rebuild the cross-day rollup (sleep need, load, readiness
+  /// glass box) for a profile change that moves it, such as the sleep goal,
+  /// instead of waiting for the next sync's derive.
+  Future<void> rebuildRollups() async {
+    try {
+      await _derive.finalizeImport(_profile);
+    } catch (e) {
+      _log('[derive] rollup rebuild failed: $e');
+    }
+    bumpInsights();
+    notifyListeners();
+  }
+
   /// Force-derive [days] (a wearable was enabled, disabled or switched), then
   /// refresh. Waits out a pass already running rather than dropping the ask.
   Future<void> rederiveDays(Set<String> days) async {
